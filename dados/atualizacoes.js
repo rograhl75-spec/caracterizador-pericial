@@ -6,6 +6,17 @@ const ISO_VIB = [
  {id:'iso5349', tipo:'vmb', rot:'ISO 5349 (mãos e braços) — sem limite de tolerância', v:null, un:'', vdv:null, nota:'A ISO 5349 (1986/DIS e 5349-1:2001) traz relação dose-resposta (Anexo C: Dy = 31,8 · A(8)^−1,06 anos para 10% de prevalência de dedos brancos), não um LT. Por isso o Manual do INSS (2018) trata o período como qualitativo.'}
 ];
 
+
+/* Células "mistas" do mapa: rótulo específico e explicação */
+const MXX = {
+ vibracao:{rot:'Atividade ou ISO', nota:'Vibração (1997–2014): o Decreto enquadra pela atividade (perfuratrizes e marteletes pneumáticos, cód. 2.0.2); a IN 128/2022 exige superar os limites das ISO 2631 e ISO/DIS 5349; o Manual do INSS (2018) trata o período como qualitativo. A partir de 13/08/2014 vale o LT do Anexo 8 da NR-15.'},
+ rad_ion:{rot:'Atividade ou LT', nota:'Radiações ionizantes (após 05/03/1997): o Decreto lista atividades (cód. 2.0.3); a IN 128/2022 (art. 294) exige superar o LT do Anexo 5 da NR-15 (CNEN NN-3.01).'},
+ chumbo:{rot:'Qualitativo ou LT', nota:'Chumbo: quantitativo pelo Anexo 11 da NR-15 (LT 0,1 mg/m³), mas algumas atividades estão no Anexo 13 e são avaliadas qualitativamente.'},
+ mercurio:{rot:'Qualitativo ou LT', nota:'Mercúrio: formas inorgânicas pelo Anexo 11 (LT 0,04 mg/m³); compostos orgânicos pelo Anexo 13 (qualitativo).'},
+ cloro:{rot:'Qualitativo ou LT', nota:'Cloro e compostos: cloro, cloreto de vinila e outros têm LT no Anexo 11; organoclorados e demais atividades do cód. 1.0.9 são avaliados qualitativamente. Cloreto de vinila e PCB são cancerígenos LINACH.'},
+ outras:{rot:'Qualitativo ou LT', nota:'Outras substâncias (cód. 1.0.19): algumas têm LT no Anexo 11 (estireno, butadieno, acrilonitrila, TDI); as demais, como aminas aromáticas, são qualitativas. Várias são cancerígenas da LINACH.'}
+};
+
 (function patch(){
   const A = id => AGENTS.find(a=>a.id===id);
   /* artigos literais da IN 128/2022 por agente */
@@ -89,3 +100,4 @@ const ISO_VIB = [
 
 /* Anexo 1 da NR-15 — Quadro (nível dB(A) → minutos) */
 const A1_QUADRO = [[85,480],[86,420],[87,360],[88,300],[89,270],[90,240],[91,210],[92,180],[93,160],[94,135],[95,120],[96,105],[98,75],[100,60],[102,45],[104,35],[105,30],[106,25],[108,20],[110,15],[112,10],[114,8],[115,7]];
+MARCOS.sort((x,y)=>x.d<y.d?-1:1);

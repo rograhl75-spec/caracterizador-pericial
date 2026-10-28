@@ -15,13 +15,30 @@ const EXEMPLO = {nome:'Caso exemplo (fictício) — operador de produção', sex
  {empresa:'Ambiental Coleta Ltda.', funcao:'Coletor de resíduos', ini:'2020-04-01', fim:'2025-12-31', agente:'biologico', tempo:25, epi:false, d:{alinea:'g'}}
 ]};
 
-let S = {gq:'', agq:'', tq:'', tab:'painel', caso:JSON.parse(JSON.stringify(EXEMPLO)), ag:'ruido', a15:1, a16:'a2', tf:'todos', lib:'d3048_IV', q:'', ins:{}, per:{}};
+let S = {gq:'', agq:'', tq:'', tab:'inicio', caso:JSON.parse(JSON.stringify(EXEMPLO)), ag:'ruido', a15:1, a16:'a2', tf:'todos', lib:'d3048_IV', q:'', ins:{}, per:{}};
 try { const raw=localStorage.getItem('caracterizador:v1'); if(raw){ const o=JSON.parse(raw); if(o&&o.caso&&Array.isArray(o.caso.rows)) S.caso=o.caso; } } catch(e){}
 function save(){ try{ localStorage.setItem('caracterizador:v1', JSON.stringify({caso:S.caso})); }catch(e){} }
 
-const TABS = [['painel','Painel'],['aposentadoria','Aposentadoria especial'],['agentes','Agentes nocivos'],['insalubridade','Insalubridade'],['periculosidade','Periculosidade'],['teses','Teses'],['biblioteca','Biblioteca']];
+const TABS = [['inicio','Início'],['painel','Painel'],['aposentadoria','Aposentadoria especial'],['agentes','Agentes nocivos'],['insalubridade','Insalubridade'],['periculosidade','Periculosidade'],['teses','Teses'],['biblioteca','Biblioteca']];
 
 function chip(st, short){ return '<span class="chip st-'+st+'">'+(short?st==='E'?'Especial':st==='N'?'Não':st==='C'?'Controverso':'Faltam dados':ST[st])+'</span>'; }
+
+
+/* ---------- INÍCIO (apresentação) ---------- */
+function renderInicio(){
+  const n = {ag:AGENTS.length, a11:A11.length, a13:A13FULL.filter(x=>x.g!=='nota').length, nr16:NR16.length, teses:Object.keys(TESES).length};
+  const card=(href,eb,tit,txt,cta)=>'<a class="icard" href="#'+href+'"><span class="eyebrow">'+eb+'</span><h3>'+tit+'</h3><p>'+txt+'</p><span class="ilink">'+cta+' →</span></a>';
+  return '<section class="hero"><div class="hero-in"><img class="hero-logo" alt="Grahl Consultoria e Treinamentos" src="'+BRAND.logo+'"><div class="hero-txt"><p class="eyebrow">Ferramenta didática · Elaboração de Laudos Técnicos</p><h2>Caracterização de agentes nocivos, do decreto ao laudo</h2><p>O Caracterizador Pericial reúne, num só lugar, a legislação previdenciária e trabalhista usada para caracterizar <b>aposentadoria especial</b>, <b>insalubridade</b> e <b>periculosidade</b>. Ele aplica as regras de cada período, compara o critério do perito com o do INSS e mostra a fundamentação de cada conclusão.</p><div class="hero-btns"><a class="btn" href="#aposentadoria">Começar uma análise</a><a class="btn ghost" href="#agentes">Consultar agentes nocivos</a><button class="btn ghost" data-focusg="1">Pesquisar em tudo</button></div></div></div>'+
+   '<dl class="hero-num"><div><dt>'+n.ag+'</dt><dd>agentes com ficha e simulador</dd></div><div><dt>'+n.a11+'</dt><dd>substâncias do Anexo 11, com sinônimos</dd></div><div><dt>'+n.a13+'</dt><dd>atividades do Anexo 13</dd></div><div><dt>'+n.nr16+'</dt><dd>anexos da NR-16 estruturados</dd></div><div><dt>'+n.teses+'</dt><dd>teses, súmulas e OJs</dd></div></dl></section>'+
+   '<section class="isec"><h2 class="ih">Objetivo</h2><p class="ilead">Apoiar alunos e profissionais na leitura técnica das normas: identificar qual regra vale em cada período, qual o limite de tolerância, qual a metodologia de avaliação e onde a jurisprudência diverge do INSS. A ferramenta não substitui o laudo; ela organiza o raciocínio que o laudo precisa demonstrar.</p>'+
+   '<div class="icards">'+card('aposentadoria','Previdenciário','Aposentadoria especial','Divide cada período nos marcos legais (1964, 1979, 1995, 1997, 2003, 2019) e avalia pelo critério do perito e pela IN 128/2022, com totais e conversão até 13/11/2019.','Analisar um caso')+
+   card('insalubridade','Trabalhista · NR-15','Insalubridade','Calculadoras de ruído (dose, Lavg, leituras), calor, vibração, Quadro 1 do Anexo 11 completo e as listas integrais dos Anexos 13 e 14.','Abrir a NR-15')+
+   card('periculosidade','Trabalhista · NR-16','Periculosidade','Todos os anexos com seus itens, quadros e áreas de risco, exclusões e frequência da exposição (Súmula 364).','Abrir a NR-16')+'</div></section>'+
+   '<section class="isec"><h2 class="ih">Como usar</h2><ol class="steps"><li><b>Pesquise</b><span>Digite no campo do topo um agente, substância, atividade ou tese, inclusive por sinônimo (toluol, amianto, H2S).</span></li><li><b>Consulte a ficha</b><span>Em Agentes nocivos, veja o enquadramento por período, o texto dos decretos, a IN 128 literal e as três leituras: perito, INSS e jurisprudência.</span></li><li><b>Simule</b><span>Informe período e medição na ficha ou monte o caso completo em Aposentadoria especial.</span></li><li><b>Imprima</b><span>Gere o relatório, a ficha ou a consulta no papel timbrado, em PDF ou papel.</span></li></ol></section>'+
+   '<div class="grid2"><section class="isec panel"><h2 class="ih">Base normativa</h2><ul class="blist"><li>Lei 8.213/91 e Decreto 3.048/99 (Anexo IV), com Decretos 53.831/64, 83.080/79, 2.172/97, 4.882/03, 8.123/13 e 10.410/20</li><li>IN PRES/INSS 128/2022 e alterações (INs 133, 141, 170 e 212)</li><li>Manual de Aposentadoria Especial do INSS (2018)</li><li>NR-15 e NR-16 atualizadas, com a Portaria MTE 2.021/2025</li><li>NHO da Fundacentro (01, 06, 09, 10 e demais) e ISO 2631/5349</li><li>LINACH (Portaria Interministerial 9/2014)</li><li>Teses do STF, STJ, TNU e súmulas e OJs do TST</li></ul><p class="fine">Base conferida em 28/10/2026. Confira sempre a redação oficial antes de citar.</p></section>'+
+   '<section class="isec panel about"><h2 class="ih">Sobre a Grahl</h2><img class="about-logo" alt="" src="'+BRAND.logo+'"><p><b>Grahl Consultoria e Treinamentos</b> é conduzida por <b>Rogério Grahl</b>, Engenheiro Químico e Engenheiro de Segurança do Trabalho, com cerca de 30 anos de experiência.</p><ul class="blist"><li>Perícia judicial previdenciária e trabalhista</li><li>Assistência técnica em ações de insalubridade e periculosidade</li><li>LTCAT, PPP e laudos de condições ambientais</li><li>Consultoria industrial em segurança e higiene ocupacional</li><li>Treinamentos e docência em pós-graduação</li></ul><p class="small">CREA-SC 10392239/D · visto CREA-PR 081075</p><div class="contacts"><a href="https://grahlconsultoria.com.br/" target="_blank" rel="noopener">grahlconsultoria.com.br</a><span>Instagram @rogerio_grahl</span><span>LinkedIn e Facebook: Rogério Grahl</span></div></section></div>'+
+   '<p class="fine center">Ferramenta didática desenvolvida para a disciplina Elaboração de Laudos Técnicos. Os resultados não substituem a análise do caso concreto, a inspeção do local de trabalho nem o laudo técnico assinado por profissional habilitado.</p>';
+}
 
 /* ---------- PAINEL ---------- */
 function renderPainel(){
@@ -55,12 +72,14 @@ function timelineSVG(){
   g+='<text class="tick" x="'+L+'" y="180">Passe o cursor ou toque nos trechos para ver o fundamento.</text></svg>';
   return g;
 }
+function mxCell(a,m){ if(m!=='X'||!MXX[a.id]) return '<span class="mxc mx-'+MX[m][1]+'">'+MX[m][0]+'</span>'; const k=Object.keys(MXX).filter(id=>agById(id)).indexOf(a.id)+1; return '<span class="mxc mx-x" title="'+esc(MXX[a.id].nota)+'">'+esc(MXX[a.id].rot)+' <sup>'+k+'</sup></span>'; }
 function matriz(){
   const cols=['até 05/03/1997','06/03/1997 a 18/11/2003','19/11/2003 a 13/11/2019','após 13/11/2019'];
   let h='<table class="mx"><thead><tr><th>Agente</th>'+cols.map(c=>'<th>'+c+'</th>').join('')+'</tr></thead><tbody>';
   for(const g of GRUPOS){ h+='<tr class="grp"><td colspan="5">'+g+'</td></tr>';
-    AGENTS.filter(a=>a.grupo===g).forEach(a=>{ h+='<tr><td><a href="#agentes" data-ag="'+a.id+'">'+esc(a.nome)+'</a></td>'+a.mx.map(m=>'<td><span class="mxc mx-'+MX[m][1]+'">'+MX[m][0]+'</span></td>').join('')+'</tr>'; }); }
-  return h+'</tbody></table>';
+    AGENTS.filter(a=>a.grupo===g).forEach(a=>{ h+='<tr><td><a href="#agentes" data-ag="'+a.id+'">'+esc(a.nome)+'</a></td>'+a.mx.map(m=>'<td>'+mxCell(a,m)+'</td>').join('')+'</tr>'; }); }
+  const notas=Object.keys(MXX).filter(id=>agById(id)).map((id,k)=>'<li id="mxn-'+id+'"><b>'+(k+1)+'</b> '+esc(MXX[id].nota)+'</li>').join('');
+  return h+'</tbody></table><div class="mxleg"><p><b>Como ler:</b> <span class="mxc mx-q">Qualitativo</span> basta a exposição na atividade descrita · <span class="mxc mx-l">Limite (LT)</span> exige medição acima do limite de tolerância · <span class="mxc mx-x">Atividade ou LT</span> o critério depende da norma ou do composto (ver nota numerada) · <span class="mxc mx-c">Via judicial</span> fora do Anexo IV, só com prova técnica em juízo · <span class="mxc mx-n">Não arrolado</span> sem enquadramento · <span class="mxc mx-p">Categoria</span> pela profissão, até 28/04/1995.</p><ol class="mxnotas">'+notas+'</ol></div>';
 }
 
 /* ---------- APOSENTADORIA (caso) ---------- */
@@ -145,7 +164,7 @@ function renderAgentes(){
   let list='<nav class="aglist" aria-label="Agentes"><label class="f" for="agq"><span>Filtrar agentes</span><input id="agq" type="search" data-st="agq" value="'+esc(S.agq||'')+'" placeholder="Ex.: solda, amianto, 1.0.19"></label><label class="f agsel" for="agsel"><span>Agente</span><select id="agsel" data-agsel="1">'+GRUPOS.map(g=>'<optgroup label="'+g+'">'+AGENTS.filter(x=>x.grupo===g&&vis(x)).map(x=>'<option value="'+x.id+'"'+(x.id===a.id?' selected':'')+'>'+esc(x.nome)+'</option>').join('')+'</optgroup>').join('')+'</select></label>'+GRUPOS.map(g=>{ const xs=AGENTS.filter(x=>x.grupo===g&&vis(x)); return xs.length?'<div class="agg"><p>'+g+'</p>'+xs.map(x=>'<button data-ag="'+x.id+'" class="'+(x.id===a.id?'on':'')+'" aria-pressed="'+(x.id===a.id)+'"><span>'+esc(x.nome)+'</span><small>'+esc(x.cIV?x.cIV.split(' / ')[0]:(x.c53[0]||''))+'</small></button>').join('')+'</div>':''; }).join('')+(AGENTS.some(vis)?'':'<p class="agempty">Nenhum agente encontrado.</p>')+'</nav>';
   const codes=[...(a.c53.length?['53.831: '+a.c53.join(', ')]:[]),...(a.c83.length?['83.080: '+a.c83.join(', ')]:[]),(a.cIV?'Anexo IV: '+a.cIV:'Fora do Anexo IV'),'NR-15: '+a.nr15];
   let f='<article class="ficha"><header><div class="fhead"><p class="eyebrow">'+a.grupo+'</p><button class="printbtn" data-print="ficha">Imprimir ficha</button></div><h2>'+esc(a.nome)+'</h2><div class="codes">'+codes.map(c=>'<span>'+esc(c)+'</span>').join('')+'<span>'+a.tempo+' anos</span></div></header>';
-  f+='<div class="mxrow">'+['até 05/03/1997','06/03/1997–18/11/2003','19/11/2003–13/11/2019','após 13/11/2019'].map((p,k)=>'<div><span>'+p+'</span><b class="mxc mx-'+MX[a.mx[k]][1]+'">'+MX[a.mx[k]][0]+'</b></div>').join('')+'</div>';
+  f+='<div class="mxrow">'+['até 05/03/1997','06/03/1997–18/11/2003','19/11/2003–13/11/2019','após 13/11/2019'].map((p,k)=>'<div><span>'+p+'</span><b class="mxc mx-'+MX[a.mx[k]][1]+'">'+(a.mx[k]==='X'&&MXX[a.id]?esc(MXX[a.id].rot):MX[a.mx[k]][0])+'</b></div>').join('')+'</div>'+(a.mx.includes('X')&&MXX[a.id]?'<p class="mxnote"><b>Por que "'+esc(MXX[a.id].rot)+'"?</b> '+esc(MXX[a.id].nota)+'</p>':'');
   f+='<h3>Enquadramento por período</h3><div class="scrollx"><table class="pt"><thead><tr><th>Período</th><th>Norma</th><th>Critério</th></tr></thead><tbody>'+a.periodos.map(p=>'<tr><td class="mono">'+esc(p[0])+'</td><td>'+esc(p[1])+'</td><td>'+esc(p[2])+'</td></tr>').join('')+'</tbody></table></div>';
   f+=simHtml(a);
   const jur=(a.juris||[]).map(j=>TESES[j.slice(2)]).filter(Boolean);
@@ -438,9 +457,9 @@ function go(dest){
 function render(){
   document.querySelectorAll('.tabs a').forEach(a=>a.setAttribute('aria-current', a.getAttribute('href')==='#'+S.tab?'page':'false'));
   const m=$('#main');
-  m.innerHTML = S.tab==='busca'?renderBusca(): S.tab==='painel'?renderPainel(): S.tab==='aposentadoria'?renderCaso(): S.tab==='agentes'?renderAgentes(): S.tab==='insalubridade'?renderInsal(): S.tab==='periculosidade'?renderPeric(): S.tab==='teses'?renderTeses(): renderBib();
+  m.innerHTML = S.tab==='inicio'?renderInicio(): S.tab==='busca'?renderBusca(): S.tab==='painel'?renderPainel(): S.tab==='aposentadoria'?renderCaso(): S.tab==='agentes'?renderAgentes(): S.tab==='insalubridade'?renderInsal(): S.tab==='periculosidade'?renderPeric(): S.tab==='teses'?renderTeses(): renderBib();
 }
-function route(){ const h=location.hash.slice(1); S.tab = TABS.some(t=>t[0]===h)?h:(h==='busca'?'busca':'painel'); render(); }
+function route(){ const h=location.hash.slice(1); S.tab = TABS.some(t=>t[0]===h)?h:(h==='busca'?'busca':'inicio'); render(); }
 window.addEventListener('hashchange', ()=>{ route(); window.scrollTo(0,0); });
 
 function setPath(obj, path, val){ const ps=path.split('.'); let o=obj; for(let k=0;k<ps.length-1;k++){ o[ps[k]]=o[ps[k]]||{}; o=o[ps[k]]; } o[ps[ps.length-1]]=val; }
@@ -471,6 +490,7 @@ document.addEventListener('input', ev=>{
 document.addEventListener('click', ev=>{
   const tab=ev.target.closest('.tabs a'); if(tab && tab.getAttribute('href')===location.hash){ route(); return; }
   const b=ev.target.closest('button, a[data-ag]'); if(!b) return;
+  if(b.dataset.focusg){ const g=$('#gq'); g.focus(); g.scrollIntoView({block:'center'}); return; }
   if(b.dataset.go){ go(b.dataset.go); window.scrollTo(0,0); return; }
   if(b.dataset.gq){ const g=$('#gq'); g.value=b.dataset.gq; S.gq=b.dataset.gq; render(); return; }
   if(b.dataset.ag){ S.ag=b.dataset.ag; if(S.tab!=='agentes'){ location.hash='agentes'; } else { render(); } if(b.tagName==='BUTTON'){ const f=$('.ficha'); if(f&&window.innerWidth<860) f.scrollIntoView({behavior:'smooth'}); } return; }
