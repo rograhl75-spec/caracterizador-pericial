@@ -16,7 +16,7 @@ const EXEMPLO = {nome:'Caso exemplo (fictício) — operador de produção', sex
 ]};
 
 let S = {gq:'', agq:'', tq:'', tab:'inicio', caso:JSON.parse(JSON.stringify(EXEMPLO)), ag:'ruido', a15:1, a16:'a2', tf:'todos', lib:'d3048_IV', q:'', ins:{}, per:{}};
-try { const raw=localStorage.getItem('caracterizador:v1'); if(raw){ const o=JSON.parse(raw); if(o&&o.caso&&Array.isArray(o.caso.rows)) S.caso=o.caso; } } catch(e){}
+try { const raw=localStorage.getItem('caracterizador:v1'); if(raw){ const o=JSON.parse(raw); if(o&&o.caso&&Array.isArray(o.caso.rows)){ o.caso.rows=o.caso.rows.filter(r=>r&&AGENTS.some(a=>a.id===r.agente)); S.caso=o.caso; } } } catch(e){}
 function save(){ try{ localStorage.setItem('caracterizador:v1', JSON.stringify({caso:S.caso})); }catch(e){} }
 
 const TABS = [['inicio','Início'],['painel','Painel'],['aposentadoria','Aposentadoria especial'],['agentes','Agentes nocivos'],['insalubridade','Insalubridade'],['periculosidade','Periculosidade'],['teses','Teses'],['biblioteca','Biblioteca']];
@@ -86,7 +86,7 @@ function matriz(){
 function agentSelect(v){
   return GRUPOS.map(g=>'<optgroup label="'+g+'">'+AGENTS.filter(a=>a.grupo===g).map(a=>'<option value="'+a.id+'"'+(a.id===v?' selected':'')+'>'+esc(a.nome)+'</option>').join('')+'</optgroup>').join('');
 }
-function fld(i,f,lab,val,type='number',extra=''){ const id='r'+i+'-'+f.replace('.','-'); return '<label class="f" for="'+id+'"><span>'+lab+'</span><input id="'+id+'" type="'+type+'" data-r="'+i+'" data-f="'+f+'" value="'+esc(val??'')+'" '+extra+'></label>'; }
+function fld(i,f,lab,val,type='number',extra=''){ const id='r'+i+'-'+f.replace('.','-'); return '<label class="f" for="'+id+'"><span>'+lab+'</span><input id="'+id+'" type="'+(type==='number'?'text" inputmode="decimal':type)+'" data-r="'+i+'" data-f="'+f+'" value="'+esc(val??'')+'" '+extra+'></label>'; }
 function sel(i,f,lab,val,opts){ const id='r'+i+'-'+f.replace('.','-'); return '<label class="f" for="'+id+'"><span>'+lab+'</span><select id="'+id+'" data-r="'+i+'" data-f="'+f+'">'+opts.map(([k,t])=>'<option value="'+k+'"'+(String(val??'')===String(k)?' selected':'')+'>'+esc(t)+'</option>').join('')+'</select></label>'; }
 function cb(i,f,lab,val){ const id='r'+i+'-'+f.replace('.','-'); return '<label class="cb" for="'+id+'"><input id="'+id+'" type="checkbox" data-r="'+i+'" data-f="'+f+'"'+(val?' checked':'')+'><span>'+lab+'</span></label>'; }
 function campos(row,i){
@@ -94,12 +94,12 @@ function campos(row,i){
   switch(a.engine){
     case 'ruido': { const mr=d.mr||'lavg';
       let h=sel(i,'d.mr','Como a medição foi informada',mr,[['lavg','Lavg informado (laudo/PPP)'],['dose','Dose do dosímetro (%)'],['nps','Leituras pontuais (NPS × tempo)']])+fld(i,'d.te','Jornada Te (min)',d.te??480,'number','step="1"');
-      if(mr==='lavg') h+=fld(i,'d.lavg','Lavg dB(A) · q = 5',d.lavg,'number','step="0.1" inputmode="decimal"')+fld(i,'d.ne3','NE q = 3 (NHO-01) · opcional',d.ne3,'number','step="0.1" inputmode="decimal"');
+      if(mr==='lavg') h+=fld(i,'d.lavg','Lavg dB(A) · q = 5',d.lavg,'number','step="0.1"')+fld(i,'d.ne3','NE q = 3 (NHO-01) · opcional',d.ne3,'number','step="0.1"');
       if(mr==='dose') h+=fld(i,'d.dose5','Dose q = 5 (%)',d.dose5,'number','step="0.1"')+fld(i,'d.tm','Tempo de medição (min)',d.tm??d.te??480,'number','step="1"')+fld(i,'d.dose3','Dose q = 3 (%) · opcional',d.dose3,'number','step="0.1"');
       if(mr==='nps'){ const rows=npsRows(d); const n=Math.max(rows.length,1);
-        h+='<div class="npsbox wide2"><table class="pt calc"><thead><tr><th>NPS dB(A)</th><th>Tempo (min)</th></tr></thead><tbody>'+Array.from({length:n},(_,k)=>'<tr><td><input type="number" step="0.1" id="r'+i+'-nps-'+k+'-0" data-r="'+i+'" data-f="d.nps.'+k+'.0" value="'+esc(rows[k]?rows[k][0]??'':'')+'" aria-label="NPS '+(k+1)+'"></td><td><input type="number" step="1" id="r'+i+'-nps-'+k+'-1" data-r="'+i+'" data-f="d.nps.'+k+'.1" value="'+esc(rows[k]?rows[k][1]??'':'')+'" aria-label="Tempo '+(k+1)+'"></td></tr>').join('')+'</tbody></table><div class="btns"><button class="ghost sm" data-npsr="'+i+'">Adicionar leitura</button><button class="ghost sm" data-npsx="'+i+'">Remover última</button></div><p class="fine">Lavg = 16,61·log[(1/T)·Σ tᵢ·10^(Lᵢ/16,61)]; NE (q = 3) = 10·log[(1/T)·Σ tᵢ·10^(Lᵢ/10)].</p></div>'; }
+        h+='<div class="npsbox wide2"><table class="pt calc"><thead><tr><th>NPS dB(A)</th><th>Tempo (min)</th></tr></thead><tbody>'+Array.from({length:n},(_,k)=>'<tr><td><input type="text" inputmode="decimal" step="0.1" id="r'+i+'-nps-'+k+'-0" data-r="'+i+'" data-f="d.nps.'+k+'.0" value="'+esc(rows[k]?rows[k][0]??'':'')+'" aria-label="NPS '+(k+1)+'"></td><td><input type="text" inputmode="decimal" step="1" id="r'+i+'-nps-'+k+'-1" data-r="'+i+'" data-f="d.nps.'+k+'.1" value="'+esc(rows[k]?rows[k][1]??'':'')+'" aria-label="Tempo '+(k+1)+'"></td></tr>').join('')+'</tbody></table><div class="btns"><button class="ghost sm" data-npsr="'+i+'">Adicionar leitura</button><button class="ghost sm" data-npsx="'+i+'">Remover última</button></div><p class="fine">Lavg = 16,61·log[(1/T)·Σ tᵢ·10^(Lᵢ/16,61)]; NE (q = 3) = 10·log[(1/T)·Σ tᵢ·10^(Lᵢ/10)].</p></div>'; }
       return h; }
-    case 'calor': return fld(i,'d.ibutg','IBUTG ou TE (°C)',d.ibutg,'number','step="0.1"')+sel(i,'d.fonte','Fonte de calor',d.fonte||'artificial',[['artificial','Fonte artificial'],['fechado','Ambiente fechado sem fonte artificial'],['ceu','Céu aberto, só carga solar']])+sel(i,'d.ativ','Atividade (Anexo 3 original)',d.ativ||'moderada',[['leve','Leve'],['moderada','Moderada'],['pesada','Pesada']])+sel(i,'d.regime','Regime (Quadro 1 original)',d.regime||'cont',Object.entries(Q1_ORIG).map(([k,v])=>[k,v.rot]))+fld(i,'d.m','M (W) · a partir de 11/12/2019',d.m,'number','step="1"')+cb(i,'d.caldeira','Alimentação de caldeira a carvão ou lenha (até 1997)',d.caldeira);
+    case 'calor': return fld(i,'d.ibutg','IBUTG ou TE (°C)',d.ibutg,'number','step="0.1"')+sel(i,'d.fonte','Fonte de calor',d.fonte||'artificial',[['artificial','Fonte artificial'],['fechado','Ambiente fechado sem fonte artificial'],['ceu','Céu aberto, só carga solar']])+sel(i,'d.ativ','Atividade (Anexo 3 original)',d.ativ||'moderada',[['leve','Leve'],['moderada','Moderada'],['pesada','Pesada']])+sel(i,'d.regime','Regime de trabalho (Anexo 3 original)',d.regime||'cont',Object.entries(Q1_ORIG).map(([k,v])=>[k,'Quadro 1 · '+v.rot]).concat([['q2','Quadro 2 · descanso em outro local (kcal/h)']]))+(d.regime==='q2'?fld(i,'d.mk','M média ponderada (kcal/h) · Quadro 2',d.mk,'number'):'')+fld(i,'d.m','M (W) · a partir de 11/12/2019',d.m,'number','step="1"')+fld(i,'d.av','Ajuste de vestimenta (°C, NHO-06) · a partir de 2004',d.av,'number')+cb(i,'d.caldeira','Alimentação de caldeira a carvão ou lenha (até 1997)',d.caldeira);
     case 'vibracao': return sel(i,'d.tipo','Tipo',d.tipo||'vci',[['vci','Corpo inteiro (VCI)'],['vmb','Mãos e braços (VMB)']])+fld(i,'d.aren','aren (m/s²)',d.aren,'number','step="0.01"')+fld(i,'d.vdv','VDVR (m/s¹·⁷⁵)',d.vdv,'number','step="0.1"')+sel(i,'d.iso','Referência ISO (1997–2014)',d.iso||'iso97',ISO_VIB.filter(x=>x.tipo!=='vmb').map(x=>[x.id,x.rot]))+cb(i,'d.martelete','Perfuratriz ou martelete pneumático',d.martelete);
     case 'radion': return cb(i,'d.cond','Atividade descrita (2.0.3 / 1.1.3)',d.cond)+sel(i,'d.lt','Acima do LT do Anexo 5?',d.lt||'',[['','Não informado'],['sim','Sim'],['nao','Não']]);
     case 'eletricidade': return cb(i,'d.cond','Exposição permanente acima de 250 V',d.cond);
@@ -177,7 +177,7 @@ function renderAgentes(){
     const civ=a.cIV?a.cIV.split(' / '):[]; leg+=blk('Decreto 2.172/97 — Anexo IV',libRows('d2172_IV',civ),[1,2]); leg+=blk('Decreto 3.048/99 — Anexo IV',libRows('d3048_IV',civ),[1,2]); }
   const can=(LIB.ag_cancer||[]).filter(r=>a.cIV&&r[1]===a.cIV); if(can.length) leg+='<details><summary>LINACH Grupo 1 relacionados (com CAS)</summary><div class="scrollx"><table class="pt"><thead><tr><th>LINACH</th><th>CAS</th></tr></thead><tbody>'+can.map(r=>'<tr><td>'+esc(r[2])+'</td><td class="mono pre">'+esc(r[3])+'</td></tr>').join('')+'</tbody></table></div></details>';
   const ex=(a.sheet&&LIB.extras[a.sheet])||[]; const exb=ex.filter(b=>/MANUAL|CONSIDERA/.test(b.h));
-  if(exb.length) leg+='<details><summary>Manual de Aposentadoria Especial (INSS, 2018) — trechos</summary>'+exb.map(b=>'<div class="lt"><div><p class="eyebrow">'+esc(b.h)+'</p><p>'+esc(b.t)+'</p></div></div>').join('')+'</details>';
+  if(exb.length) leg+='<details><summary>Manual de Aposentadoria Especial (INSS, 2018) — trechos</summary><p class="fine">Atenção: o Manual foi redigido sob a IN 77/2015, revogada pela IN 128/2022. Os artigos citados nos trechos são da IN 77; confira a correspondência na IN 128.</p>'+exb.map(b=>'<div class="lt"><div><p class="eyebrow">'+esc(b.h)+'</p><p>'+esc(b.t)+'</p></div></div>').join('')+'</details>';
   if(a.comp) f+='<h3>Decreto × IN × Manual do INSS</h3><div class="scrollx"><table class="pt cmp"><thead><tr>'+a.comp.cols.map(c=>'<th>'+c+'</th>').join('')+'</tr></thead><tbody>'+a.comp.rows.map(r=>'<tr>'+r.map((c,k)=>'<td'+(k===0?' class="mono"':'')+'>'+esc(c)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
   if(a.id==='vibracao') f+='<h3>Referências ISO para 06/03/1997 a 12/08/2014</h3><div class="isogrid">'+ISO_VIB.map(x=>'<div class="iso"><b>'+esc(x.rot)+'</b>'+(x.v!==null?'<span class="isov">'+String(x.v).replace('.',',')+' '+x.un+(x.vdv?' · VDV '+String(x.vdv).replace('.',',')+' m/s¹·⁷⁵':'')+'</span>':'<span class="isov">sem LT</span>')+'<p>'+esc(x.nota)+'</p></div>').join('')+'</div><p class="fine">A IN 128/2022 não diz qual edição ou qual valor da ISO usar. Na análise de caso, escolha a referência no campo "Referência ISO"; o padrão é o limite superior da zona de cautela da ISO 2631-1:1997.</p>';
   if(a.art&&a.art.length) f+='<details class="lit"><summary>Texto literal da IN PRES/INSS 128/2022 — art. '+a.art.join(', ')+'</summary>'+a.art.map(n=>(IN128[n]||[]).map((p,k)=>'<p'+(k===0?' class="art0"':'')+'>'+esc(p)+'</p>').join('')).join('<hr>')+(a.art.includes('293')?'<p class="fine">Redação dada pela IN PRES/INSS 141/2022.</p>':'')+'</details>';
@@ -188,7 +188,7 @@ function renderAgentes(){
 /* ---------- INSALUBRIDADE ---------- */
 const GRAU = {máximo:40, médio:20, mínimo:10};
 function insv(k,def){ const v=S.ins[k]; return v===undefined?def:v; }
-function iin(k,lab,def,attrs='step="any"'){ return '<label class="f" for="i-'+k+'"><span>'+lab+'</span><input id="i-'+k+'" type="number" data-ins="'+k+'" value="'+esc(insv(k,def))+'" '+attrs+'></label>'; }
+function iin(k,lab,def,attrs='step="any"'){ return '<label class="f" for="i-'+k+'"><span>'+lab+'</span><input id="i-'+k+'" type="text" inputmode="decimal" data-ins="'+k+'" value="'+esc(insv(k,def))+'" '+attrs+'></label>'; }
 function isel(k,lab,def,opts){ const v=insv(k,def); return '<label class="f" for="i-'+k+'"><span>'+lab+'</span><select id="i-'+k+'" data-ins="'+k+'">'+opts.map(([a,b])=>'<option value="'+a+'"'+(String(v)===String(a)?' selected':'')+'>'+esc(b)+'</option>').join('')+'</select></label>'; }
 function icb(k,lab){ return '<label class="cb" for="i-'+k+'"><input id="i-'+k+'" type="checkbox" data-ins="'+k+'"'+(insv(k,false)?' checked':'')+'><span>'+lab+'</span></label>'; }
 function resultado(ok,grau,txt){
@@ -204,30 +204,31 @@ function calcIns(an){
       const m1=insv('m1','nps');
       const modoSel=isel('m1','Como a medição foi informada','nps',[['nps','Leituras pontuais (NPS × tempo)'],['dose','Dose do dosímetro (%)'],['lavg','Lavg (q = 5) e jornada']]);
       if(m1!=='nps'){
-        const te=num(insv('te1',480)); let D=null, lavg=null, extra='';
+        const te=num(insv('te1',480)); let D=null, lavg=null, extra=''; if(te===null||te<=0) return modoSel+iin('te1','Jornada Te (min)',480,'step="1"')+resultado(null,'médio','Jornada Te inválida: informe a jornada em minutos (maior que zero).');
         if(m1==='dose'){ const dm=num(insv('dm','')), tm=num(insv('tm1',480)); if(dm!==null&&tm){ D=dm/100*te/tm; lavg=85+16.61*log10(dm/100*480/tm); extra='Dose projetada para a jornada = dose medida × Te/Tm.'; } }
         else { const L=num(insv('lv','')); if(L!==null){ lavg=L; D=(te/480)*Math.pow(2,(L-85)/5); extra='Dose = (Te/480) × 2^((Lavg − 85)/5).'; } }
         const nen = D!==null&&D>0 ? 85+16.61*log10(D) : null;
         const body=modoSel+(m1==='dose'?iin('dm','Dose medida (%)','','step="0.1"')+iin('tm1','Tempo de medição Tm (min)',480,'step="1"'):iin('lv','Lavg dB(A) · q = 5','','step="0.1"'))+iin('te1','Jornada Te (min)',480,'step="1"');
-        return body+'<div class="kv"><div><span>Dose na jornada</span><b>'+(D===null?'—':(D*100).toFixed(1).replace('.',',')+'%')+'</b></div><div><span>Lavg</span><b>'+(lavg===null?'—':f1(lavg))+' dB(A)</b></div><div><span>NEN 8 h (q = 5)</span><b>'+(nen===null?'—':f1(nen))+' dB(A)</b></div></div>'+resultado(D===null?null:D>1,'médio','Dose acima de 100% caracteriza (item 6 do Anexo 1). '+extra);
+        return body+'<div class="kv"><div><span>Dose na jornada</span><b>'+(D===null?'—':(D*100).toFixed(1).replace('.',',')+'%')+'</b></div><div><span>Lavg</span><b>'+(lavg===null?'—':f1(lavg))+' dB(A)</b></div><div><span>NEN 8 h (q = 5)</span><b>'+(nen===null?'—':f1(nen))+' dB(A)</b></div></div>'+resultado(D===null?null:r1(D*100)>100,'médio','Dose acima de 100% caracteriza (item 6 do Anexo 1). Dose arredondada a 0,1% antes da comparação. '+extra);
       }
       const rows=insv('nps',[[88,240],[92,120],[80,120]]), modo=insv('rmode','tab');
-      let D=0, Te=0, max=0; const lin=rows.map((r,k)=>{ const L=num(r[0]), t=num(r[1]); if(L===null||t===null) return '<tr><td colspan="4">—</td></tr>'; Te+=t; max=Math.max(max,L); const T= L<85?Infinity:(modo==='tab'?tmaxQuadro(L):480/Math.pow(2,(L-85)/5)); const c=t/T; D+=c; return '<tr><td><input type="number" step="0.1" aria-label="NPS da linha '+(k+1)+'" data-nps="'+k+'" data-c="0" value="'+r[0]+'"></td><td><input type="number" step="1" aria-label="Tempo da linha '+(k+1)+'" data-nps="'+k+'" data-c="1" value="'+r[1]+'"></td><td class="mono">'+(T===Infinity?'—':Math.round(T))+'</td><td class="mono">'+(c*100).toFixed(1).replace('.',',')+'%</td></tr>'; }).join('');
+      let D=0, Te=0, max=0; const lin=rows.map((r,k)=>{ const L=num(r[0]), t=num(r[1]); if(L===null||t===null) return '<tr><td colspan="4">—</td></tr>'; Te+=t; max=Math.max(max,L); const T= L<85?Infinity:(modo==='tab'?tmaxQuadro(L):480/Math.pow(2,(L-85)/5)); const c=t/T; D+=c; return '<tr><td><input type="text" inputmode="decimal" step="0.1" aria-label="NPS da linha '+(k+1)+'" data-nps="'+k+'" data-c="0" value="'+r[0]+'"></td><td><input type="text" inputmode="decimal" step="1" aria-label="Tempo da linha '+(k+1)+'" data-nps="'+k+'" data-c="1" value="'+r[1]+'"></td><td class="mono">'+(T===Infinity?'—':Math.round(T))+'</td><td class="mono">'+(c*100).toFixed(1).replace('.',',')+'%</td></tr>'; }).join('');
       const lavg = D>0&&Te>0 ? 85+16.61*log10(D*480/Te) : null, nn = D>0 ? 85+16.61*log10(D) : null;
       return modoSel+isel('rmode','Tempo máximo permissível','tab',[['tab','Quadro do Anexo 1 (item 4)'],['form','Fórmula q = 5 (dosímetro)']])+'<p class="fine">'+(insv('rmode','tab')==='tab'?'Item 4: para nível intermediário, vale o tempo do nível imediatamente mais elevado do Quadro.':'Tempo máximo = 480 / 2^((NPS − 85)/5) min, como integra o dosímetro.')+'</p>'+
         '<div class="scrollx"><table class="pt calc"><thead><tr><th>NPS dB(A)</th><th>Tempo (min)</th><th>Tempo máximo (min)</th><th>Dose parcial</th></tr></thead><tbody>'+lin+'</tbody></table></div><div class="btns"><button class="ghost sm" data-nps-add="1">Adicionar nível</button><button class="ghost sm" data-nps-del="1">Remover último</button></div>'+
         '<div class="kv"><div><span>Dose</span><b>'+(D*100).toFixed(1).replace('.',',')+'%</b></div><div><span>Lavg ('+Te+' min)</span><b>'+(lavg===null?'—':f1(lavg))+' dB(A)</b></div><div><span>NEN 8 h (q = 5)</span><b>'+(nn===null?'—':f1(nn))+' dB(A)</b></div></div>'+
-        resultado(D>1,'médio','Item 6 do Anexo 1: soma C/T acima da unidade. Níveis abaixo de 85 dB(A) não somam dose.'+(max>115?' Atenção: acima de 115 dB(A) sem proteção adequada é risco grave e iminente (item 7).':''))+
+        resultado(r1(D*100)>100||max>115,'médio',(max>115?'Item 5 do Anexo 1: não é permitida exposição acima de 115 dB(A) sem proteção adequada; há nível acima de 115 dB(A), o que caracteriza independentemente da dose e configura risco grave e iminente (item 7). ':'')+'Item 6 do Anexo 1: soma C/T acima da unidade. Níveis abaixo de 85 dB(A) não somam dose.'+(insv('rmode','tab')==='tab'?' Com o Quadro, o Lavg é estimado a partir da dose tabelada e pode diferir do Lavg integrado pelo dosímetro.':' A fórmula reproduz a integração do dosímetro; o Anexo 1 manda usar o Quadro (item 4), que pode dar dose maior para níveis intermediários.'))+
         '<details><summary>Quadro do Anexo 1</summary><div class="q1grid">'+A1_QUADRO.map(([l,t])=>'<span><b>'+l+'</b> '+(t>=60?Math.floor(t/60)+' h'+(t%60?' '+t%60+' min':''):t+' min')+'</span>').join('')+'</div></details>';
     }
     case 'impacto': { const p=n('pico'), t=insv('pt','lin'), lt=t==='lin'?130:120, rg=t==='lin'?140:130;
       return iin('pico','Nível de pico',132)+isel('pt','Medição','lin',[['lin','dB linear (pico), resposta para impacto'],['c','dB(C), resposta rápida (FAST)']])+resultado(p===null?null:p>lt,'médio','LT '+lt+(t==='lin'?' dB linear':' dB(C)')+' (itens 2 e 3).'+(p!==null&&p>rg?' Acima de '+rg+': risco grave e iminente (item 4).':'')); }
-    case 'calor': { const t=n('ib'), m=n('m'), amb=insv('amb','fonte'), q=lookupM(m);
+    case 'calor': { const t0=n('ib'), av=n('av')||0, t=t0===null?null:r1(t0+av), m=n('m'), amb=insv('amb','fonte'), q=lookupM(m);
       const opts=[['','Escolher no Quadro 2…']]; Q2_2019.forEach(([g,it])=>it.forEach(([a,w])=>opts.push([String(w)+'|'+g+' — '+a, g+' — '+a+' ('+w+' W)'])));
-      const body=iin('ib','IBUTG médio (°C)',29.5)+isel('q2sel','Atividade (Quadro 2 do Anexo 3)','',opts)+iin('m','Taxa metabólica M (W)',300,'step="1"')+isel('amb','Ambiente','fonte',[['fonte','Com fonte artificial de calor'],['fechado','Ambiente fechado'],['ceu','Céu aberto sem fonte artificial']]);
+      const body=iin('ib','IBUTG médio (°C)',29.5)+iin('av','Ajuste de vestimenta (°C, NHO-06) · opcional','')+isel('q2sel','Atividade (Quadro 2 do Anexo 3)','',opts)+iin('m','Taxa metabólica M (W)',300,'step="1"')+isel('amb','Ambiente','fonte',[['fonte','Com fonte artificial de calor'],['fechado','Ambiente fechado'],['ceu','Céu aberto sem fonte artificial']]);
       if(amb==='ceu') return body+resultado(false,'médio','O Anexo 3 não se aplica a atividades a céu aberto sem fonte artificial (item 1.1.1). Até 10/12/2019 valia a OJ 173, II, do TST.');
-      if(t===null||!q) return body+resultado(null,'médio','Informe IBUTG e M entre 100 e 606 W.');
-      return body+'<div class="kv"><div><span>Linha do Quadro 1</span><b>'+q.m+' W</b></div><div><span>Limite de exposição</span><b>'+f1(q.lt)+' °C</b></div></div>'+resultado(t>q.lt,'médio','IBUTG '+f1(t)+(t>q.lt?' > ':' ≤ ')+f1(q.lt)+' °C (item 2.3). O anexo não fixa regra para M fora da tabela; a ferramenta usa a linha imediatamente superior, que é a mais conservadora. Com várias atividades, use a M média ponderada dos 60 min mais críticos (item 2.4).'); }
+      if(t===null||m===null) return body+resultado(null,'médio','Informe IBUTG e M.');
+      if(!q) return body+resultado(null,'médio','M fora do Quadro 1 do Anexo 3: a tabela vai de 100 a 606 W. Verifique a taxa metabólica.');
+      return body+'<div class="kv"><div><span>Linha do Quadro 1</span><b>'+q.m+' W</b></div><div><span>Limite de exposição</span><b>'+f1(q.lt)+' °C</b></div></div>'+resultado(t>q.lt,'médio','IBUTG '+f1(t)+(av?' (medido '+f1(t0)+' + vestimenta '+f1(av)+')':'')+(t>q.lt?' > ':' ≤ ')+f1(q.lt)+' °C (item 2.3; valor arredondado a 0,1 °C). O anexo não fixa regra para M fora da tabela; a ferramenta usa a linha imediatamente superior, que é a mais conservadora. Com várias atividades, use a M média ponderada dos 60 min mais críticos (item 2.4).'); }
     case 'vibracao': { const tp=insv('vt','vci'), ar=n('ar'), vd=n('vd');
       const body=isel('vt','Tipo','vci',[['vci','Corpo inteiro (VCI)'],['vmb','Mãos e braços (VMB)']])+iin('ar','aren (m/s²)',1.2)+(tp==='vci'?iin('vd','VDVR (m/s¹·⁷⁵)',''):'');
       const ok= tp==='vci' ? ((ar!==null&&ar>1.1)||(vd!==null&&vd>21)) : (ar!==null&&ar>5);
@@ -237,7 +238,7 @@ function calcIns(an){
       let lt=null, un='mg/m³';
       if(tp==='resp'&&qz!==null) lt=8/(qz+2); if(tp==='total'&&qz!==null) lt=24/(qz+3); if(tp==='mppdc'&&qz!==null){lt=8.5/(qz+10);un='mppdc';} if(tp==='asb'){lt=2.0;un='f/cm³';} if(tp==='mn') lt=5; if(tp==='mnf') lt=1;
       const body=isel('pt2','Agente','resp',[['resp','Sílica livre — poeira respirável'],['total','Sílica livre — poeira total'],['mppdc','Sílica livre — contagem (impinger, mppdc)'],['asb','Asbesto (fibras respiráveis de crisotila)'],['mn','Manganês — poeiras (extração, tratamento, moagem, transporte)'],['mnf','Manganês — fumos (metalurgia, eletrodos de solda, pilhas)']])+((tp==='resp'||tp==='total'||tp==='mppdc')?iin('qz','% de quartzo',10):'')+iin('pc','Concentração ('+un+')','');
-      return body+(lt!==null?'<div class="kv"><div><span>Limite de tolerância</span><b>'+brn(+lt.toFixed(3))+' '+un+'</b></div></div>':'')+resultado(c===null||lt===null?null:c>lt,'máximo',(tp==='resp'?'LT = 8 / (%quartzo + 2) mg/m³.':tp==='total'?'LT = 24 / (%quartzo + 3) mg/m³.':tp==='mppdc'?'LT = 8,5 / (%quartzo + 10) mppdc.':tp==='asb'?'LT 2,0 f/cm³ (item 12). Extração e uso do amianto proibidos pelo STF (ADI 3.937, 2017).':'Manganês: até 5 mg/m³ (poeiras) ou 1 mg/m³ (fumos), jornada de até 8 h.')); }
+      return body+(lt!==null?'<div class="kv"><div><span>Limite de tolerância</span><b>'+(tp==='asb'?'2,0':brn(+lt.toFixed(3)))+' '+un+'</b></div></div>':'')+resultado(c===null||lt===null?null:c>lt,'máximo',(tp==='resp'?'LT = 8 / (%quartzo + 2) mg/m³.':tp==='total'?'LT = 24 / (%quartzo + 3) mg/m³.':tp==='mppdc'?'LT = 8,5 / (%quartzo + 10) mppdc.':tp==='asb'?'LT 2,0 f/cm³ (item 12). Extração e uso do amianto proibidos pelo STF (ADI 3.937, 2017).':'Manganês: até 5 mg/m³ (poeiras) ou 1 mg/m³ (fumos), jornada de até 8 h.')); }
   }
   return '';
 }
@@ -247,7 +248,7 @@ function quim11(){
   const n=v=>num(insv(v,'')); const q=insv('q11',''); const sel=insv('sub',null); const s= sel===null?null:A11[+sel];
   const un=insv('un', s&&s.ppm===null?'mg':'ppm');
   let lt = s ? (un==='ppm'?s.ppm:s.mg) : n('lt'); const teto = s ? s.teto : insv('teto',false); const g = s ? (s.g||'médio') : insv('gq','médio');
-  const md=n('md'), mx=n('mx');
+  const md=n('md'), mx=n('mx'), hs=n('hs');
   const list=A11.map((x,k)=>[x,k]).filter(([x])=>a11Match(x,q));
   let h='<label class="f grow" for="i-q11"><span>Pesquisar no Quadro 1 (nome, sinônimo ou fórmula)</span><input id="i-q11" type="search" data-ins="q11" value="'+esc(q)+'" placeholder="Ex.: tolueno, toluol, MEK, H2S, formol"></label>';
   h+='<div class="scrollx a11wrap"><table class="pt a11"><thead><tr><th>Agente químico</th><th>Outros nomes</th><th>ppm</th><th>mg/m³</th><th>Teto</th><th>Pele</th><th>Grau</th><th></th></tr></thead><tbody>'+
@@ -256,12 +257,15 @@ function quim11(){
   h+='<div class="subcalc"><h4>'+(s?'Avaliação: '+esc(s.n):'Avaliação (escolha um agente ou informe o LT)')+'</h4>';
   if(s) h+=isel('un','Unidade','ppm',[...(s.ppm!==null?[['ppm','ppm (LT '+brn(s.ppm)+')']]:[]),...(s.mg!==null?[['mg','mg/m³ (LT '+brn(s.mg)+')']]:[])])+(s?'<button class="ghost sm" data-a11clr="1">Limpar escolha</button>':'');
   else h+=iin('lt','LT do Quadro 1','')+isel('gq','Grau','médio',[['mínimo','Mínimo'],['médio','Médio'],['máximo','Máximo']])+icb('teto','Agente com valor teto');
-  h+=iin('md','Média das amostras ('+(s?(un==='ppm'?'ppm':'mg/m³'):'mesma unidade')+')','')+iin('mx','Maior amostra','');
+  h+=iin('hs','Jornada semanal (h) · opcional','','step="0.5"')+iin('md','Média das amostras ('+(s?(un==='ppm'?'ppm':'mg/m³'):'mesma unidade')+')','')+iin('mx','Maior amostra','');
   if(lt===null||lt===undefined||(md===null&&mx===null)) return h+resultado(null,g,'Informe os resultados das amostras (mínimo de 10 amostragens instantâneas por ponto, intervalo de 20 min — item 6).')+'</div>';
+  let bs='';
+  if(hs!==null && hs>48 && hs<168 && !teto){ const fr=(48/hs)*((168-hs)/120); bs=' Jornada de '+brn(hs)+' h/semana (acima das 48 h do item 10): LT corrigido por Brief & Scala, FR = (48/h)·((168 − h)/120) = '+fr.toFixed(3).replace('.',',')+' → LT '+brn(+(lt*fr).toFixed(3))+'. Pressuposto da ferramenta: base semanal de 48 h e recuperação de 120 h, como no modelo semanal de Brief & Scala; a NR-15 não traz a fórmula.'; lt=+(lt*fr).toFixed(4); }
   const fd= lt<=1?3: lt<=10?2: lt<=100?1.5: lt<=1000?1.25:1.1, vmax=lt*fd; let ok, txt;
   if(teto){ ok=(mx??md)>lt; txt='Valor teto (item 9): nenhuma amostra pode superar o LT de '+brn(lt)+'.'; }
   else { ok=(md!==null&&md>lt); txt='Item 8: média '+(md===null?'—':brn(md))+(ok?' > ':' ≤ ')+'LT '+brn(lt)+'. FD = '+brn(fd)+'; valor máximo = '+brn(+vmax.toFixed(3))+(mx!==null&&mx>vmax?' — amostra acima do valor máximo: risco grave e iminente (item 7).':'.'); }
-  return h+resultado(ok,g,txt)+'</div>';
+  const grave = !teto && mx!==null && mx>vmax;
+  return h+resultado(ok,g,txt+bs)+(grave?'<div class="verdict v-c"><b>Risco grave e iminente (item 7)</b><p>Amostra de '+brn(mx)+' acima do valor máximo '+brn(+vmax.toFixed(3))+' (LT × FD). A situação exige ação imediata, independentemente da média.</p></div>':'')+'</div>';
 }
 function a13Lista(){
   const q=insv('q13',''), gf=insv('g13','todos'), sel=insv('a13sel','');
@@ -283,11 +287,12 @@ function renderInsal(){
   const wide = an.n===11||an.n===13;
   h+='<div class="grid2 '+(wide?'one':'wide-l')+'"><section class="panel" id="pinsal"><div class="ph"><div class="fhead"><p class="eyebrow">Anexo '+an.n+' · grau '+esc(an.g)+'</p><button class="printbtn" data-print="insal">Imprimir ou salvar PDF</button></div><h3>'+esc(an.t)+'</h3><p>'+esc(an.s)+'</p></div><div class="calcbox" id="calcbox">';
   if(an.tipo==='calc') h+=calcIns(an);
+  else if(an.tipo==='quali' && an.n==='13-A'){ const g=insv('g13a',''); h+=icb('q13-A','Exposição ao benzeno constatada em inspeção')+isel('g13a','Grau atribuído pelo perito','',[['','Escolher…'],['máximo','Máximo'],['médio','Médio'],['mínimo','Mínimo']])+'<p class="fine">O Anexo 13-A não fixa grau. A escolha é do perito, por analogia com o Anexo 13 (hidrocarbonetos e outros compostos de carbono); a ferramenta não presume grau.</p>'+(insv('q13-A',false)&&!g?resultado(null,'médio','Escolha o grau atribuído no laudo.'):resultado(insv('q13-A',false),g||'médio','Caracterização qualitativa (Anexo 13-A).')); }
   else if(an.tipo==='quali') h+=icb('q'+an.n,'Condição constatada em inspeção (laudo qualitativo)')+resultado(insv('q'+an.n,false),an.g==='máximo'?'máximo':'médio','Caracterização qualitativa.');
   else if(an.tipo==='lista' && an.lista==='a14'){ const k=insv('a14',''); h+='<div class="opts">'+A14.map((x,j)=>'<label class="opt" for="a14-'+j+'"><input type="radio" name="a14" id="a14-'+j+'" data-ins="a14" value="'+j+'"'+(String(k)===String(j)?' checked':'')+'><span><em class="g-'+(x.g==='máximo'?'max':'med')+'">'+x.g+'</em>'+esc(x.t)+'</span></label>').join('')+'</div>'+(k===''?resultado(null,'médio','Escolha a atividade.'):resultado(true,A14[k].g,'Contato permanente na atividade listada. Para insalubridade, o Anexo 14 se aplica; para aposentadoria especial, não (código 3.0.1).')); }
   else if(an.tipo==='lista' && an.lista==='a13') h+=a13Lista();
   else h+='<p class="muted">Anexo revogado. Não gera adicional.</p>';
-  h+='</div></section><aside class="panel"><div class="ph"><h3>Valor do adicional</h3></div>'+'<label class="f" for="i-base"><span>Base de cálculo (R$)</span><input id="i-base" type="number" step="0.01" data-ins="base" value="'+esc(insv('base',''))+'" placeholder="Salário mínimo ou piso da norma coletiva"></label><p class="fine">Informe a base para ver o valor mensal no resultado.</p><div class="ph"><h3>Súmulas e OJs</h3></div><ul class="sm-list">'+['s47','s80','s289','s448','oj173','sv4','irr17'].map(k=>'<li><b>'+TESES[k].num+'</b> '+esc(TESES[k].tese)+'</li>').join('')+'</ul></aside></div>';
+  h+='</div></section><aside class="panel"><div class="ph"><h3>Valor do adicional</h3></div>'+'<label class="f" for="i-base"><span>Base de cálculo (R$)</span><input id="i-base" type="text" inputmode="decimal" step="0.01" data-ins="base" value="'+esc(insv('base',''))+'" placeholder="Salário mínimo ou piso da norma coletiva"></label><p class="fine">Informe a base para ver o valor mensal no resultado.</p><div class="ph"><h3>Súmulas e OJs</h3></div><ul class="sm-list">'+['s47','s80','s289','s448','oj173','sv4','irr17'].map(k=>'<li><b>'+TESES[k].num+'</b> '+esc(TESES[k].tese)+'</li>').join('')+'</ul></aside></div>';
   return h;
 }
 
@@ -300,7 +305,7 @@ const EXPQ = {
 const pk = (an,sel,k)=>an+':'+sel+':'+k;
 function pget(k,d){ const v=S.per[k]; return v===undefined?d:v; }
 function pcb(id,k,lab){ return '<label class="cb" for="'+id+'"><input id="'+id+'" type="checkbox" data-per="'+k+'"'+(pget(k,false)?' checked':'')+'><span>'+lab+'</span></label>'; }
-function pin(k,lab,attrs='step="any"'){ const id='p-'+k.replace(/[^a-z0-9]/gi,'-'); return '<label class="f" for="'+id+'"><span>'+lab+'</span><input id="'+id+'" type="number" data-per="'+k+'" value="'+esc(pget(k,''))+'" '+attrs+'></label>'; }
+function pin(k,lab,attrs='step="any"'){ const id='p-'+k.replace(/[^a-z0-9]/gi,'-'); return '<label class="f" for="'+id+'"><span>'+lab+'</span><input id="'+id+'" type="text" inputmode="decimal" data-per="'+k+'" value="'+esc(pget(k,''))+'" '+attrs+'></label>'; }
 function psel(k,lab,opts,d){ const id='p-'+k.replace(/[^a-z0-9]/gi,'-'), v=pget(k,d); return '<label class="f" for="'+id+'"><span>'+lab+'</span><select id="'+id+'" data-per="'+k+'">'+opts.map(([a,b])=>'<option value="'+a+'"'+(String(v)===String(a)?' selected':'')+'>'+esc(b)+'</option>').join('')+'</select></label>'; }
 function selected(an,sel){ const sec=an.secoes.find(s=>s.sel===sel); if(!sec) return []; return sec.itens.filter(it=>pget(pk(an.id,sel,it[0]),false)); }
 function calcExplosivos(an){
@@ -317,7 +322,7 @@ function calcTransporte(){
   const lim= tp==='liq'?200:135, un= tp==='liq'?'litros':'kg';
   let h='<div class="pcalc">'+psel('a2:tr:tp','Produto transportado',[['liq','Inflamável líquido'],['gas','Inflamável gasoso liquefeito']],'liq')+pin('a2:tr:q','Quantidade total transportada ('+un+')')+pcb('p-a2-prop','a2:tr:prop','Somente tanques de consumo próprio, originais de fábrica ou suplementares certificados (16.6.1 e 16.6.1.1)')+(tp==='liq'?pcb('p-a2-41','a2:tr:41','Embalagens certificadas dentro dos limites do Quadro I (item 4.1)')+pcb('p-a2-42','a2:tr:42','Recipientes de até 5 L lacrados na fabricação (item 4.2)'):'')+'</div>';
   let ok=false, txt='';
-  if(q!==null){ if(prop) txt='Tanques de consumo próprio não contam (16.6.1.1).'; else if(tp==='liq'&&(e41||e42)) txt='Excluído pelo item '+(e41?'4.1':'4.2')+' do Anexo 2.'; else if(q>=lim){ ok=true; txt='Transporte de '+brn(q)+' '+un+' (limite de pequenas quantidades: '+lim+' '+un+'; item 16.6 e alínea '+(tp==='liq'?'j':'l')+' do Anexo 2).'; } else txt='Até '+lim+' '+un+': pequena quantidade, excluída pelo item 16.6.'; }
+  if(q!==null){ if(prop) txt='Transporte não caracterizado: tanques de consumo próprio não contam (16.6.1 e 16.6.1.1).'; else if(tp==='liq'&&(e41||e42)) txt='Transporte não caracterizado: excluído pelo item '+(e41?'4.1':'4.2')+' do Anexo II.'; else if(q>=lim){ ok=true; txt='Transporte perigoso: '+brn(q)+' '+un+' (igual ou acima de '+lim+' '+un+'; item 16.6 e alínea '+(tp==='liq'?'j':'l')+' do Anexo II).'; } else txt='Transporte não caracterizado: '+brn(q)+' '+un+', abaixo de '+lim+' '+un+' (pequena quantidade, item 16.6). Pela alínea '+(tp==='liq'?'j':'l')+' do Anexo II, a partir de '+lim+' '+un+' já é perigoso.'; }
   if(txt) h+='<p class="'+(ok?'okline':'muted small')+'">'+esc(txt)+'</p>';
   return {h, ok, txt};
 }
@@ -429,7 +434,7 @@ function snippet(s,terms){ const n=normTxt(s); let i=-1; for(const t of terms){ 
 function hlTerms(s,terms){ let h=esc(s); terms.forEach(t=>{ if(t.length<2) return; const src=esc(s); /* destaque sem acento */ const re=new RegExp('('+t.split('').map(c=>({a:'[aáàâã]',e:'[eéê]',i:'[ií]',o:'[oóôõ]',u:'[uúü]',c:'[cç]'}[c]||c.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'))).join('')+')','gi'); h=h.replace(re,'<mark>$1</mark>'); }); return h; }
 function renderBusca(){
   const q=(S.gq||'').trim(); const terms=normTxt(q).split(/\s+/).filter(Boolean);
-  let h='<section class="intro"><div><p class="eyebrow">Pesquisa geral</p><h2>'+(q?'Resultados para "'+esc(q)+'"':'Pesquise em todas as abas')+'</h2><p class="muted">Agentes nocivos, Anexos 11, 13 e 14 da NR-15, NR-16, teses, marcos legais e a biblioteca de decretos. Use mais de uma palavra para refinar.</p></div></section>';
+  let h='<section class="intro"><div><p class="eyebrow">Pesquisa geral</p><h2>'+(q.length>=2?'Resultados para "'+esc(q)+'"':'Pesquise em todas as abas')+'</h2><p class="muted">Agentes nocivos, Anexos 11, 13 e 14 da NR-15, NR-16, teses, marcos legais e a biblioteca de decretos. Use mais de uma palavra para refinar.</p></div></section>';
   if(terms.length===0||q.length<2) return h+'<div class="chips">'+['tolueno','solda','martelete','coleta de lixo','caldeira','frentista','galvanoplastia','benzeno','EPI'].map(x=>'<button class="ghost sm" data-gq="'+x+'">'+x+'</button>').join('')+'</div>';
   IDX = IDX || buildIndex();
   const hits=IDX.filter(e=>terms.every(t=>e.n.includes(t)));
@@ -441,15 +446,16 @@ function renderBusca(){
   }
   return h+'</div>';
 }
+let SRCH=null;
 function go(dest){
-  const [k,v]=dest.split(':');
+  const [k,v]=dest.split(':'); SRCH={tq:null,q:null,q11:null,q13:null,fromGo:true};
   if(k==='ag'){ S.ag=v; location.hash='agentes'; }
-  else if(k==='a11'){ S.a15=11; S.ins.sub=+v; S.ins.q11=A11[+v].n; location.hash='insalubridade'; }
+  else if(k==='a11'){ S.a15=11; S.ins.sub=+v; S.ins.q11=A11[+v].n; SRCH.q11=S.ins.q11; location.hash='insalubridade'; }
   else if(k==='a13'){ S.a15=13; S.ins.a13sel=v; S.ins.q13=''; S.ins.g13='todos'; location.hash='insalubridade'; }
   else if(k==='a15'){ S.a15=isNaN(+v)?v:+v; location.hash='insalubridade'; }
   else if(k==='a16'){ S.a16=v; location.hash='periculosidade'; }
-  else if(k==='tese'){ S.tf='todos'; S.tq=TESES[v].num; location.hash='teses'; }
-  else if(k==='lib'){ S.lib=v; S.q=S.gq||''; location.hash='biblioteca'; }
+  else if(k==='tese'){ S.tf='todos'; S.tq=TESES[v].num; SRCH.tq=S.tq; location.hash='teses'; }
+  else if(k==='lib'){ S.lib=v; S.q=S.gq||''; SRCH.q=S.q; location.hash='biblioteca'; }
   else location.hash=k;
   if(location.hash==='#'+S.tab){ route(); }
 }
@@ -459,18 +465,20 @@ function render(){
   const m=$('#main');
   m.innerHTML = S.tab==='inicio'?renderInicio(): S.tab==='busca'?renderBusca(): S.tab==='painel'?renderPainel(): S.tab==='aposentadoria'?renderCaso(): S.tab==='agentes'?renderAgentes(): S.tab==='insalubridade'?renderInsal(): S.tab==='periculosidade'?renderPeric(): S.tab==='teses'?renderTeses(): renderBib();
 }
-function route(){ const h=location.hash.slice(1); S.tab = TABS.some(t=>t[0]===h)?h:(h==='busca'?'busca':'inicio'); render(); }
+function route(){ const h=location.hash.slice(1);
+  if(SRCH){ if(SRCH.fromGo){ SRCH.fromGo=false; } else { if(SRCH.tq!==null&&S.tq===SRCH.tq) S.tq=''; if(SRCH.q!==null&&S.q===SRCH.q){ S.q=''; S.lib='todas'; } if(SRCH.q11!==null&&S.ins.q11===SRCH.q11){ S.ins.q11=''; } SRCH=null; } } S.tab = TABS.some(t=>t[0]===h)?h:(h==='busca'?'busca':'inicio'); render(); }
 window.addEventListener('hashchange', ()=>{ route(); window.scrollTo(0,0); });
 
 function setPath(obj, path, val){ const ps=path.split('.'); let o=obj; for(let k=0;k<ps.length-1;k++){ o[ps[k]]=o[ps[k]]||{}; o=o[ps[k]]; } o[ps[ps.length-1]]=val; }
 function refreshCaso(i){ if(i==='s'){ const el=$('#res-s'); if(el) el.innerHTML=resTable(simRow()); return; } const el=$('#res-'+i); if(el) el.innerHTML=resTable(S.caso.rows[i]); const tb=$('#totbar'); if(tb) tb.innerHTML=totBar(); const r=S.caso.rows[i], art=document.querySelector('.row[data-i="'+i+'"] .rtt'); if(art) art.innerHTML='<b>'+esc(r.funcao||'Função')+'</b><span>'+esc(r.empresa||'Empresa')+'</span>'; }
-function refocus(id){ const el=document.getElementById(id); if(!el) return; el.focus(); try{ if(el.type==='text'||el.type==='search'){ const L=el.value.length; el.setSelectionRange(L,L); } }catch(e){} }
+let CARET=null;
+function refocus(id){ const el=document.getElementById(id); if(!el) return; el.focus(); try{ if(el.type==='text'||el.type==='search'){ const L=el.value.length, p=(CARET===null||CARET>L)?L:CARET; el.setSelectionRange(p,p); } }catch(e){} CARET=null; }
 
 document.addEventListener('input', ev=>{
-  const t=ev.target;
+  const t=ev.target; try{ CARET = (typeof t.selectionStart==='number') ? t.selectionStart : null; }catch(e){ CARET=null; }
   if(t.id==='gq'){ S.gq=t.value; if(S.gq.trim().length>=2){ if(S.tab!=='busca'){ S.tab='busca'; history.replaceState(null,'','#busca'); } render(); } else if(S.tab==='busca') render(); return; }
   if(t.dataset.r!==undefined){ const isSim=t.dataset.r==='s', i=isSim?'s':+t.dataset.r, f=t.dataset.f, row=isSim?simRow():S.caso.rows[i];
-    if(f==='d.mr'){ row.d=row.d||{}; row.d.mr=t.value; if(!isSim) save(); const id=t.id; render(); refocus(id); return; }
+    if(f==='d.mr'||f==='d.regime'){ row.d=row.d||{}; setPath(row,f,t.value); if(!isSim) save(); const id=t.id; render(); refocus(id); return; }
     let v = t.type==='checkbox'?t.checked:t.value;
     if(f==='agente'){ row.agente=v; row.d={}; row.tempo=agById(v).tempo; save(); render(); const s=$('#r'+i+'-agente'); if(s) s.focus(); return; }
     if(f==='tempo') v=+v;
@@ -480,7 +488,7 @@ document.addEventListener('input', ev=>{
     if(k==='q2sel' && t.value) S.ins.m=t.value.split('|')[0];
     if(k==='un'){ /* troca de unidade mantém a substância */ }
     const id=t.id; render(); if(t.type!=='radio'&&t.type!=='checkbox') refocus(id); return; }
-  if(t.dataset.nps!==undefined){ const rows=insv('nps',[[88,240],[92,120],[80,120]]).map(r=>r.slice()); rows[+t.dataset.nps][+t.dataset.c]=t.value; S.ins.nps=rows; const id=t.getAttribute('aria-label'); render(); const el=document.querySelector('[aria-label="'+id+'"]'); if(el) el.focus(); return; }
+  if(t.dataset.nps!==undefined){ const rows=insv('nps',[[88,240],[92,120],[80,120]]).map(r=>r.slice()); rows[+t.dataset.nps][+t.dataset.c]=t.value; S.ins.nps=rows; const id=t.getAttribute('aria-label'), cp=CARET; render(); const el=document.querySelector('[aria-label="'+id+'"]'); if(el){ el.focus(); try{ const L=el.value.length, p=(cp===null||cp>L)?L:cp; el.setSelectionRange(p,p); }catch(e){} } return; }
   if(t.dataset.per!==undefined){ S.per[t.dataset.per]= t.type==='checkbox'?t.checked:t.value; const id=t.id; render(); refocus(id); return; }
   if(t.dataset.st){ S[t.dataset.st]=t.value; const id=t.id; render(); refocus(id); return; }
   if(t.dataset.q){ S.q=t.value; render(); refocus('lib-q'); return; }
@@ -497,10 +505,10 @@ document.addEventListener('click', ev=>{
   if(b.dataset.a11!==undefined){ S.ins.sub=+b.dataset.a11; delete S.ins.un; render(); const sc=$('.subcalc'); if(sc) sc.scrollIntoView({behavior:'smooth',block:'nearest'}); return; }
   if(b.dataset.a11clr){ delete S.ins.sub; delete S.ins.un; render(); return; }
   if(b.dataset.npsr!==undefined||b.dataset.npsx!==undefined){ const k=b.dataset.npsr??b.dataset.npsx, row=k==='s'?simRow():S.caso.rows[+k]; row.d=row.d||{}; const o=row.d.nps||(row.d.nps={}); const n=Object.keys(o).length; if(b.dataset.npsr!==undefined){ o[Math.max(n,1)]={0:'',1:''}; if(!n) o[0]={0:'',1:''}; } else if(n>1) delete o[n-1]; if(k!=='s') save(); render(); return; }
-  if(b.dataset.simuse){ const r=JSON.parse(JSON.stringify(simRow())); r.empresa=''; r.funcao='Simulação — '+agById(r.agente).nome; S.caso.rows.push(r); save(); b.textContent='Incluído no caso'; setTimeout(()=>{ if(b.isConnected) b.textContent='Incluir na análise de caso'; },2000); return; }
+  if(b.dataset.simuse){ const r=JSON.parse(JSON.stringify(simRow())); r.empresa=''; r.funcao='Simulação — '+agById(r.agente).nome; S.caso.rows.push(r); save(); b.textContent='Incluído no caso'; b.disabled=true; setTimeout(()=>{ if(b.isConnected){ b.textContent='Incluir na análise de caso'; b.disabled=false; } },2000); return; }
   if(b.dataset.simrst){ delete S.sim[S.ag]; render(); return; }
   if(b.dataset.del!==undefined){ S.caso.rows.splice(+b.dataset.del,1); save(); render(); return; }
-  if(b.dataset.act==='add'){ const last=S.caso.rows[S.caso.rows.length-1]; const ini= last&&last.fim?addDays(last.fim,1):'2000-01-01'; S.caso.rows.push({empresa:'',funcao:'',ini, fim:addDays(ini,364), agente:'ruido', tempo:25, epi:false, d:{te:480}}); save(); render(); const r=document.querySelectorAll('.row'); if(r.length) r[r.length-1].scrollIntoView({behavior:'smooth',block:'start'}); return; }
+  if(b.dataset.act==='add'){ const last=S.caso.rows[S.caso.rows.length-1]; const hj=new Date().toISOString().slice(0,10); let ini= last&&last.fim?addDays(last.fim,1):'2000-01-01'; if(ini>hj) ini=hj; let fim=addDays(ini,364); if(fim>hj) fim=hj; S.caso.rows.push({empresa:'',funcao:'',ini, fim, agente:'ruido', tempo:25, epi:false, d:{te:480}}); save(); render(); const r=document.querySelectorAll('.row'); if(r.length) r[r.length-1].scrollIntoView({behavior:'smooth',block:'start'}); return; }
   if(b.dataset.act==='ex'){ S.caso=JSON.parse(JSON.stringify(EXEMPLO)); save(); render(); return; }
   if(b.dataset.act==='clr'){ if(b.dataset.armed){ S.caso={nome:'Novo caso',sexo:'H',rows:[]}; save(); render(); } else { b.dataset.armed='1'; b.textContent='Toque de novo para limpar'; setTimeout(()=>{ if(b.isConnected){ delete b.dataset.armed; b.textContent='Limpar caso'; } },3000); } return; }
   if(b.dataset.act==='copy'){ const txt=resumoTexto(); const done=()=>{ b.textContent='Quadro copiado'; setTimeout(()=>b.textContent='Copiar quadro-resumo',2000); };
@@ -545,6 +553,14 @@ function reportCaso(){
    '<table class="tot"><tr><th>Tempo especial — critério do perito</th><td>'+fmtDias(t.perito.dias)+' ('+t.perito.dias.toLocaleString('pt-BR')+' dias)</td></tr><tr><th>Tempo especial — INSS</th><td>'+fmtDias(t.inss.dias)+' ('+t.inss.dias.toLocaleString('pt-BR')+' dias)</td></tr><tr><th>Acréscimo por conversão até 13/11/2019 (perito / INSS)</th><td>'+fmtDias(t.perito.conv)+' / '+fmtDias(t.inss.conv)+'</td></tr><tr><th>Trechos divergentes</th><td>'+t.diverg+'</td></tr></table>'+
    '<p class="nota">Critério do perito: ruído pela NR-15 (q = 5), Lavg até 18/11/2003 e NEN a partir de 19/11/2003; calor pelo código 2.0.4 do Decreto 3.048/99; agentes biológicos pelo rol do código 3.0.1. Contagem em dias corridos; anos, meses e dias aproximados por 365/30. Conversão pelo art. 70 do Decreto 3.048/99, só até 13/11/2019 (EC 103/2019).</p>';
 }
+/* uma linha da tabela externa por bloco: o cabeçalho e o rodapé do timbrado se repetem sem sobrepor o conteúdo */
+function splitRows(html){
+  const tmp=document.createElement('div'); tmp.innerHTML=html; const out=[];
+  const keep=el=>/^(TABLE|P|H1|H2|H3|H4|UL|OL|DL|IMG|LABEL)$/.test(el.tagName)||el.matches('.verdict,.kv,.f,.cb,.opt,.lt,.iso,.tri,.mxrow,.codes');
+  const walk=node=>{ for(const ch of Array.from(node.childNodes)){ if(ch.nodeType===3){ if(ch.textContent.trim()) out.push(ch.textContent); continue; } if(ch.nodeType!==1) continue; if(!keep(ch) && ch.children.length>1) walk(ch); else out.push(ch.outerHTML); } };
+  walk(tmp);
+  return out.map(x=>'<tr><td class="pbody">'+x+'</td></tr>').join('');
+}
 function printOut(kind){
   let html='', ori='portrait';
   if(kind==='caso'){ html=reportCaso(); ori='landscape'; }
@@ -552,7 +568,7 @@ function printOut(kind){
   else if(kind==='insal'){ html='<h1>Insalubridade — NR-15</h1><p class="meta">Consulta emitida em '+hoje()+'</p>'+freeze($('#pinsal')); }
   else if(kind==='peric'){ html='<h1>Periculosidade — NR-16</h1><p class="meta">Consulta emitida em '+hoje()+'</p>'+freeze($('#pperic')); }
   const root=$('#printroot');
-  root.innerHTML='<img class="lh" alt="" src="'+(ori==='landscape'?BRAND.a4h:BRAND.a4v)+'"><table class="pwrap"><thead><tr><td><div class="sp-top"></div></td></tr></thead><tbody><tr><td class="pbody">'+html+'<p class="disc">Documento gerado pelo Caracterizador Pericial — ferramenta didática; não substitui a análise do caso concreto nem a redação oficial das normas. Grahl Consultoria e Treinamentos · grahlconsultoria.com.br</p></td></tr></tbody><tfoot><tr><td><div class="sp-bot"></div></td></tr></tfoot></table>';
+  root.innerHTML='<img class="lh" alt="" src="'+(ori==='landscape'?BRAND.a4h:BRAND.a4v)+'"><table class="pwrap"><thead><tr><td><div class="sp-top"></div></td></tr></thead><tbody>'+splitRows(html)+'<tr><td class="pbody"><p class="disc">Documento gerado pelo Caracterizador Pericial — ferramenta didática; não substitui a análise do caso concreto nem a redação oficial das normas. Grahl Consultoria e Treinamentos · grahlconsultoria.com.br</p></td></tr></tbody><tfoot><tr><td><div class="sp-bot"></div></td></tr></tfoot></table>';
   root.dataset.ori=ori;
   $('#pagestyle').textContent='@page{size:A4 '+ori+';margin:0}';
   const emFrame = (()=>{ try{ return window.self!==window.top; }catch(e){ return true; } })();

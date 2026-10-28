@@ -9,7 +9,7 @@ const MARCOS = [
   {d:'1999-05-07', t:'Decreto 3.048/99', s:'Anexo IV do RPS (redação atual, com alterações).'},
   {d:'2003-11-19', t:'Decreto 4.882/03', s:'Ruído: NEN > 85 dB(A); metodologia Fundacentro (NHO).'},
   {d:'2004-01-01', t:'PPP obrigatório', s:'INSS exige NHO-01 (NEN) para ruído e NHO-06 para calor.'},
-  {d:'2013-10-16', t:'Decreto 8.123/13', s:'Art. 68, §4º: cancerígenos (LINACH) — avaliação qualitativa.'},
+  {d:'2013-10-17', t:'Decreto 8.123/13', s:'Art. 68, §4º: cancerígenos (LINACH) — avaliação qualitativa.'},
   {d:'2012-09-10', t:'NHO-09 e NHO-10 (Fundacentro)', s:'Metodologia de vibração (VCI e VMB); facultada pelo INSS desde esta data.'},
   {d:'2014-08-13', t:'Anexo 8 NR-15 (Portaria 1.297/14)', s:'Vibração: limites aren e VDVR para enquadramento.'},
   {d:'2014-10-08', t:'Portaria Interministerial 9/14 (LINACH)', s:'INSS: Grupo 1 com CAS — EPI/EPC não descaracterizam.'},
@@ -27,7 +27,7 @@ const FATORES = {15:{M:2.00,H:2.33},20:{M:1.50,H:1.75},25:{M:1.20,H:1.40}};
 const GRUPOS = ['Físicos','Químicos','Biológicos','Associação e categoria'];
 
 const PERITO_PADRAO = 'Sem posição própria registrada para este agente: adota-se a leitura do Decreto (Anexo IV e art. 68 do RPS).';
-const QUIM_INSS = [
+const QUIM_INSS = [ /* substituído em data2.js (patch) */
   'IN 128/2022, art. 297: até 05/03/1997, enquadramento qualitativo por presunção (códigos 1.2.x dos Decretos 53.831/64 e 83.080/79).',
   'A partir de 06/03/1997: agentes do Anexo IV, com os Anexos 11, 12, 13 e 13-A da NR-15 (qualitativo ou quantitativo conforme o agente).',
   'A partir de 01/01/2004: metodologias das NHO-02, 03, 04 e 07 da Fundacentro.',
@@ -61,12 +61,12 @@ const AGENTS = [
 
 {id:'calor', nome:'Calor', grupo:'Físicos', engine:'calor', tempo:25, c53:['1.1.1'], c83:['1.1.1'], cIV:'2.0.4', sheet:'CALOR', nr15:'Anexo 3', mx:['L','L','L','L'],
  periodos:[
-  ['até 05/03/1997','Dec. 53.831/64 (1.1.1) e 83.080/79 (1.1.1)','TE acima de 28 °C de fonte artificial; ou alimentação de caldeiras a carvão ou lenha'],
+  ['até 05/03/1997','Dec. 53.831/64 (1.1.1) e 83.080/79 (1.1.1)','TE acima de 28 °C de fonte artificial; ou alimentação de caldeiras a carvão ou lenha; ou atividades do Anexo II do 83.080/79, códigos 2.5.1, 2.5.2 e 2.5.5 (IN 141/2022, art. 293, I, a, 2)'],
   ['06/03/1997 a 10/12/2019','Dec. 2.172/97 e 3.048/99 (2.0.4)','Acima dos LT do Anexo 3 da NR-15 (redação original: Quadros 1, 2 e 3)'],
   ['a partir de 11/12/2019','Dec. 3.048/99 (2.0.4) + Portaria SEPRT 1.359/19','Acima do LT do Quadro 1 do novo Anexo 3, em função de M (W)']],
  perito:[
   'Aplica-se o Decreto 3.048/99, código 2.0.4: calor acima dos limites de tolerância da NR-15. O Decreto prevalece sobre a IN do INSS, que é mais restritiva (hierarquia normativa).',
-  'De 06/03/1997 a 10/12/2019: LT do Anexo 3 original (Quadro 1 por tipo de atividade e regime de trabalho), sem exigir fonte artificial. O Anexo 3 original abrangia ambientes externos com carga solar.',
+  'De 06/03/1997 a 10/12/2019: LT do Anexo 3 original (Quadro 1 por tipo de atividade e regime de descanso no próprio local; Quadro 2 por taxa metabólica em kcal/h quando o descanso é em outro local), sem exigir fonte artificial. O Anexo 3 original abrangia ambientes externos com carga solar.',
   'A partir de 11/12/2019: LT do Quadro 1 do novo Anexo 3, em função de M (W). O próprio Anexo 3 não se aplica a céu aberto sem fonte artificial (item 1.1.1); a ferramenta marca esse caso como controverso.',
   'Havendo enquadramento, o PPP recebe o código GFIP 04.'],
  inss:[
@@ -102,7 +102,7 @@ const AGENTS = [
  inss:['IN 128/2022, art. 300: até 05/03/1997, códigos 1.1.7 (53.831) ou 1.1.6 (83.080); depois, atividades do código 2.0.5.'],
  juris:['T:tnu337']},
 
-{id:'eletricidade', nome:'Eletricidade', grupo:'Físicos', engine:'eletricidade', tempo:25, c53:['1.1.8'], c83:[], cIV:null, sheet:'ELETRICIDADE', nr15:'— (NR-16, Anexo 4)', mx:['Q','C','C','C'],
+{id:'eletricidade', nome:'Eletricidade', grupo:'Físicos', engine:'eletricidade', tempo:25, c53:['1.1.8'], c83:[], cIV:null, sheet:'ELETRICIDADE', nr15:'— (NR-16, Anexo IV)', mx:['Q','C','C','C'],
  periodos:[
   ['até 05/03/1997','Dec. 53.831/64 (1.1.8)','Tensão superior a 250 V, em caráter permanente'],
   ['a partir de 06/03/1997','Não arrolado no Anexo IV','Somente pela via judicial, com prova técnica']],
@@ -135,11 +135,11 @@ const AGENTS = [
 {id:'berilio', nome:'Berílio e compostos', grupo:'Químicos', engine:'quimico', tempo:25, c53:['1.2.2'], c83:['1.2.2'], cIV:'1.0.4', sheet:'BERÍLIO', modo:'qual', linach:true, nr15:'—', mx:['Q','Q','Q','Q']},
 {id:'bromo', nome:'Bromo e compostos', grupo:'Químicos', engine:'quimico', tempo:25, c53:['1.2.9'], c83:['1.2.11'], cIV:'1.0.5', sheet:'BROMO', modo:'quant', nr15:'Anexo 11 (0,08 ppm)', mx:['Q','L','L','L']},
 {id:'cadmio', nome:'Cádmio e compostos', grupo:'Químicos', engine:'quimico', tempo:25, c53:['1.2.3'], c83:['1.2.3'], cIV:'1.0.6', sheet:'CÁDMIO', modo:'qual', linach:true, nr15:'—', mx:['Q','Q','Q','Q']},
-{id:'carvao', nome:'Carvão mineral e derivados', grupo:'Químicos', engine:'quimico', tempo:25, c53:['1.2.11'], c83:['1.2.10','1.2.12'], cIV:'1.0.7', sheet:'CARVÃO MINERAL', modo:'qual', linach:true, nr15:'Anexo 13 (hidrocarbonetos)', mx:['Q','Q','Q','Q']},
+{id:'carvao', nome:'Carvão mineral e derivados', grupo:'Químicos', engine:'quimico', tempo:25, c53:['1.2.10','1.2.11'], c83:['1.2.10','1.2.12'], cIV:'1.0.7', sheet:'CARVÃO MINERAL', modo:'qual', linach:true, nr15:'Anexo 13 (hidrocarbonetos)', mx:['Q','Q','Q','Q']},
 {id:'chumbo', nome:'Chumbo e compostos', grupo:'Químicos', engine:'quimico', tempo:25, c53:['1.2.4'], c83:['1.2.4'], cIV:'1.0.8', sheet:'CHUMBO', modo:'quant', nr15:'Anexo 11 (0,1 mg/m³) e Anexo 13', mx:['Q','X','X','X']},
-{id:'cloro', nome:'Cloro e compostos', grupo:'Químicos', engine:'quimico', tempo:25, c53:['1.2.9'], c83:['1.2.11'], cIV:'1.0.9', sheet:'CLORO', modo:'quant', linach:true, nr15:'Anexo 11 (cloro 0,8 ppm)', mx:['Q','X','X','X']},
+{id:'cloro', nome:'Cloro e compostos', grupo:'Químicos', engine:'quimico', tempo:25, c53:['1.2.9'], c83:['1.2.10','1.2.11'], cIV:'1.0.9', sheet:'CLORO', modo:'quant', linach:true, nr15:'Anexo 11 (cloro 0,8 ppm)', mx:['Q','X','X','X']},
 {id:'cromo', nome:'Cromo e compostos', grupo:'Químicos', engine:'quimico', tempo:25, c53:['1.2.5'], c83:['1.2.5'], cIV:'1.0.10', sheet:'CROMO', modo:'qual', linach:true, nr15:'Anexo 13', mx:['Q','Q','Q','Q']},
-{id:'dissulfeto', nome:'Dissulfeto de carbono', grupo:'Químicos', engine:'quimico', tempo:25, c53:['1.2.9'], c83:['1.2.11'], cIV:'1.0.11', sheet:'DISSULFETO DE CARBONO', modo:'quant', nr15:'Anexo 11 (16 ppm)', mx:['Q','L','L','L']},
+{id:'dissulfeto', nome:'Dissulfeto de carbono', grupo:'Químicos', engine:'quimico', tempo:25, c53:['1.2.11'], c83:['1.2.10'], cIV:'1.0.11', sheet:'DISSULFETO DE CARBONO', modo:'quant', nr15:'Anexo 11 (16 ppm)', mx:['Q','L','L','L']},
 {id:'fosforo', nome:'Fósforo e compostos', grupo:'Químicos', engine:'quimico', tempo:25, c53:['1.2.6'], c83:['1.2.6'], cIV:'1.0.12', sheet:'FÓSFORO', modo:'qual', linach:true, nr15:'Anexo 13', mx:['Q','Q','Q','Q']},
 {id:'iodo', nome:'Iodo', grupo:'Químicos', engine:'quimico', tempo:25, c53:['1.2.9'], c83:['1.2.11'], cIV:'1.0.13', sheet:'IODO', modo:'qual', nr15:'—', mx:['Q','Q','Q','Q']},
 {id:'manganes', nome:'Manganês e compostos', grupo:'Químicos', engine:'quimico', tempo:25, c53:['1.2.7'], c83:['1.2.7'], cIV:'1.0.14', sheet:'MANGANÊS', modo:'quant', nr15:'Anexo 12', mx:['Q','L','L','L']},
@@ -176,7 +176,7 @@ const AGENTS = [
   ['até 28/04/1995','Dec. 53.831/64 (2.x) e Anexo II do Dec. 83.080/79','Enquadramento pela atividade ou grupo profissional (presunção legal)'],
   ['a partir de 29/04/1995','Lei 9.032/95','Exige prova de exposição efetiva a agente nocivo']],
  perito:['Até 28/04/1995: basta comprovar o exercício da atividade listada (CTPS, formulário).','Depois: só por exposição a agente nocivo.'],
- inss:['IN 128/2022, art. 269, §1º: caracterização por categoria profissional até 28/04/1995. Não se aplica a segurados filiados após 13/11/2019.'],
+ inss:['IN 128/2022, art. 269, §1º: "Fica assegurada a caracterização por categoria profissional, até 28 de abril de 1995, véspera da publicação da Lei nº 9.032."','Art. 269, §2º: a conversão do tempo especial em comum só vale para períodos até 13/11/2019 (EC 103/2019).','Art. 269, §3º: o Decreto 4.882/2003 não retroage.'],
  juris:['T:stf1209','T:stj1307']}
 ];
 
@@ -188,7 +188,7 @@ AGENTS.forEach(a=>{
       [ate, 'Dec. 53.831/64 ('+a.c53.join(', ')+') e 83.080/79 ('+(a.c83.join(', ')||'—')+')', 'Qualitativo, por presunção de exposição nas operações descritas'],
       ['a partir de 06/03/1997', a.cIV ? 'Dec. 2.172/97 e 3.048/99 ('+a.cIV+')' : 'Não arrolado no Anexo IV', a.cIV ? (a.modo==='quant' ? 'Quantitativo: concentração acima do LT da NR-15 ('+a.nr15+')' : 'Qualitativo: exposição nas atividades exemplificadas ('+a.nr15+')') : 'Sem enquadramento a partir de 06/03/1997']
     ];
-    if(a.linach) a.periodos.push(['a partir de 16/10/2013','Dec. 3.048/99, art. 68, §4º (Dec. 8.123/13) + LINACH Grupo 1','Cancerígeno: presença com possibilidade de exposição basta; EPI não descaracteriza']);
+    if(a.linach) a.periodos.push(['a partir de 17/10/2013','Dec. 3.048/99, art. 68, §4º (Dec. 8.123/13) + LINACH Grupo 1','Cancerígeno: presença com possibilidade de exposição basta; EPI não descaracteriza']);
     a.perito = a.perito || [PERITO_PADRAO, 'O rol de agentes do Anexo IV é exaustivo; as atividades listadas são exemplificativas (código 1.0.0).'];
     a.inss = a.inss || QUIM_INSS;
     a.juris = a.juris || ['T:tnu170','T:stj1090'];
@@ -258,7 +258,7 @@ const NR15 = [
  {n:11, t:'Agentes químicos com limite de tolerância', g:'conforme Quadro 1', tipo:'calc', calc:'quim11', s:'Quadro 1 completo, pesquisável por nome, sinônimo ou fórmula. Caracteriza quando a média das amostras supera o LT; para agentes com valor teto, quando qualquer amostra supera o LT. O grau é o do Quadro 1.'},
  {n:12, t:'Poeiras minerais', g:'máximo', tipo:'calc', calc:'poeira', s:'Asbesto (2,0 f/cm³), manganês e sílica livre cristalizada (LT por % de quartzo).'},
  {n:13, t:'Agentes químicos (avaliação qualitativa)', g:'mínimo, médio ou máximo, por atividade', tipo:'lista', lista:'a13', s:'Lista integral do anexo: insalubridade pela atividade descrita, por inspeção no local, sem medição.'},
- {n:'13-A', t:'Benzeno', g:'ver Anexo 13', tipo:'quali', s:'Estabelece o VRT-MPT e medidas de prevenção. O grau de insalubridade segue o Anexo 13 (hidrocarbonetos).'},
+ {n:'13-A', t:'Benzeno', g:'ver Anexo 13', tipo:'quali', s:'Estabelece o VRT-MPT e medidas de prevenção. Não fixa grau de insalubridade: o grau é atribuído pelo perito (interpretação usual: por analogia com o Anexo 13).'},
  {n:14, t:'Agentes biológicos', g:'médio ou máximo', tipo:'lista', lista:'a14', s:'Avaliação qualitativa, pelo contato permanente nas atividades listadas.'}
 ];
 const A14 = [

@@ -20,7 +20,7 @@ const MXX = {
 (function patch(){
   const A = id => AGENTS.find(a=>a.id===id);
   /* artigos literais da IN 128/2022 por agente */
-  const ART = {ruido:['292','290'], calor:['293'], vibracao:['296'], rad_ion:['294','295'], pressao:['300'], eletricidade:['301'], frio:['301'], umidade:['301'], rni:['301'], biologico:['299'], mineracao:['302'], categoria:['287']};
+  const ART = {ruido:['292','290'], calor:['293'], vibracao:['296'], rad_ion:['294','295'], pressao:['300'], eletricidade:['301'], frio:['301'], umidade:['301'], rni:['301'], biologico:['299'], mineracao:['302'], categoria:[]};
   AGENTS.forEach(a=>{ a.art = ART[a.id] || (a.engine==='quimico' ? (a.linach?['297','298']:['297']) : []); });
 
   /* VIBRAÇÃO: Decreto × IN × Manual */
@@ -36,7 +36,8 @@ const MXX = {
    'O EPI não atenua vibração de forma comprovada: a informação de EPI eficaz não afasta o enquadramento (Manual INSS 2018, item 2.7.1.5).'];
   v.inss=['IN 128/2022, art. 296, II: de 06/03/1997 a 12/08/2014, enquadra quando ultrapassados os limites das ISO 2631 e ISO/DIS 5349.',
    'Manual de Aposentadoria Especial (INSS, 2018): no mesmo período a avaliação é qualitativa, porque as ISO não definem limites de tolerância. Na prática, só perfuratrizes e marteletes pneumáticos.',
-   'A partir de 13/08/2014: Anexo 8 da NR-15, com NHO-09 e NHO-10 (facultadas desde 10/09/2012).'];
+   'A partir de 13/08/2014: Anexo 8 da NR-15, com NHO-09 e NHO-10 (facultadas desde 10/09/2012).',
+   'Atenção à data: a IN 128 usa 13/08/2014 (data da Portaria MTE 1.297/2014); o Manual INSS 2018 adota 14/08/2014 (publicação no DOU). A ferramenta segue a IN.'];
   v.comp = {
     cols:['Período','Decreto (Anexo IV)','IN 128/2022','Manual INSS 2018'],
     rows:[
@@ -49,8 +50,8 @@ const MXX = {
   /* QUÍMICOS / LINACH — Decreto 10.410/2020 */
   AGENTS.filter(a=>a.engine==='quimico').forEach(a=>{
     if(a.linach){
-      a.periodos = a.periodos.filter(p=>!p[0].startsWith('a partir de 16/10/2013'));
-      a.periodos.push(['16/10/2013 a 30/06/2020','Dec. 3.048/99, art. 68, §4º (red. Dec. 8.123/13) + LINACH Grupo 1','Cancerígeno: a presença com possibilidade de exposição basta; EPI não descaracteriza']);
+      a.periodos = a.periodos.filter(p=>!p[0].startsWith('a partir de 17/10/2013'));
+      a.periodos.push(['17/10/2013 a 30/06/2020','Dec. 3.048/99, art. 68, §4º (red. Dec. 8.123/13) + LINACH Grupo 1','Cancerígeno: a presença com possibilidade de exposição basta; EPI não descaracteriza']);
       a.periodos.push(['a partir de 01/07/2020','Dec. 3.048/99, art. 68, §4º (red. Dec. 10.410/20)','Avaliação qualitativa, mas medidas de controle que eliminem a nocividade descaracterizam a exposição']);
     }
     a.inss = [
@@ -76,7 +77,7 @@ const MXX = {
    benzeno:['benzol','solvente','gasolina','coqueria','petroquímica','VRT'],
    berilio:['glicínio'],
    cadmio:['níquel-cádmio','bateria'],
-   carvao:['piche','alcatrão','betume','breu','coque','óleo mineral','parafina','antraceno','negro de fumo','graxa','óleo lubrificante','óleo queimado'],
+   carvao:['piche','alcatrão','betume','breu','coque','antraceno','negro de fumo','creosoto'],
    chumbo:['solda','bateria','acumulador','tinta','litargírio','zarcão'],
    cloro:['PVC','cloreto de vinila','PCB','organoclorado','clorofórmio','tetracloreto de carbono','piscina'],
    cromo:['cromato','bicromato','cromagem','galvanoplastia','solda inox','curtume'],
@@ -85,7 +86,7 @@ const MXX = {
    manganes:['eletrodo','solda','pilha'],
    mercurio:['amálgama','termômetro','lâmpada'],
    niquel:['niquelagem','galvanoplastia'],
-   petroleo:['gasolina','diesel','querosene','nafta','refinaria','frentista','asfalto','gás natural','xisto'],
+   petroleo:['gasolina','diesel','querosene','nafta','refinaria','frentista','asfalto','gás natural','xisto','óleo mineral','óleos minerais','parafina','graxa','óleo lubrificante','óleo queimado','óleo de corte','fluido de corte'],
    silica:['quartzo','cristobalita','jateamento','areia','pedreira','cerâmica','refratário','mármore','granito'],
    outras:['estireno','butadieno','acrilonitrila','TDI','isocianato','n-hexano','óxido de etileno','MOCA','creosoto','aminas aromáticas','benzidina','borracha','pneu'],
    biologico:['hospital','enfermagem','enfermeiro','técnico de enfermagem','médico','dentista','laboratório','esgoto','lixo','coleta','gari','cemitério','coveiro','autópsia','vírus','bactéria'],
@@ -100,4 +101,13 @@ const MXX = {
 
 /* Anexo 1 da NR-15 — Quadro (nível dB(A) → minutos) */
 const A1_QUADRO = [[85,480],[86,420],[87,360],[88,300],[89,270],[90,240],[91,210],[92,180],[93,160],[94,135],[95,120],[96,105],[98,75],[100,60],[102,45],[104,35],[105,30],[106,25],[108,20],[110,15],[112,10],[114,8],[115,7]];
+
+/* critério do perito: óleos minerais e diesel → só 1.0.17 */
+(function(){
+  const P=AGENTS.find(a=>a.id==='petroleo'), C=AGENTS.find(a=>a.id==='carvao'), I=AGENTS.find(a=>a.id==='iodo');
+  const n='Óleos minerais (lubrificantes, de corte, graxas, óleo queimado), diesel e parafina são derivados de petróleo: enquadram-se só no código 1.0.17 do Anexo IV, não no 1.0.7 (carvão mineral).';
+  if(P){ P.perito=(Array.isArray(P.perito)?P.perito:[P.perito||PERITO_PADRAO]).filter(x=>x!==PERITO_PADRAO).concat([n]); }
+  if(C){ C.perito=(Array.isArray(C.perito)?C.perito:[C.perito||PERITO_PADRAO]).filter(x=>x!==PERITO_PADRAO).concat(['O código 1.0.7 cobre carvão mineral e seus derivados (alcatrão, breu, betume, piche, creosoto). Óleos minerais e diesel vão para o 1.0.17.']); }
+  if(I){ I.inss=(I.inss||[]).concat(['Iodo não consta dos Anexos 11 e 13 da NR-15: após 05/03/1997, o enquadramento depende de demonstrar exposição nociva (rol exemplificativo do Anexo IV para químicos, art. 287, §4º).']); }
+})();
 MARCOS.sort((x,y)=>x.d<y.d?-1:1);
