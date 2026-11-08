@@ -359,24 +359,90 @@ function rsCampo(){
     ['NHT-09 R/E (1986)','\"Como regra\", amostragem de toda a jornada','Número inteiro de ciclos; dúvida leva à jornada inteira; dose extrapolada por regra de três'],
     ['NHO-01 (2001)','NE é o \"nível médio representativo da exposição ocupacional diária\"','Ciclos suficientes; rotinas compostas; projetar a dose para a jornada diária efetiva']].map(r=>r.map(esc)))+'</details>';
 }
+function rsTimeline(){
+  const x=y=>((y-1975)/(2027-1975)*100).toFixed(2)+'%', w=(a,b)=>((b-a)/(2027-1975)*100).toFixed(2)+'%';
+  const bar=(cls,a,b,txt)=>'<div class="tlb '+cls+'" style="left:'+x(a)+';width:'+w(a,b)+'"><span>'+txt+'</span></div>';
+  const ticks=[1980,1985,1990,1995,2000,2005,2010,2015,2020,2025];
+  return '<div class="ntl" role="img" aria-label="Linha do tempo das normas de ruído">'+
+   '<div class="ntl-row"><span class="ntl-lab">Limite previdenciário</span><div class="ntl-track">'+bar('lim80',1975,1997.17,'acima de 80 dB(A)')+bar('lim90',1997.17,2003.88,'acima de 90')+bar('lim85',2003.88,2027,'NEN acima de 85 dB(A)')+'</div></div>'+
+   '<div class="ntl-row"><span class="ntl-lab">Limite de tolerância</span><div class="ntl-track">'+bar('nr15',1978.44,2027,'NR-15, Anexo 1 · 85 dB(A) / 8 h · q = 5')+'</div></div>'+
+   '<div class="ntl-row"><span class="ntl-lab">Método · leituras</span><div class="ntl-track">'+bar('met',1985,2001,'NHT-06 · q = 5')+bar('met2',2001,2027,'NHO-01 · q = 3')+'</div></div>'+
+   '<div class="ntl-row"><span class="ntl-lab">Método · dosímetro</span><div class="ntl-track">'+bar('met',1986,2001,'NHT-09 · q = 5')+bar('met2',2001,2027,'NHO-01 · NE e NEN')+'</div></div>'+
+   '<div class="ntl-row ntl-axis"><span class="ntl-lab"></span><div class="ntl-track">'+ticks.map(t=>'<i style="left:'+x(t)+'">'+t+'</i>').join('')+'</div></div></div>';
+}
+const NORMAS_CARDS=[
+ ['NR-15, Anexo 1','Limite de tolerância','Desde 08/06/1978 (Portaria 3.214/78)','Medidor de nível de pressão sonora, circuito A, resposta lenta','5','Quadro a partir de 85 dB(A)','Nível imediatamente superior (item 4)'],
+ ['NHT-06 R/E','Método · leituras instantâneas','1985 até a NHO-01 (2001)','Medidor de leitura instantânea, 3 leituras por situação acústica','5','80 dB(A) (Apêndice 1: 85 dB(A))','Média ao inteiro; dose em décimos'],
+ ['NHT-09 R/E','Método · dosímetro','1986 até a NHO-01 (2001)','Dosímetro (5 dB por dobro, como a NR-15)','5','80 dB(A)','Leq = 80 + 16,61 · log(0,16 · CD/TM)'],
+ ['NHO-01','Método · dosímetro ou integrador','Desde 2001; o INSS exige desde 01/01/2004','Dosímetro (preferencial) ou medidor integrador','3 (critério da própria NHO)','80 dB(A)','Resultado em NE e NEN']];
 function rsMetodo(){
-  return '<p class="lead">Com q = 5 em todos os períodos: compara-se o Lavg da jornada até 18/11/2003 e o NEN a partir de 19/11/2003. O Leq não serve, porque é sempre q = 3.</p><h3>Normas de avaliação</h3>'+
-   tbl(['Norma','Critério','q','Limiar','Resultado','Arredondamento'],[
-    ['NR-15, Anexo 1 (1978)','85 dB(A) / 8 h','5','Quadro a partir de 85','Dose Σ Ci/Ti','Nível imediatamente superior (item 4)'],
-    ['NHT-06 R/E (1985)','85 dB(A) / 8 h','5','80 (Apêndice 1: 85)','Dose por leituras instantâneas','Média ao inteiro; dose em décimos'],
-    ['NHT-09 R/E (1986)','85 dB(A) / 8 h','5','80','Dose por dosímetro; Leq = 80 + 16,61 · log(0,16 · CD / TM)','—'],
-    ['NHO-01 (2001)','85 dB(A) / 8 h','3','80','NE e NEN','—']].map(r=>r.map(esc)))+
-   '<h3>Grandezas</h3>'+tbl(['Sigla','O que é','q','Normalizado para 8 h?','Uso'],[
+  return '<div class="keynote"><b>Você não precisa escolher entre as normas.</b> A NR-15 dá o limite; as NHT e a NHO dão o jeito de medir. A data da medição define o método, e o limite é sempre o do Anexo 1 da NR-15 (nota do especialista; as NHO não fixam limites, Portaria Fundacentro 675/2021).</div>'+
+   '<h3>O que existia em cada época</h3>'+rsTimeline()+
+   '<h3>As quatro normas, nos mesmos termos</h3><div class="ncards">'+NORMAS_CARDS.map(([n,papel,qd,inst,q,lim,arr])=>'<article class="ncard'+(papel==='Limite de tolerância'?' nlim':'')+'"><header><b>'+esc(n)+'</b><span>'+esc(papel)+'</span></header><dl><dt>Quando vale</dt><dd>'+esc(qd)+'</dd><dt>Instrumento</dt><dd>'+esc(inst)+'</dd><dt>q</dt><dd>'+esc(q)+'</dd><dt>Limiar</dt><dd>'+esc(lim)+'</dd><dt>Arredondamento</dt><dd>'+esc(arr)+'</dd></dl></article>').join('')+'</div>'+
+   '<h3>O que comparar em cada período (q = 5)</h3>'+tbl(['Período','Grandeza','Limite'],[['Até 05/03/1997','Lavg da jornada','Acima de 80 dB(A)'],['06/03/1997 a 18/11/2003','Lavg da jornada','Acima de 90 dB(A)'],['A partir de 19/11/2003','NEN = Lavg + 16,61 · log(Te/480)','Acima de 85 dB(A)']].map(r=>r.map(esc)))+
+   '<details><summary>Grandezas: Lavg, Leq, NE, NEN e TWA</summary>'+tbl(['Sigla','O que é','q','Normalizado para 8 h?','Uso'],[
     ['Leq','Média por igual energia no período medido','3','Não','Não serve para q = 5'],
     ['Lavg','Nível médio do período medido, com o q escolhido','5 ou 3','Não','Até 18/11/2003, se representa a jornada'],
     ['NE','Nível médio representativo da exposição diária','O da média','Não','Base do NEN'],
     ['NEN','NE convertido para 8 h','O da média','Sim','A partir de 19/11/2003'],
-    ['TWA','Dose expressa como nível de 8 h (OSHA)','Configurável','Sim','= NEN com q = 5 só com critério 85 e jornada inteira']].map(r=>r.map(esc)))+
-   '<p class="formula">NEN (q = 5) = Lavg + 16,61 · log(Te/480) = 85 + 16,61 · log(D)<br>NEN (q = 3) = NE + 10 · log(Te/480)</p>'+
-   '<h3>Armadilhas</h3><ul><li>Leq (q = 3) da empresa não se compara com o critério q = 5: peça o Lavg ou a dose.</li><li>TWA de medição curta conta o tempo não medido como silêncio: projete a dose para Te.</li><li>Dosímetro no padrão OSHA (critério 90 dB(A)) dá dose e TWA em outra base.</li><li>Jornada acima de 480 min aumenta o NEN; abaixo, reduz.</li></ul>'+
-   '<p class="small">Horas extras: nenhuma norma técnica trata delas expressamente; pela lógica de dose, a hora extra habitual entra em Te. Ponto em aberto, sem tese uniformizada localizada.</p>';
+    ['TWA','Dose expressa como nível de 8 h (OSHA)','Configurável','Sim','= NEN com q = 5 só com critério 85 e jornada inteira']].map(r=>r.map(esc)))+'<p class="formula">NEN (q = 5) = Lavg + 16,61 · log(Te/480) = 85 + 16,61 · log(D)<br>NEN (q = 3) = NE + 10 · log(Te/480)</p></details>'+
+   '<details><summary>Armadilhas frequentes</summary><ul><li>Leq (q = 3) da empresa não se compara com o critério q = 5: peça o Lavg ou a dose.</li><li>TWA de medição curta conta o tempo não medido como silêncio: projete a dose para Te.</li><li>Dosímetro no padrão OSHA (critério 90 dB(A)) dá dose e TWA em outra base.</li><li>Jornada acima de 480 min aumenta o NEN; abaixo, reduz.</li><li>Horas extras: nenhuma norma técnica trata delas; pela lógica de dose, a hora extra habitual entra em Te (ponto em aberto).</li></ul></details>';
 }
-function rsSimular(a){ return '<p class="lead">Use o simulador que corresponde ao dado que você tem: leituras instantâneas, dose ou Lavg do dosímetro. O enquadramento por período aplica os limites de cada época e pode ser levado para a análise de caso.</p>'+liHtml()+simHtml(a)+cmpHtml(); }
+function uRefresh(){ const box=$('#ures'); if(!box) return; const r=uCalc(); box.innerHTML=uRes(); uSync(r); const rs=$('#res-s'); if(rs) rs.innerHTML=resTable(simRow()); const fl=$('#rs-d-lavg'); if(fl&&r&&!r.err&&r.lavg!==null) fl.value=String(r1(r.lavg)).replace('.',','); const ft=$('#rs-d-te'); if(ft&&r&&!r.err&&r.te) ft.value=r.te; }
+/* ---------- SIMULADOR ÚNICO ---------- */
+const U_DEF={quando:'desde2001', tipo:'leituras', te:'480', dose:'', tm:'', lavg:''};
+function uState(){ if(!S.u) S.u=JSON.parse(JSON.stringify(U_DEF)); return S.u; }
+function uMetodo(u){ const ant=u.quando==='ate2001';
+  if(u.tipo==='leituras') return ant?['nht06','NHT-06 R/E (1985), critérios próprios: média ao inteiro, tabela de Ti da própria NHT-06, dose em décimos']:['nr15','NR-15, Anexo 1: média a 0,1 dB, Ti do Quadro com o nível imediatamente superior (item 4), limiar de 80 dB(A)'];
+  if(u.tipo==='dose') return ant?['nht09','NHT-09 R/E (1986): Lavg = 80 + 16,61 · log(0,16 · CD / TM), q = 5, limiar 80 dB(A)']:['dose5','NR-15 com q = 5 (nota do especialista): Lavg = 85 + 16,61 · log(D · 480 / Tm), limiar 80 dB(A)'];
+  return ['lavg','Lavg (q = 5) informado no laudo ou no PPP']; }
+function uCalc(){
+  const u=uState(), te=num(u.te); if(te===null||te<=0) return {err:'Informe a jornada Te em minutos.'};
+  const [met]=uMetodo(u);
+  if(u.tipo==='leituras'){ const c=JSON.parse(JSON.stringify(liState())); c.met=met; c.te=String(te); const r=liCalc(c); if(r.err) return r; return {lavg:r.lavg, ne:r.ne, nen:r.nen, dose:r.D, doseTxt:r.semDose?'não calculada':(r.nht?brn0(r.Dshow)+' ('+brn0(Math.round(r.Dshow*100))+'%)':brn0(Math.round(r.D*1000)/10)+'%'), te:r.base, tm:r.T, over:r.over, li:r}; }
+  if(u.tipo==='dose'){ const D=num(u.dose), tm=num(u.tm)||te; if(D===null||D<=0) return {err:'Informe a dose (%) e o tempo de medição.'};
+    const lavg=85+16.61*log10(D/100*480/tm); const ne=lavg; const nen=ne+16.61*log10(te/480); const Dj=D/100*te/tm;
+    return {lavg, ne, nen, dose:Dj, doseTxt:brn0(Math.round(Dj*1000)/10)+'%'+(tm!==te?' (projetada para a jornada, amostra representativa)':''), te, tm}; }
+  const L=num(u.lavg); if(L===null) return {err:'Informe o Lavg (q = 5).'};
+  return {lavg:L, ne:L, nen:L+16.61*log10(te/480), dose:Math.pow(2,(L-85)/5)*te/480, doseTxt:brn0(Math.round(Math.pow(2,(L-85)/5)*te/480*1000)/10)+'%', te, tm:te};
+}
+function uSync(r){ if(!r||r.err||r.lavg===null) return; const row=simRow(); row.d=row.d||{}; row.d.mr='lavg'; row.d.lavg=String(r1(r.lavg)); row.d.te=String(r.te); }
+function uRes(){
+  const r=uCalc(); if(r.err) return '<p class="note">'+esc(r.err)+'</p>';
+  if(r.lavg===null) return (r.over?'<div class="verdict v-c"><b>Nível acima de 115 dB(A)</b><p>Pela NHT-06 a dose não é calculada: registrar \"Situação de Emergência\" (NR-15, Anexo 1, itens 5 e 7).</p></div>':'<p class="note">Sem dose: leituras abaixo do limiar.</p>');
+  const kv=(k,v,sm)=>'<div><span>'+k+'</span><b>'+v+'</b>'+(sm?'<small>'+sm+'</small>':'')+'</div>';
+  const ver=(v,lim)=>r1(v)>lim?'<span class="pill pe">Especial</span>':'<span class="pill pn">Não especial</span>';
+  let h=(r.over?'<div class="verdict v-c"><b>Nível acima de 115 dB(A)</b><p>NR-15, Anexo 1, itens 5 e 7: exposição não permitida sem proteção adequada.</p></div>':'')+
+   '<div class="kv">'+kv('Lavg do período medido',f1(r.lavg)+' dB(A)',r.tm+' min')+kv('NE da jornada',f1(r.ne)+' dB(A)',r.te+' min')+kv('NEN (8 h, q = 5)',f1(r.nen)+' dB(A)')+kv('Dose da jornada',r.doseTxt)+'</div>'+
+   '<h4 class="sub">Se este resultado representar a exposição em…</h4>'+
+   '<div class="scrollx"><table class="pt"><thead><tr><th>Período</th><th>Compara</th><th>Resultado</th></tr></thead><tbody>'+
+   '<tr><td class="mono">Até 05/03/1997</td><td>Lavg '+f1(r.ne)+' × 80 dB(A)</td><td>'+ver(r.ne,80)+'</td></tr>'+
+   '<tr><td class="mono">06/03/1997 a 18/11/2003</td><td>Lavg '+f1(r.ne)+' × 90 dB(A)</td><td>'+ver(r.ne,90)+'</td></tr>'+
+   '<tr><td class="mono">A partir de 19/11/2003</td><td>NEN '+f1(r.nen)+' × 85 dB(A)</td><td>'+ver(r.nen,85)+'</td></tr></tbody></table></div>'+
+   '<p class="fine">Nota do especialista (q = 5). O quadro \"Enquadrar um período\", abaixo, já recebeu este Lavg e esta jornada: informe as datas e o EPI.</p>';
+  if(r.li) h+='<details><summary>Ver o cálculo por situação acústica</summary>'+liResFrom(r.li)+'</details>';
+  return h;
+}
+function liResFrom(r){ return '<div class="scrollx"><table class="pt"><thead><tr><th>Situação</th><th>Média</th><th>Ci</th><th>Ti</th><th>Ci/Ti</th></tr></thead><tbody>'+r.sit.map(x=>'<tr><td>'+esc(x.n)+'</td><td>'+(r.nht?String(x.m):f1(x.m))+'</td><td>'+x.t+' min</td><td>'+(isFinite(x.ti)?Math.round(x.ti)+' min':'não soma')+'</td><td>'+(isFinite(x.ti)?brn0(Math.round(x.fr*1000)/1000):'0')+'</td></tr>').join('')+'</tbody></table></div>'; }
+function uHtml(){
+  const u=uState(), [,metTxt]=uMetodo(u);
+  const seg=(k,opts)=>'<div class="seg" role="group">'+opts.map(([v,t])=>'<button type="button" data-useg="'+k+'" data-v="'+v+'" class="'+(u[k]===v?'on':'')+'" aria-pressed="'+(u[k]===v)+'">'+t+'</button>').join('')+'</div>';
+  const inp=(k,lab,ph)=>'<label class="f"><span>'+lab+'</span><input type="text" inputmode="decimal" id="u-'+k+'" data-uf="'+k+'" value="'+esc(u[k]||'')+'"'+(ph?' placeholder="'+ph+'"':'')+'></label>';
+  let fields='';
+  if(u.tipo==='leituras'){ const c=liState(); const li=(k,lab,val,ph,dec)=>'<label class="f"><span>'+lab+'</span><input type="text" '+(dec?'inputmode="decimal" ':'')+'id="li-'+k.replace(/\./g,'-')+'" data-li="'+k+'" value="'+esc(val||'')+'"'+(ph?' placeholder="'+ph+'"':'')+'></label>';
+    fields='<div class="lirows">'+c.s.map((x,i)=>'<div class="fields">'+li('s.'+i+'.n','Situação '+(i+1),x.n,'Ex.: operação da prensa')+li('s.'+i+'.l','Leituras dB(A)',x.l,'88; 89; 88,5')+li('s.'+i+'.t','Tempo na jornada (min)',x.t,'',1)+'</div>').join('')+'</div>'; }
+  else if(u.tipo==='dose') fields='<div class="fields">'+inp('dose','Dose do dosímetro (%) · q = 5')+inp('tm','Tempo de medição (min)','= Te se vazio')+'</div>';
+  else fields='<div class="fields">'+inp('lavg','Lavg dB(A) · q = 5')+'</div>';
+  return '<section class="simbox" id="ubox"><div class="fhead"><h3>1. Calcular a exposição</h3><button class="ghost sm" data-ursr="1">Restaurar exemplo</button></div>'+
+   '<div class="qgrid"><div class="q"><span class="ql">Quando foi a medição?</span>'+seg('quando',[['ate2001','Antes de 2001'],['desde2001','A partir de 2001']])+'</div><div class="q"><span class="ql">O que você tem em mãos?</span>'+seg('tipo',[['leituras','Leituras instantâneas'],['dose','Dose do dosímetro'],['lavg','Lavg calculado']])+'</div>'+inp('te','Jornada Te (min)')+'</div>'+
+   '<p class="mnote"><b>Método aplicado:</b> '+esc(metTxt)+'</p>'+fields+'<div class="res" id="ures">'+uRes()+'</div></section>';
+}
+function rsSimular(a){
+  const r=uCalc(); uSync(r);
+  return '<p class="lead">Responda duas perguntas e informe os dados: a ferramenta aplica o método da época e mostra Lavg, NE e NEN. Depois, enquadre o período com datas e EPI.</p>'+uHtml()+
+   simHtml(a).replace('<h3>Simular enquadramento</h3>','<h3>2. Enquadrar um período</h3>')+
+   '<details class="cmpdet"><summary>Comparar com outros critérios (q = 3, NHT-06 × NR-15, fórmula)</summary>'+cmpHtml()+'</details>';
+}
 function rsDocumentar(){
   return '<p class="lead">PPP em papel para períodos até 31/12/2022; exclusivamente eletrônico (eSocial, S-2240) a partir de 01/01/2023 (Portaria DIRBEN/INSS 1.100/2023).</p><h3>PPP em papel, seção 15</h3>'+
    tbl(['Período','15.3 Fator de risco','15.4 Intensidade (até 15 caracteres)','15.5 Técnica (até 40 caracteres)'],[
@@ -716,7 +782,8 @@ function refocus(id){ const el=document.getElementById(id); if(!el) return; el.f
 document.addEventListener('input', ev=>{
   const t=ev.target; try{ CARET = (typeof t.selectionStart==='number') ? t.selectionStart : null; }catch(e){ CARET=null; }
   if(t.dataset.rck){ S.rck=S.rck||{}; S.rck[t.dataset.rck]=t.checked; const n=Object.values(RS_CK).flat().length, d=Object.values(S.rck).filter(Boolean).length; const c=$('#ckcount'); if(c) c.textContent=d+' de '+n; return; }
-  if(t.dataset.li){ const c=liState(), p=t.dataset.li.split('.'); if(p[0]==='s') c.s[+p[1]][p[2]]=t.value; else c[p[0]]=t.value; const box=$('#lires'); if(box) box.innerHTML=liRes(); return; }
+  if(t.dataset.li){ const c=liState(), p=t.dataset.li.split('.'); if(p[0]==='s') c.s[+p[1]][p[2]]=t.value; else c[p[0]]=t.value; const box=$('#lires'); if(box) box.innerHTML=liRes(); uRefresh(); return; }
+  if(t.dataset.uf){ uState()[t.dataset.uf]=t.value; uRefresh(); return; }
   if(t.dataset.lisel){ liState()[t.dataset.lisel]=t.value; const box=$('#lires'); if(box) box.innerHTML=liRes(); return; }
   if(t.dataset.cmp){ const c=cmpState(), p=t.dataset.cmp.split('.'); if(p[0]==='r') c.r[+p[1]][+p[2]]=t.value; else c[p[0]]=t.value; const box=$('#cmpres'); if(box) box.innerHTML=cmpRes(); return; }
   if(t.dataset.cmpcb){ cmpState()[t.dataset.cmpcb]=t.checked; const box=$('#cmpres'); if(box) box.innerHTML=cmpRes(); return; }
@@ -754,6 +821,8 @@ document.addEventListener('click', ev=>{
   if(b.dataset.caq!==undefined){ const ca=(b.closest('.epibox')?.querySelector('[data-f="d.ca"]')?.value||'').trim(); try{ if(ca&&navigator.clipboard) navigator.clipboard.writeText(ca); }catch(e){} window.open('http://caepi.mte.gov.br/internet/ConsultaCAInternet.aspx','_blank','noopener'); if(ca){ b.textContent='CA '+ca+' copiado · abrir consulta ↗'; } return; }
   if(b.dataset.rstep){ S.rstep=b.dataset.rstep; render(); const r=$('.rs'); if(r) r.scrollIntoView({block:'start'}); return; }
   if(b.dataset.rckclr){ S.rck={}; render(); return; }
+  if(b.dataset.useg){ uState()[b.dataset.useg]=b.dataset.v; render(); return; }
+  if(b.dataset.ursr){ S.u=null; S.li=null; render(); return; }
   if(b.dataset.lirst){ S.li=null; render(); return; }
   if(b.dataset.cmprst){ S.cmp=null; render(); return; }
   if(b.dataset.simrst){ delete S.sim[S.ag]; render(); return; }

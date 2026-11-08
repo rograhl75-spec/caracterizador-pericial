@@ -301,6 +301,44 @@ details.lit p{font-size:.9rem; margin:6px 0} details.lit p.art0{font-weight:700}
   *{-webkit-print-color-adjust:exact; print-color-adjust:exact}
 }
 
+/* passo 3: linha do tempo e cartões */
+.keynote{border-left:4px solid var(--gold); background:var(--gold-soft); padding:12px 16px; border-radius:0 8px 8px 0; font-size:1rem; line-height:1.5}
+.ntl{display:flex; flex-direction:column; gap:8px; padding:12px 0}
+.ntl-row{display:grid; grid-template-columns:160px minmax(0,1fr); gap:12px; align-items:center}
+.ntl-lab{font:600 .82rem var(--f-body); color:var(--muted); text-align:right}
+.ntl-track{position:relative; height:30px; background:var(--surface-2); border-radius:6px}
+.ntl-axis .ntl-track{background:none; height:18px}
+.ntl-axis i{position:absolute; transform:translateX(-50%); font:500 .74rem var(--f-mono); color:var(--muted); font-style:normal}
+.tlb{position:absolute; top:3px; bottom:3px; border-radius:5px; display:flex; align-items:center; overflow:hidden; padding:0 8px}
+.tlb span{font:600 .78rem var(--f-body); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#fff}
+.tlb.lim80{background:#3E6B8E} .tlb.lim90{background:#7A5A1E} .tlb.lim85{background:#1E3A5F}
+.tlb.nr15{background:#C9A227} .tlb.nr15 span{color:#1E1A0E}
+.tlb.met{background:#5E7C5A} .tlb.met2{background:#2F6B5F}
+.ncards{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px}
+.ncard{border:1px solid var(--line); border-radius:10px; padding:14px; display:flex; flex-direction:column; gap:10px; background:var(--surface)}
+.ncard header{display:flex; flex-direction:column; gap:2px}
+.ncard header b{font:800 1.05rem var(--f-disp)}
+.ncard header span{font:600 .76rem var(--f-body); text-transform:uppercase; letter-spacing:.05em; color:#2F6B5F}
+.ncard.nlim{border-color:var(--gold-line); background:linear-gradient(var(--gold-soft),var(--gold-soft)) top/100% 4px no-repeat, var(--surface)}
+.ncard.nlim header span{color:var(--gold)}
+.ncard dl{display:grid; grid-template-columns:auto minmax(0,1fr); gap:5px 10px; font-size:.88rem; margin:0}
+.ncard dt{color:var(--muted); font-weight:600} .ncard dd{margin:0}
+/* simulador único */
+.qgrid{display:grid; grid-template-columns:auto auto minmax(140px,180px); gap:12px 20px; align-items:end}
+.q{display:flex; flex-direction:column; gap:6px}
+.ql{font:600 .82rem var(--f-body); color:var(--muted)}
+.seg{display:inline-flex; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--surface)}
+.seg button{border:0; border-radius:0; background:transparent; color:var(--ink); padding:9px 14px; font:600 .9rem var(--f-body); border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button.on{background:var(--sel); color:#fff}
+.mnote{font-size:.9rem; background:var(--surface-2); border-radius:8px; padding:8px 12px}
+h4.sub{font-size:.95rem; margin-top:4px}
+.pill{display:inline-block; padding:2px 10px; border-radius:999px; font:700 .78rem var(--f-body)}
+.pill.pe{background:var(--e-bg,#E3F1E8); color:var(--e,#1B6B3A)} .pill.pn{background:var(--n-bg,#F6E3E3); color:var(--n,#8A2E2E)}
+.cmpdet{border:1px solid var(--line); border-radius:8px; padding:10px 14px}
+.cmpdet > summary{font-weight:700; cursor:pointer}
+@media (max-width:860px){ .qgrid{grid-template-columns:1fr} .seg{flex-wrap:wrap} .ntl-row{grid-template-columns:1fr; gap:4px} .ntl-lab{text-align:left} .tlb span{font-size:.7rem} }
+
 /* aposentadoria: cabeçalho e subabas */
 .aphead{display:flex; flex-direction:column; gap:14px; margin-bottom:18px}
 .aphead h2{font:800 1.6rem/1.15 var(--f-disp); color:var(--ink)}
