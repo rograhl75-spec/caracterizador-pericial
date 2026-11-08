@@ -471,6 +471,26 @@ h4.sub{font-size:.95rem; margin-top:4px}
 @media (max-width:800px){ .hero-in{grid-template-columns:1fr} .hero-logo{max-width:200px} .hero-num{grid-template-columns:repeat(2,minmax(0,1fr))} }
 @media (max-width:420px){ .hero{padding:20px} }
 .isec{display:flex; flex-direction:column; gap:12px}
+.ihead{display:flex; flex-direction:column; gap:4px}
+.acards{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px}
+@media (max-width:900px){ .acards{grid-template-columns:1fr} }
+.acard{background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:20px; display:flex; flex-direction:column; gap:10px; border-top:4px solid var(--ac,var(--gold-line))}
+.acard.a-prev{--ac:#1E3A5F} .acard.a-ins{--ac:#C9A227} .acard.a-per{--ac:#9A3B2E}
+:root[data-theme="dark"] .acard.a-prev{--ac:#6D93C4}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) .acard.a-prev{--ac:#6D93C4} }
+.acard h3{font-size:1.2rem}
+.acard > p:not(.eyebrow){font-size:.94rem; color:var(--muted); flex:1; margin:0}
+.alinks{display:flex; flex-wrap:wrap; gap:8px; margin-top:4px}
+.alinks a{text-decoration:none; font:600 .9rem var(--f-body); padding:8px 14px; border-radius:6px; border:1px solid var(--line); color:var(--ink)}
+.alinks a.pri{background:var(--band); border-color:var(--band); color:var(--band-ink)}
+.alinks a:hover{border-color:var(--ink)} .alinks a.pri:hover{filter:brightness(1.15)}
+.forwho{background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:20px; display:flex; flex-direction:column; gap:14px}
+.fw-grid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px}
+@media (max-width:700px){ .fw-grid{grid-template-columns:1fr} }
+.fw-grid b{display:block; font:600 .72rem var(--f-body); letter-spacing:.12em; text-transform:uppercase; color:var(--gold); margin-bottom:8px}
+.chips{list-style:none; margin:0; padding:0; display:flex; flex-wrap:wrap; gap:8px}
+.chips li{background:var(--surface-2); border-radius:999px; padding:6px 12px; font-size:.9rem}
+
 .ih{font-size:1.3rem}
 .ilead{max-width:80ch; color:var(--muted); font-size:1rem}
 .icards{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px}
