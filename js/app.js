@@ -419,8 +419,10 @@ function rsMetodo(){
 }
 function uRefresh(){ const box=$('#ures'); if(!box) return; const r=uCalc(); box.innerHTML=uRes(); uSync(r); const rs=$('#res-s'); if(rs) rs.innerHTML=resTable(simRow()); const fl=$('#rs-d-lavg'); if(fl&&r&&!r.err&&r.lavg!==null) fl.value=String(r1(r.lavg)).replace('.',','); const ft=$('#rs-d-te'); if(ft&&r&&!r.err&&r.te) ft.value=r.te; }
 /* ---------- SIMULADOR ÚNICO ---------- */
-const U_DEF={quando:'desde2001', tipo:'leituras', te:'480', dose:'', tm:'', lavg:''};
-function uState(){ if(!S.u) S.u=JSON.parse(JSON.stringify(U_DEF)); return S.u; }
+const U_DEF={per:'todos', quando:'desde2001', tipo:'leituras', te:'480', dose:'', tm:'', lavg:''};
+function uState(){ if(!S.u) S.u=JSON.parse(JSON.stringify(U_DEF)); if(!S.u.per) S.u.per='todos'; return S.u; }
+const U_PER=[['p1','Até 05/03/1997','Lavg','80'],['p2','06/03/1997 a 18/11/2003','Lavg','90'],['p3','A partir de 19/11/2003','NEN','85']];
+function uExtemp(u){ if(u.per==='todos') return ''; const depois=u.quando==='desde2001'; if(u.per==='p1'&&depois) return 'posterior'; if(u.per==='p3'&&!depois) return 'anterior'; return ''; }
 function uMetodo(u){ const ant=u.quando==='ate2001';
   if(u.tipo==='leituras') return ant?['nht06q','NHT-06 R/E (1985) para obter o nível: média ao inteiro; depois o Quadro do Anexo 1 da NR-15 para o Ti, com o nível imediatamente superior quando o nível não consta do Quadro; dose em décimos']:['nr15','NR-15, Anexo 1: média a 0,1 dB, Ti do Quadro com o nível imediatamente superior (item 4), limiar de 80 dB(A)'];
   if(u.tipo==='dose') return ant?['nht09','NHT-09 R/E (1986): o critério é a dose; o nível vem do Apêndice 3, "Leq" = 80 + 16,61 · log(0,16 · CD / TM), que com q = 5 equivale ao Lavg; limiar 80 dB(A)']:['dose5','NR-15 com q = 5 (nota do especialista): Lavg = 85 + 16,61 · log(D · 480 / Tm), limiar 80 dB(A)'];
@@ -437,22 +439,25 @@ function uCalc(){
 }
 function uSync(r){ if(!r||r.err||r.lavg===null) return; const row=simRow(); row.d=row.d||{}; row.d.mr='lavg'; row.d.lavg=String(r1(r.lavg)); row.d.te=String(r.te); }
 function uRes(){
-  const r=uCalc(); if(r.err) return '<p class="note">'+esc(r.err)+'</p>';
+  const u=uState(), r=uCalc(); if(r.err) return '<p class="note">'+esc(r.err)+'</p>';
   if(r.lavg===null) return (r.over?'<div class="verdict v-c"><b>Nível acima de 115 dB(A)</b><p>Pela NHT-06 a dose não é calculada: registrar \"Situação de Emergência\" (NR-15, Anexo 1, itens 5 e 7).</p></div>':'<p class="note">Sem dose: leituras abaixo do limiar.</p>');
   const kv=(k,v,sm)=>'<div><span>'+k+'</span><b>'+v+'</b>'+(sm?'<small>'+sm+'</small>':'')+'</div>';
   const ver=(v,lim)=>r1(v)>lim?'<span class="pill pe">Especial</span>':'<span class="pill pn">Não especial</span>';
   let h=(r.over?'<div class="verdict v-c"><b>Nível acima de 115 dB(A)</b><p>NR-15, Anexo 1, itens 5 e 7: exposição não permitida sem proteção adequada.</p></div>':'')+
    '<div class="kv">'+kv('Lavg do período medido',f1(r.lavg)+' dB(A)',r.tm+' min')+kv('NE da jornada',f1(r.ne)+' dB(A)',r.te+' min')+kv('NEN (8 h, q = 5)',f1(r.nen)+' dB(A)')+kv('Dose da jornada',r.doseTxt)+'</div>'+
-   '<h4 class="sub">Se este resultado representar a exposição em…</h4>'+
-   '<div class="scrollx"><table class="pt"><thead><tr><th>Período</th><th>Compara</th><th>Resultado</th></tr></thead><tbody>'+
-   '<tr><td class="mono">Até 05/03/1997</td><td>Lavg '+f1(r.ne)+' × 80 dB(A)</td><td>'+ver(r.ne,80)+'</td></tr>'+
-   '<tr><td class="mono">06/03/1997 a 18/11/2003</td><td>Lavg '+f1(r.ne)+' × 90 dB(A)</td><td>'+ver(r.ne,90)+'</td></tr>'+
-   '<tr><td class="mono">A partir de 19/11/2003</td><td>NEN '+f1(r.nen)+' × 85 dB(A)</td><td>'+ver(r.nen,85)+'</td></tr></tbody></table></div>'+
+   '<h4 class="sub">'+(u.per==='todos'?'Se este resultado representar a exposição em…':'Período analisado e limite da época')+'</h4>'+
+   '<div class="scrollx"><table class="pt uper"><thead><tr><th>Período</th><th>Compara</th><th>Resultado</th></tr></thead><tbody>'+
+   U_PER.map(([k,t,g,lim])=>{ const v=g==='NEN'?r.nen:r.ne; return '<tr class="'+(u.per==='todos'?'':k===u.per?'sel':'dim')+'"><td class="mono">'+t+'</td><td>'+g+' '+f1(v)+' × '+lim+' dB(A)</td><td>'+ver(v,+lim)+'</td></tr>'; }).join('')+'</tbody></table></div>'+uExtNote(u)+
    '<p class="fine">Nota do especialista (q = 5). O quadro \"Enquadrar um período\", abaixo, já recebeu este Lavg e esta jornada: informe as datas e o EPI.</p>';
   if(r.li) h+='<details><summary>Ver o cálculo por situação acústica</summary>'+liResFrom(r.li)+'</details>';
   return h;
 }
 function liResFrom(r){ return '<div class="scrollx"><table class="pt"><thead><tr><th>Situação</th><th>Média</th><th>Ci</th><th>Ti</th><th>Ci/Ti</th></tr></thead><tbody>'+r.sit.map(x=>'<tr><td>'+esc(x.n)+'</td><td>'+(r.nht?String(x.m):f1(x.m))+'</td><td>'+x.t+' min</td><td>'+(isFinite(x.ti)?Math.round(x.ti)+' min':'não soma')+'</td><td>'+(isFinite(x.ti)?brn0(Math.round(x.fr*1000)/1000):'0')+'</td></tr>').join('')+'</tbody></table></div>'; }
+function uExtNote(u){ const x=uExtemp(u);
+  const base='<b>Laudo extemporâneo.</b> O limite é o do período analisado; a medição segue as normas vigentes na data da avaliação ambiental (IN 128/2022, art. 289). O INSS aceita LTCAT emitido antes ou depois do período desde que a empresa declare que não houve alteração no ambiente ou na organização do trabalho: leiaute, máquinas e equipamentos, proteção coletiva, níveis de ação (art. 279).';
+  if(x==='posterior') return '<div class="note ext">'+base+' Nota do especialista: para comparar com o limite de 80 dB(A), o resultado precisa estar em q = 5 (Lavg); se o laudo trouxer só o NEN da NHO-01 (q = 3), peça a dose em q = 5 ou o histograma.</div>';
+  if(x==='anterior') return '<div class="note ext">'+base+' Medição anterior a 2001 usada para período a partir de 19/11/2003: o INSS exige o NEN da NHO-01 para avaliações a partir de 01/01/2004 (art. 289, parágrafo único), e o laudo antigo tende a ser questionado.</div>';
+  return ''; }
 function uHtml(){
   const u=uState(), [,metTxt]=uMetodo(u);
   const seg=(k,opts)=>'<div class="seg" role="group">'+opts.map(([v,t])=>'<button type="button" data-useg="'+k+'" data-v="'+v+'" class="'+(u[k]===v?'on':'')+'" aria-pressed="'+(u[k]===v)+'">'+t+'</button>').join('')+'</div>';
@@ -463,12 +468,12 @@ function uHtml(){
   else if(u.tipo==='dose') fields='<div class="fields">'+inp('dose','Dose do dosímetro (%) · q = 5')+inp('tm','Tempo de medição (min)','= Te se vazio')+'</div>';
   else fields='<div class="fields">'+inp('lavg','Lavg dB(A) · q = 5')+'</div>';
   return '<section class="simbox" id="ubox"><div class="fhead"><h3>1. Calcular a exposição</h3><button class="ghost sm" data-ursr="1">Restaurar exemplo</button></div>'+
-   '<div class="qgrid"><div class="q"><span class="ql">Quando foi a medição?</span>'+seg('quando',[['ate2001','Antes de 2001'],['desde2001','A partir de 2001']])+'</div><div class="q"><span class="ql">O que você tem em mãos?</span>'+seg('tipo',[['leituras','Leituras instantâneas'],['dose','Dose do dosímetro'],['lavg','Lavg calculado']])+'</div>'+inp('te','Jornada Te (min)')+'</div>'+
+   '<div class="qgrid"><div class="q"><span class="ql">Período a ser analisado <small>define o limite</small></span>'+seg('per',[['todos','Todos'],['p1','Até 05/03/1997'],['p2','06/03/1997 a 18/11/2003'],['p3','Desde 19/11/2003']])+'</div><div class="q"><span class="ql">Quando foi feita a medição? <small>define o método (IN 128, art. 289)</small></span>'+seg('quando',[['ate2001','Antes da NHO-01 (até 2001)'],['desde2001','Com a NHO-01 (2001 em diante)']])+'</div><div class="q"><span class="ql">O que você tem em mãos?</span>'+seg('tipo',[['leituras','Leituras instantâneas'],['dose','Dose do dosímetro'],['lavg','Lavg calculado']])+'</div>'+inp('te','Jornada Te (min)')+'</div>'+
    '<p class="mnote"><b>Método aplicado:</b> '+esc(metTxt)+'</p>'+fields+'<div class="res" id="ures">'+uRes()+'</div></section>';
 }
 function rsSimular(a){
   const r=uCalc(); uSync(r);
-  return '<p class="lead">Responda duas perguntas e informe os dados: a ferramenta aplica o método da época e mostra Lavg, NE e NEN. Depois, enquadre o período com datas e EPI.</p>'+uHtml()+
+  return '<p class="lead">Informe o período analisado e quando foi feita a medição: o período define o limite e a data da medição define o método, o que cobre também o laudo extemporâneo. A ferramenta mostra Lavg, NE e NEN. Depois, enquadre o período com datas e EPI.</p>'+uHtml()+
    simHtml(a).replace('<h3>Simular enquadramento</h3>','<h3>2. Enquadrar um período</h3>')+
    '<details class="cmpdet"><summary>Comparar com outros critérios (q = 3, NHT-06 × NR-15, fórmula)</summary>'+cmpHtml()+'</details>';
 }
