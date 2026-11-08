@@ -374,14 +374,40 @@ function rsTimeline(){
    '<div class="ntl-row ntl-axis"><span class="ntl-lab"></span><div class="ntl-track">'+ticks.map(t=>'<i style="left:'+x(t)+'">'+t+'</i>').join('')+'</div></div></div>';
 }
 const NORMAS_CARDS=[
- ['NR-15, Anexo 1','Limite de tolerância','Desde 08/06/1978 (Portaria 3.214/78)','Medidor de nível de pressão sonora, circuito A, resposta lenta','5','Quadro a partir de 85 dB(A)','Dose (Σ Ci/Ti); nível ausente do Quadro usa o imediatamente superior (item 4)'],
- ['NHT-06 R/E','Método · leituras instantâneas','1985 até a NHO-01 (2001)','Medidor de leitura instantânea, 3 leituras por situação acústica','5','80 dB(A) (Apêndice 1: 85 dB(A))','Dose em décimos, com a média de cada situação arredondada ao inteiro'],
- ['NHT-09 R/E','Método · dosímetro','1986 até a NHO-01 (2001)','Dosímetro (5 dB por dobro, como a NR-15)','5','80 dB(A) (Apêndice 1)','Dose: é o critério da norma (item IV). O "Leq" do Apêndice 3, 80 + 16,61 · log(0,16 · CD/TM), só traduz a dose em nível; com q = 5 é o que hoje se chama Lavg'],
- ['NHO-01','Método · dosímetro ou integrador','Desde 2001; o INSS exige desde 01/01/2004','Dosímetro (preferencial) ou medidor integrador','3 (critério da própria NHO)','80 dB(A)','Resultado em NE e NEN']];
+ {n:'NR-15, Anexo 1', p:'Limite de tolerância', lim:true, f:[
+  ['Publicação','Portaria MTb 3.214, de 08/06/1978 (DOU 06/07/1978)'],
+  ['Revogação','Vigente'],
+  ['Instrumento','Medidor de nível de pressão sonora, circuito A, resposta lenta'],
+  ['q / limiar','5 · Quadro a partir de 85 dB(A)'],
+  ['Dose','D = C1/T1 + C2/T2 + … + Cn/Tn','fx','Item 6; Ti do Quadro, com o nível imediatamente superior quando o nível não consta dele (item 4)'],
+  ['Lavg (q = 5)','Lavg = 85 + 16,61 · log(D · 480 / T)','fx','A NR-15 não traz fórmula de nível; a expressão decorre do q = 5 do Quadro. T = tempo avaliado, em minutos']]},
+ {n:'NHT-06 R/E', p:'Método · leituras instantâneas', f:[
+  ['Publicação','Fundacentro, 1985 (série técnica experimental)'],
+  ['Revogação','Cancelada e substituída pela NHO-01 (2001)'],
+  ['Instrumento','Medidor de leitura instantânea, 3 leituras por situação acústica'],
+  ['q / limiar','5 · 80 dB(A) (Apêndice 1: 85 dB(A))'],
+  ['Dose','D = Σ Ci / Ti','fx','Média de cada situação arredondada ao inteiro; Ti do Quadro do Anexo 1 (nota do especialista); dose em décimos'],
+  ['Lavg (q = 5)','Lavg = 85 + 16,61 · log(D · 480 / T)','fx','A NHT-06 conclui pela dose e não traz fórmula de nível; a expressão decorre do q = 5. T em minutos']]},
+ {n:'NHT-09 R/E', p:'Método · dosímetro', f:[
+  ['Publicação','Fundacentro, texto de setembro/1985, publicado em 1986 (Revista Brasileira de Saúde Ocupacional, nº 53)'],
+  ['Revogação','Cancelada e substituída pela NHO-01 (2001)'],
+  ['Instrumento','Dosímetro com 5 dB por dobro de dose, como a NR-15'],
+  ['q / limiar','5 · 80 dB(A) (Apêndice 1)'],
+  ['Dose','D = CD / 100','fx','CD = contagem do visor, em %. A dose é o critério da norma (item IV). Amostra menor que a jornada: CD da jornada = CD · Te / TM (Apêndice 2, regra de três)'],
+  ['Lavg (q = 5)','"Leq" = 80 + 16,61 · log(0,16 · CD / TM)','fx','Apêndice 3, TM em horas. Dá o mesmo valor que 85 + 16,61 · log(D · 480 / T), com T em minutos; o nome "Leq" vem da definição de energia do item III.8, mas o número é o Lavg']]},
+ {n:'NHO-01', p:'Método · dosímetro ou integrador', f:[
+  ['Publicação','Fundacentro, 2001'],
+  ['Revogação','Vigente (cancelou as NHT-06, 07 e 09)'],
+  ['Instrumento','Dosímetro (preferencial) ou medidor integrador'],
+  ['q / limiar','3 (critério da própria NHO) · 80 dB(A)'],
+  ['Dose','D = Σ Cn / Tn, com Tn = 480 / 2^((L − 85)/3)','fx','Tabela 1 da NHO-01; dose em %'],
+  ['NE e NEN','NE = 10 · log(480/TE · D/100) + 85; NEN = NE + 10 · log(TE/480)','fx','q = 3. A NHO-01 só cita o termo Lavg (Nível Médio) na terminologia'],
+  ['Lavg (q = 5)','Lavg = 85 + 16,61 · log(D5 · 480 / T)','fx','Nota do especialista: para o Lavg, a dose D5 tem de ser apurada com q = 5 (dosímetro configurado em q = 5 ou Ti do Quadro). A dose da NHO-01 (q = 3) não serve para essa fórmula']]}];
+function ncardHtml(c){ return '<article class="ncard'+(c.lim?' nlim':'')+'"><header><b>'+esc(c.n)+'</b><span>'+esc(c.p)+'</span></header><dl>'+c.f.map(([k,v,fx,nt])=>'<dt>'+esc(k)+'</dt><dd>'+(fx?'<code class="fx">'+esc(v)+'</code>':esc(v))+(nt?'<small>'+esc(nt)+'</small>':'')+'</dd>').join('')+'</dl></article>'; }
 function rsMetodo(){
   return '<div class="keynote"><b>Você não precisa escolher entre as normas.</b> A NR-15 dá o limite; as NHT e a NHO dão o jeito de medir. A data da medição define o método, e o limite é sempre o do Anexo 1 da NR-15 (nota do especialista; as NHO não fixam limites, Portaria Fundacentro 675/2021).</div>'+
    '<h3>O que existia em cada época</h3>'+rsTimeline()+
-   '<h3>As quatro normas, nos mesmos termos</h3><div class="ncards">'+NORMAS_CARDS.map(([n,papel,qd,inst,q,lim,arr])=>'<article class="ncard'+(papel==='Limite de tolerância'?' nlim':'')+'"><header><b>'+esc(n)+'</b><span>'+esc(papel)+'</span></header><dl><dt>Quando vale</dt><dd>'+esc(qd)+'</dd><dt>Instrumento</dt><dd>'+esc(inst)+'</dd><dt>q</dt><dd>'+esc(q)+'</dd><dt>Limiar</dt><dd>'+esc(lim)+'</dd><dt>Resultado</dt><dd>'+esc(arr)+'</dd></dl></article>').join('')+'</div>'+
+   '<h3>As quatro normas, nos mesmos termos</h3><div class="ncards">'+NORMAS_CARDS.map(ncardHtml).join('')+'</div>'+
    '<h3>O que comparar em cada período (q = 5)</h3>'+tbl(['Período','Grandeza','Limite'],[['Até 05/03/1997','Lavg da jornada','Acima de 80 dB(A)'],['06/03/1997 a 18/11/2003','Lavg da jornada','Acima de 90 dB(A)'],['A partir de 19/11/2003','NEN = Lavg + 16,61 · log(Te/480)','Acima de 85 dB(A)']].map(r=>r.map(esc)))+
    '<details><summary>Grandezas: Lavg, Leq, NE, NEN e TWA</summary>'+tbl(['Sigla','O que é','q','Normalizado para 8 h?','Uso'],[
     ['Leq','Média por igual energia no período medido','3','Não','Não serve para q = 5'],

@@ -314,14 +314,14 @@ details.lit p{font-size:.9rem; margin:6px 0} details.lit p.art0{font-weight:700}
 .tlb.lim80{background:#3E6B8E} .tlb.lim90{background:#7A5A1E} .tlb.lim85{background:#1E3A5F}
 .tlb.nr15{background:#C9A227} .tlb.nr15 span{color:#1E1A0E}
 .tlb.met{background:#5E7C5A} .tlb.met2{background:#2F6B5F}
-.ncards{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px}
+.ncards{display:grid; grid-template-columns:repeat(auto-fit,minmax(340px,1fr)); gap:12px}
 .ncard{border:1px solid var(--line); border-radius:10px; padding:14px; display:flex; flex-direction:column; gap:10px; background:var(--surface)}
 .ncard header{display:flex; flex-direction:column; gap:2px}
 .ncard header b{font:800 1.05rem var(--f-disp)}
 .ncard header span{font:600 .76rem var(--f-body); text-transform:uppercase; letter-spacing:.05em; color:#2F6B5F}
 .ncard.nlim{border-color:var(--gold-line); background:linear-gradient(var(--gold-soft),var(--gold-soft)) top/100% 4px no-repeat, var(--surface)}
 .ncard.nlim header span{color:var(--gold)}
-.ncard dl{display:grid; grid-template-columns:auto minmax(0,1fr); gap:5px 10px; font-size:.88rem; margin:0}
+.ncard dl{display:grid; grid-template-columns:96px minmax(0,1fr); gap:5px 10px; font-size:.88rem; margin:0}
 .ncard dt{color:var(--muted); font-weight:600} .ncard dd{margin:0}
 /* simulador único */
 .qgrid{display:grid; grid-template-columns:auto auto minmax(140px,180px); gap:12px 20px; align-items:end}
@@ -471,6 +471,10 @@ h4.sub{font-size:.95rem; margin-top:4px}
 @media (max-width:800px){ .hero-in{grid-template-columns:1fr} .hero-logo{max-width:200px} .hero-num{grid-template-columns:repeat(2,minmax(0,1fr))} }
 @media (max-width:420px){ .hero{padding:20px} }
 .isec{display:flex; flex-direction:column; gap:12px}
+.ncard dt{padding-top:1px; border-top:1px solid var(--line)} .ncard dd{border-top:1px solid var(--line); padding-top:5px}
+@media (max-width:480px){ .ncards{grid-template-columns:1fr} .ncard dl{grid-template-columns:1fr} .ncard dd{border-top:none; padding-top:0} }
+.ncard code.fx{display:block; font:500 .84rem/1.45 var(--f-mono); background:var(--surface-2); border-radius:4px; padding:4px 6px; white-space:normal; overflow-wrap:anywhere}
+.ncard dd small{display:block; color:var(--muted); font-size:.8rem; margin-top:4px; line-height:1.4}
 .ihead{display:flex; flex-direction:column; gap:4px}
 .acards{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px}
 @media (max-width:900px){ .acards{grid-template-columns:1fr} }
