@@ -51,8 +51,11 @@ function ruidoDerive(d){
     return {lavg, ne3, te, info: lavg===null?'':'Dose '+brn0(D5)+'% em '+tm+' min → Lavg '+f1(lavg)+' dB(A)'+(ne3!==null?'; dose q=3 '+brn0(D3)+'% → NE '+f1(ne3)+' dB(A)':'')+'.'}; }
   if(modo==='nps'){ const rows=npsRows(d).filter(r=>r[0]!==null&&r[1]!==null&&r[1]>0); const T=rows.reduce((s,r)=>s+r[1],0);
     if(!rows.length) return {lavg:null, ne3:null, te, info:''};
-    const lavg=16.61*log10(rows.reduce((s,[L,t])=>s+t*Math.pow(10,L/16.61),0)/T);
-    const ne3=10*log10(rows.reduce((s,[L,t])=>s+t*Math.pow(10,L/10),0)/T);
+    /* limiar de integração de 80 dB(A): leituras abaixo contam no tempo, mas não somam energia */
+    const E5=rows.reduce((s,[L,t])=>s+(L>=80?t*Math.pow(10,L/16.61):0),0), E3=rows.reduce((s,[L,t])=>s+(L>=80?t*Math.pow(10,L/10):0),0);
+    if(E5<=0) return {lavg:null, ne3:null, te, info:'Todas as leituras abaixo do limiar de 80 dB(A).'};
+    const lavg=16.61*log10(E5/T);
+    const ne3=10*log10(E3/T);
     return {lavg, ne3, te, info: rows.length+' leitura(s) em '+T+' min → Lavg (q=5) '+f1(lavg)+' dB(A); Leq/NE (q=3) '+f1(ne3)+' dB(A).'}; }
   return {lavg:num(d.lavg), ne3:num(d.ne3), te, info:''};
 }
@@ -64,7 +67,7 @@ function avaliar(row, agent){
   if(!row.ini || !row.fim || row.fim < row.ini) return {erro:'Informe início e fim do período.', segs:[]};
   const e = agent.engine;
   let cuts = [];
-  if(e==='ruido') cuts=['1997-03-06','2001-10-11','2003-11-19','2004-01-01'];
+  if(e==='ruido'){ cuts=['1997-03-06','2001-10-11','2003-11-19','2004-01-01']; if(row.d&&row.d.epiu) cuts.push('1998-12-03'); }
   else if(e==='calor') cuts=['1997-03-06','2019-12-11'];
   else if(e==='vibracao') cuts=['1997-03-06','2014-08-13'];
   else if(e==='categoria') cuts=['1995-04-29'];
@@ -92,6 +95,23 @@ function avaliar(row, agent){
           if(n3!==null) i=R(n3>85?'E':'N','NEN NHO-01 (q = 3) = '+f1(n3)+(n3>85?' > ':' ≤ ')+'85 dB(A).');
           else if(b<='2003-12-31') i=R(n5>85?'E':'N','19/11 a 31/12/2003: NHO-01 facultativa (art. 292, IV); leitura da ferramenta: aceita a NR-15 → '+f1(n5)+' dB(A).');
           else i=R('I','O INSS exige NEN pela NHO-01 (q = 3). Informe o NE para comparar.');
+        }
+        /* EPI auditivo: considerado a partir de 03/12/1998 (Lei 9.732/98; IN 128, art. 291) */
+        if(d.epiu){
+          const lim = ate97?80 : b<='2003-11-18'?90 : 85;
+          const vP = ate97||b<='2003-11-18' ? lavg : n5, vI = ate97||b<='2003-11-18' ? lavg : (n3!==null?n3:n5);
+          if(a<'1998-12-03'){ if(p.st==='E') p=R('E',p.txt+' EPI informado não é considerado antes de 03/12/1998 (Lei 9.732/98; IN 128, art. 291).'); }
+          else {
+            const nrr=num(d.nrr), falt=[['c1','hierarquia de controle'],['c2','uso e funcionamento'],['c3','CA válido'],['c4','troca comprovada'],['c5','higienização']].filter(([k])=>!d[k]).map(x=>x[1]);
+            if(d.cav && d.cav < b && !falt.includes('CA válido')) falt.push('CA vencido em '+fmtBR(d.cav));
+            const ca = d.ca?'CA '+d.ca+', ':'';
+            if(p.st==='E'){
+              if(falt.length) p=R('E',p.txt+' EPI informado ('+ca+'sem comprovar: '+falt.join(', ')+'): não considerado eficaz (IN 128, art. 291).');
+              else if(nrr===null) p=R('E',p.txt+' EPI informado sem atenuação: informe o NRRsf para avaliar a eficácia.');
+              else { const prot=r1(vP-nrr); p = prot<=lim ? R('N',p.txt+' Com EPI ('+ca+'NRRsf '+nrr+' dB): nível protegido '+f1(prot)+' ≤ '+lim+' dB(A): exposição neutralizada (Lei 8.213, art. 58, § 2º; IN 128, art. 291).') : R('E',p.txt+' Com EPI ('+ca+'NRRsf '+nrr+' dB): nível protegido '+f1(prot)+' > '+lim+' dB(A): EPI insuficiente.'); }
+            }
+            if(i.st==='E') i=R('E',i.txt+' EPI informado: a declaração de eficácia não descaracteriza o ruído (IN 128, art. 290, parágrafo único; STF, Tema 555).');
+          }
         }
       }
     }

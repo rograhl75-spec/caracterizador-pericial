@@ -50,7 +50,7 @@ const AGENTS = [
   'Metodologia da NR-15, Anexo 1, com fator de duplicação q = 5 em todos os períodos.',
   'Até 18/11/2003 compara-se sempre o Lavg: a legislação remetia ao Anexo 1 da NR-15 na íntegra.',
   'A partir de 19/11/2003 compara-se somente o NEN, calculado conforme a jornada com q = 5: NEN = Lavg + 16,61 · log₁₀(Te/480).',
-  'EPI não descaracteriza a exposição a ruído (STF, Tema 555).',
+  'EPI: pelo STF (Tema 555, critério jurídico), a declaração de EPI eficaz no PPP não descaracteriza o ruído; nenhuma lei ou decreto diz isso. Posição do especialista em aberto.',
   'Havendo enquadramento, o PPP recebe o código GFIP 04.'],
  inss:[
   'IN 128/2022, art. 292: até 05/03/1997, acima de 80 dB(A); de 06/03/1997 a 10/10/2001, acima de 90 dB(A); de 11/10/2001 a 18/11/2003, acima de 90 dB(A), com histograma ou memória de cálculo.',
