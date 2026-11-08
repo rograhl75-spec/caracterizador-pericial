@@ -182,19 +182,22 @@ function simHtml(a){
 const NHT06_TAB = [[80,960],[81,835],[82,725],[83,630],[84,550],[85,480],[86,415],[87,360],[88,315],[89,275],[90,240],[91,205],[92,180],[93,155],[94,135],[95,120],[96,104],[97,90],[98,79],[99,69],[100,60],[101,52],[102,45],[103,39],[104,34],[105,30],[106,26],[107,22],[108,19],[109,17],[110,15],[111,13],[112,11],[113,9],[114,8],[115,7]];
 const LI_MET = {
   nht06:{rot:'NHT-06 (1985), critérios próprios', desc:'média das leituras arredondada algebricamente para o inteiro (item VI.4.f); Ti da tabela da NHT-06, de 80 a 115 dB(A) (item VI.6.b); dose arredondada para décimos (item VI.6.c); sem cálculo de dose se houver nível acima de 115 dB(A) (item VI.6.e)'},
+  nht06q:{rot:'NHT-06 + Quadro do Anexo 1 (nota do especialista)', desc:'média das leituras arredondada para o inteiro (NHT-06, item VI.4.f); Ti do Quadro do Anexo 1 da NR-15 com o nível imediatamente superior para os níveis ausentes do Quadro (item 4); de 80 a 84 dB(A), tabela da NHT-06 (limiar de 80 dB(A)); dose em décimos; sem cálculo acima de 115 dB(A)'},
   nht06a:{rot:'NHT-06 com Apêndice 1 (ajuste à NR-15)', desc:'média arredondada para o inteiro; Ti do Quadro do Anexo 1 da NR-15, com o nível imediatamente superior para os níveis ausentes do Quadro; níveis abaixo de 85 dB(A) desprezados; dose em décimos; sem cálculo acima de 115 dB(A)'},
   nr15:{rot:'NR-15, Anexo 1 (item 4), limiar de 80 dB(A)', desc:'média arredondada a 0,1 dB; Ti do Quadro do Anexo 1 com o nível imediatamente superior (item 4); de 80 a 84 dB(A), tabela da NHT-06 (limiar de 80 dB(A), nota do especialista)'},
   form:{rot:'Fórmula q = 5', desc:'média arredondada a 0,1 dB; Ti = 480 / 2^((L − 85)/5), a partir de 80 dB(A)'}
 };
-const LI_DEF={te:'480', met:'nht06', s:[{n:'Operação da prensa',l:'92; 93; 92',t:'150'},{n:'Abastecimento',l:'87; 88,5; 88',t:'180'},{n:'Inspeção',l:'84; 83; 84',t:'90'},{n:'Refeitório e pausas',l:'72; 74; 73',t:'60'},{n:'',l:'',t:''},{n:'',l:'',t:''}]};
-function liState(){ if(!S.li) S.li=JSON.parse(JSON.stringify(LI_DEF)); if(!LI_MET[S.li.met]) S.li.met='nht06'; return S.li; }
+const LI_DEF={te:'480', met:'nht06q', s:[{n:'Operação da prensa',l:'92; 93; 92',t:'150'},{n:'Abastecimento',l:'87; 88,5; 88',t:'180'},{n:'Inspeção',l:'84; 83; 84',t:'90'},{n:'Refeitório e pausas',l:'72; 74; 73',t:'60'},{n:'',l:'',t:''},{n:'',l:'',t:''}]};
+function liState(){ if(!S.li) S.li=JSON.parse(JSON.stringify(LI_DEF)); if(!LI_MET[S.li.met]) S.li.met='nht06q'; return S.li; }
 function liParse(str){ return String(str||'').split(/[;\s\/]+/).map(x=>num(x)).filter(x=>x!==null); }
 const nextUp=(tab,L)=>{ for(const [n,t] of tab){ if(n>=L) return t; } return tab.at(-1)[1]; };
-function liMean(ls,met){ const m=ls.reduce((a,b)=>a+b,0)/ls.length; return (met==='nht06'||met==='nht06a') ? Math.round(m) : r1(m); }
+function liMean(ls,met){ const m=ls.reduce((a,b)=>a+b,0)/ls.length; return isNht(met) ? Math.round(m) : r1(m); }
+function isNht(k){ return k==='nht06'||k==='nht06a'||k==='nht06q'; }
 function liTi(L, met){
   if(met==='form') return L<80 ? Infinity : 480/Math.pow(2,(L-85)/5);
   if(met==='nht06') return L<80 ? Infinity : nextUp(NHT06_TAB,L);
   if(met==='nht06a') return L<85 ? Infinity : nextUp(A1_QUADRO,L);
+  if(met==='nht06q'){ if(L<80) return Infinity; return L<85 ? nextUp(NHT06_TAB,L) : nextUp(A1_QUADRO,L); }
   if(L<80) return Infinity;
   if(L<85) return nextUp(NHT06_TAB,L);
   return nextUp(A1_QUADRO,L);
@@ -202,7 +205,7 @@ function liTi(L, met){
 function liDose(sit,met){ return sit.reduce((a,x)=>{ const m=liMean(x.ls,met), ti=liTi(m,met); return a+(isFinite(ti)?x.t/ti:0); },0); }
 function liCalc(c){
   const te=num(c.te); if(te===null||te<=0) return {err:'Informe a jornada Te em minutos.'};
-  const met=c.met, nht=met==='nht06'||met==='nht06a';
+  const met=c.met, nht=isNht(met);
   const sit=c.s.map((x,i)=>({i, n:x.n||('Situação '+(i+1)), ls:liParse(x.l), t:num(x.t)})).filter(x=>x.ls.length&&x.t!==null&&x.t>0);
   if(!sit.length) return {err:'Informe ao menos uma situação acústica com leituras e tempo.'};
   sit.forEach(x=>{ x.m=liMean(x.ls,met); x.amp=Math.max(...x.ls)-Math.min(...x.ls); x.ti=liTi(x.m,met); x.fr=isFinite(x.ti)?x.t/x.ti:0; });
@@ -214,7 +217,7 @@ function liCalc(c){
   const lavg = ok ? 85+16.61*log10(D*480/T) : null;
   const ne = ok ? 85+16.61*log10(D*480/base) : null;
   const nen = ok ? 85+16.61*log10(D) : null;
-  const outros = Object.keys(LI_MET).filter(k=>k!==met).map(k=>{ const d=liDose(sit,k), n=(k==='nht06'||k==='nht06a'); return [k, n&&over?null:(n?Math.round(d*10)/10:d)]; });
+  const outros = Object.keys(LI_MET).filter(k=>k!==met).map(k=>{ const d=liDose(sit,k), n=isNht(k); return [k, n&&over?null:(n?Math.round(d*10)/10:d)]; });
   return {te, T, base, D, Dshow, nht, semDose, lavg, ne, nen, sit, over, outros};
 }
 function liRes(){
@@ -234,7 +237,7 @@ function liRes(){
      kv('NEN (8 h, q = 5)', r.nen===null?'—':f1(r.nen)+' dB(A)', r.nen===null?'':(r1(r.nen)>85?'acima de 85 dB(A)':'até 85 dB(A)'))+'</div>';
   if(r.T<r.te) h+='<p class="note">As situações somam '+r.T+' min, menos que a jornada de '+r.te+' min: o restante foi tratado como abaixo do limiar. Se não for, inclua a situação que falta.</p>';
   if(r.T>r.te) h+='<p class="note">As situações somam '+r.T+' min, mais que a jornada informada ('+r.te+' min): o cálculo usou '+r.T+' min como jornada.</p>';
-  h+='<p class="small">Dose pelos outros métodos: '+r.outros.map(([k,d])=>LI_MET[k].rot+': <b>'+(d===null?'não calculada':(k==='nht06'||k==='nht06a')?brn0(d):brn0(Math.round(d*1000)/10)+'%')+'</b>').join(' · ')+'.</p>'+
+  h+='<p class="small">Dose pelos outros métodos: '+r.outros.map(([k,d])=>LI_MET[k].rot+': <b>'+(d===null?'não calculada':isNht(k)?brn0(d):brn0(Math.round(d*1000)/10)+'%')+'</b>').join(' · ')+'.</p>'+
    '<p class="fine">Método: '+LI_MET[c.met].rot+' — '+LI_MET[c.met].desc+'. Lavg = 85 + 16,61 · log(D · 480 / T); NE = 85 + 16,61 · log(D · 480 / Te); NEN = 85 + 16,61 · log(D), calculados com a dose sem arredondamento. Até 18/11/2003 compare o Lavg da jornada (80 ou 90 dB(A)); a partir de 19/11/2003, o NEN (85 dB(A)).</p>';
   return h;
 }
@@ -316,7 +319,6 @@ const RS_HARM=[
  ['A partir de 19/11/2003','O decreto toma da NR-15 os limites (q = 5) e da Fundacentro só o método; o INSS exige o NEN da NHO-01 (q = 3). As NHO não fixam limites (Portaria Fundacentro 675/2021)','O mesmo ambiente pode enquadrar por um critério e não pelo outro'],
  ['19/11 a 31/12/2003','A IN cria transição que o decreto não prevê','INSS aceita NR-15 ou NHO-01'],
  ['A partir de 17/10/2013','O § 12 (Decreto 8.123) deixa de citar os limites da legislação trabalhista; a IN mantém o Quadro do Anexo 1','A IN sustenta a referência à NR-15 que o decreto retirou'],
- ['Todos','NHT-06 arredonda a média para o inteiro; o item 4 do Anexo 1 manda o nível imediatamente superior','88,4 dB(A) dá Ti de 5 h por uma e 4 h 30 min pela outra'],
  ['Todos','O INSS só aceita "NEN" escrito no PPP; "dosímetro" ou "dosimetria" não são técnica','PPP tecnicamente correto pode ser recusado por redação']];
 const RS_CK={
  'Antes da vistoria':['Função, setor, período e jornada do segurado (Te), com a fonte da jornada: controle de ponto, empresa ou observação','Layout, máquinas e fontes de ruído; turnos e ciclos de trabalho','Grupos homogêneos de exposição; em perícia por similaridade, o critério de escolha do paradigma','Documentos da empresa: LTCAT, PGR/PPRA, PPP e laudos anteriores'],
@@ -387,14 +389,14 @@ function rsMetodo(){
     ['NE','Nível médio representativo da exposição diária','O da média','Não','Base do NEN'],
     ['NEN','NE convertido para 8 h','O da média','Sim','A partir de 19/11/2003'],
     ['TWA','Dose expressa como nível de 8 h (OSHA)','Configurável','Sim','= NEN com q = 5 só com critério 85 e jornada inteira']].map(r=>r.map(esc)))+'<p class="formula">NEN (q = 5) = Lavg + 16,61 · log(Te/480) = 85 + 16,61 · log(D)<br>NEN (q = 3) = NE + 10 · log(Te/480)</p></details>'+
-   '<details><summary>Armadilhas frequentes</summary><ul><li>Leq (q = 3) da empresa não se compara com o critério q = 5: peça o Lavg ou a dose.</li><li>TWA de medição curta conta o tempo não medido como silêncio: projete a dose para Te.</li><li>Dosímetro no padrão OSHA (critério 90 dB(A)) dá dose e TWA em outra base.</li><li>Jornada acima de 480 min aumenta o NEN; abaixo, reduz.</li><li>Horas extras: nenhuma norma técnica trata delas; pela lógica de dose, a hora extra habitual entra em Te (ponto em aberto).</li></ul></details>';
+   '<details><summary>Armadilhas frequentes</summary><ul><li>NHT-06 (até 2001): a ordem é arredondar a média ao inteiro e só depois buscar o Ti no Quadro do Anexo 1, subindo para o nível imediatamente superior apenas quando o inteiro não consta do Quadro. Aplicar o item 4 direto sobre 88,4 dB(A) leva a 89 dB(A) (4 h 30 min); o correto é 88 dB(A) (5 h). Já 97 dB(A), ausente do Quadro, usa o Ti de 98 dB(A) (1 h 15 min).</li><li>A tabela de Ti do corpo da NHT-06 difere levemente do Quadro (88 dB(A): 5 h 15 min × 5 h). O limite é o do Quadro; a NHT dá o método (nota do especialista).</li><li>Leq (q = 3) da empresa não se compara com o critério q = 5: peça o Lavg ou a dose.</li><li>TWA de medição curta conta o tempo não medido como silêncio: projete a dose para Te.</li><li>Dosímetro no padrão OSHA (critério 90 dB(A)) dá dose e TWA em outra base.</li><li>Jornada acima de 480 min aumenta o NEN; abaixo, reduz.</li><li>Horas extras: nenhuma norma técnica trata delas; pela lógica de dose, a hora extra habitual entra em Te (ponto em aberto).</li></ul></details>';
 }
 function uRefresh(){ const box=$('#ures'); if(!box) return; const r=uCalc(); box.innerHTML=uRes(); uSync(r); const rs=$('#res-s'); if(rs) rs.innerHTML=resTable(simRow()); const fl=$('#rs-d-lavg'); if(fl&&r&&!r.err&&r.lavg!==null) fl.value=String(r1(r.lavg)).replace('.',','); const ft=$('#rs-d-te'); if(ft&&r&&!r.err&&r.te) ft.value=r.te; }
 /* ---------- SIMULADOR ÚNICO ---------- */
 const U_DEF={quando:'desde2001', tipo:'leituras', te:'480', dose:'', tm:'', lavg:''};
 function uState(){ if(!S.u) S.u=JSON.parse(JSON.stringify(U_DEF)); return S.u; }
 function uMetodo(u){ const ant=u.quando==='ate2001';
-  if(u.tipo==='leituras') return ant?['nht06','NHT-06 R/E (1985), critérios próprios: média ao inteiro, tabela de Ti da própria NHT-06, dose em décimos']:['nr15','NR-15, Anexo 1: média a 0,1 dB, Ti do Quadro com o nível imediatamente superior (item 4), limiar de 80 dB(A)'];
+  if(u.tipo==='leituras') return ant?['nht06q','NHT-06 R/E (1985) para obter o nível: média ao inteiro; depois o Quadro do Anexo 1 da NR-15 para o Ti, com o nível imediatamente superior quando o nível não consta do Quadro; dose em décimos']:['nr15','NR-15, Anexo 1: média a 0,1 dB, Ti do Quadro com o nível imediatamente superior (item 4), limiar de 80 dB(A)'];
   if(u.tipo==='dose') return ant?['nht09','NHT-09 R/E (1986): Lavg = 80 + 16,61 · log(0,16 · CD / TM), q = 5, limiar 80 dB(A)']:['dose5','NR-15 com q = 5 (nota do especialista): Lavg = 85 + 16,61 · log(D · 480 / Tm), limiar 80 dB(A)'];
   return ['lavg','Lavg (q = 5) informado no laudo ou no PPP']; }
 function uCalc(){
