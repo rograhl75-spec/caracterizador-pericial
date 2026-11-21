@@ -54,7 +54,7 @@ const AGENTS = [
   'EPI: pelo STF (Tema 555, critério jurídico), a declaração de EPI eficaz no PPP não descaracteriza o ruído; nenhuma lei ou decreto diz isso. Posição do especialista em aberto.',
   'Havendo enquadramento, o PPP recebe o código GFIP 04.'],
  inss:[
-  'IN 128/2022, art. 292: até 05/03/1997, acima de 80 dB(A); de 06/03/1997 a 10/10/2001, acima de 90 dB(A); de 11/10/2001 a 18/11/2003, acima de 90 dB(A), com histograma ou memória de cálculo.',
+  'IN 128/2022, art. 292 (red. IN 170/2024): até 05/03/1997, acima de 80 dB(A); de 06/03/1997 a 18/11/2003, acima de 90 dB(A); de 19/11 a 31/12/2003, acima de 85 dB(A) pelo valor medido (NEN facultativo); valor resultante da medição no formulário. Até 02/12/1998, valores múltiplos acima e abaixo do LT vão à Perícia Médica com histograma ou memória de cálculo (§2º).',
   'A partir de 01/01/2004: NEN acima de 85 dB(A), pela NHO-01 da Fundacentro (q = 3), facultada desde 19/11/2003.',
   'O PPP precisa informar a técnica (NHO-01/NEN). Citar só "dosímetro" ou "dosimetria" não basta, para o INSS (Manual 2018) e para a TNU (Tema 317, 2025).',
   'A declaração de EPI eficaz não afasta o enquadramento por ruído.'],

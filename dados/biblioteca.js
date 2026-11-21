@@ -4,7 +4,7 @@ const LIB = {
   [
    "1.1.1",
    "CALOR - Operações em locais com temperatura excessivamente alta, capaz de ser nociva à saúde e proveniente de fontes artificiais.",
-   "",
+   "Trabalhos de tratamento térmico ou em ambientes excessivamente quentes - Forneiros, Foguistas, Fundidores, Forjadores, Calandristas, operadores de cabines cinematográficas e outros.",
    "Insalubre",
    "25 anos",
    "Jornada normal em locais com TE acima de 28ºC (bulbo seco). Artigos 165, 187 e 234, da CLT. Portaria Ministerial 30 de 7-2-58 e 262, de 6-8-62."
@@ -43,8 +43,8 @@ const LIB = {
   ],
   [
    "1.1.6",
-   "RUÍDO - Operações em locais com ruído excessivo capas de ser nocivo à saúde.",
-   "Trepidações sujeitos aos efeitos de ruídos industriais excessivos - caldereiros, operadores de máquinas pneumáticas, de motores - turbinas e outros.",
+   "RUÍDO - Operações em locais com ruído excessivo capaz de ser nocivo à saúde.",
+   "Trabalhos sujeitos aos efeitos de ruídos industriais excessivos - caldereiros, operadores de máquinas pneumáticas, de motores - turbinas e outros.",
    "Insalubre",
    "25 anos",
    "Jornada normal ou especial fixada em lei em locais com ruídos acima de 80 decibéis. Decreto número 1.232, de 22 de junho de 1962. Portaria Ministerial 262, de 6-8- 62 e Art. 187 da CLT."
@@ -52,7 +52,7 @@ const LIB = {
   [
    "1.1.7",
    "PRESSÃO - Operações em locais com pressão atmosférica anormal capaz de ser nociva à saúde.",
-   "Trabalhos em ambientes com alta ou baixa pressão - escafandristas, mergulhadores, operadores em caixões ou tubulações pneumáticos e outros.",
+   "Trabalhos em ambientes com alta ou baixa pressão - escafandristas, mergulhadores, operadores em caixões ou tubulões pneumáticos e outros.",
    "Insalubre",
    "25 anos",
    "Jornada normal ou especial fixada em lei - Artigos 187 e 219 CLT. Portaria Ministerial 73, de 2 de janeiro de 1960 e 262, de 6-8-62."
@@ -195,8 +195,8 @@ const LIB = {
   ],
   [
    "1.2.9",
-   "OUTROS TÓXICOS INOGÂNICOS - Operações com outros tóxicos inogârnicos capazes de fazerem mal à saúde.",
-   "Trabalhos permanentes expostos às poeiras, gazes, vapores, neblina e fumos de outros metais, metalóide halogenos e seus eletrólitos tóxicos - ácidos, base e sais - Relação das substâncias nocivas publicadas no Regulamento Tipo de Segurança da O.I.T.",
+   "OUTROS TÓXICOS INORGÂNICOS - Operações com outros tóxicos inorgânicos capazes de fazerem mal à saúde.",
+   "Trabalhos permanentes expostos às poeiras, gazes, vapores, neblina e fumos de outros metais, metalóides halogenos e seus eletrólitos tóxicos - ácidos, base e sais - Relação das substâncias nocivas publicadas no Regulamento Tipo de Segurança da O.I.T.",
    "Insalubre",
    "25 anos",
    "Jornada normal. Art. 187 CLT. Portaria Ministerial 262, de 6-8-62."
@@ -309,7 +309,7 @@ const LIB = {
   ],
   [
    "2.3.1",
-   "ESCAVAÇÕES DE SUPERFÍCIE - POÇOS",
+   "ESCAVAÇÕES DE SUBSOLO - TÚNEIS",
    "Trabalhadores em túneis e galerias.",
    "Insalubre\nPerigoso",
    "20 anos",
@@ -317,7 +317,7 @@ const LIB = {
   ],
   [
    "2.3.2",
-   "ESCAVAÇÕES DE SUBSOLO - TÚNEIS",
+   "ESCAVAÇÕES DE SUPERFÍCIE - POÇOS",
    "Trabalhadores em escavações à céu aberto.",
    "Insalubre",
    "25 anos",
@@ -382,7 +382,7 @@ const LIB = {
   [
    "2.5.2",
    "FUNDIÇÃO, COZIMENTO, LAMINAÇÃO, TREFILAÇÃO, MOLDAGEM",
-   "Trabalhadores nas indústrias metalúrgicas, de vidro, de cerâmica e de plásticosfundidores, laminadores, moldadores, trefiladores, forjadores",
+   "Trabalhadores nas indústrias metalúrgicas, de vidro, de cerâmica e de plásticos - fundidores, laminadores, moldadores, trefiladores, forjadores",
    "Insalubre",
    "25 anos",
    "Jornada normal."
@@ -405,15 +405,15 @@ const LIB = {
   ],
   [
    "2.5.5",
-   "COMPOSIÇÃO TIPOGRÁFICA E MACÂNICA, LINOTIPIA, ESTEREOTIPIA, ELETROTIPIA, LITOGRAFIA E OFF-SETT, FOTOGRAVURA, ROTOGRAVURA E GRAVURA, ENCADERNAÇÃO E IMPRESSÃO EM GERAL.",
-   "Trabalhadores permanentes nas indústrias poligráficas: Linotipistas, monotipistas, tipográficas, impressores, margeadores, montadores, compositores, pautadores, gravadores, granitadores, galvanotipistas, frezadores, titulistas.",
+   "COMPOSIÇÃO TIPOGRÁFICA E MECÂNICA, LINOTIPIA, ESTEREOTIPIA, ELETROTIPIA, LITOGRAFIA E OFF-SETT, FOTOGRAVURA, ROTOGRAVURA E GRAVURA, ENCADERNAÇÃO E IMPRESSÃO EM GERAL.",
+   "Trabalhadores permanentes nas indústrias poligráficas: Linotipistas, monotipistas, tipógrafos, impressores, margeadores, montadores, compositores, pautadores, gravadores, granitadores, galvanotipistas, frezadores, titulistas.",
    "Insalubre",
    "25 anos",
    "Jornada normal."
   ],
   [
    "2.5.6",
-   "ESTIVA E ARMAZENAMENTO.",
+   "ESTIVA E ARMAZENAGEM.",
    "Estivadores, Arrumadores, Trabalhadores de capatazia, Consertadores, Conferentes.",
    "Perigoso",
    "25 anos",
@@ -432,7 +432,7 @@ const LIB = {
   [
    "1.1.1",
    "CALOR",
-   "Alimentação de caldeiras a vapor a carvão ou a lenha.",
+   "Indústria metalúrgica e mecânica (atividades discriminadas nos códigos 2.5.1 e 2.5.2 do Anexo II).\nFabricação de vidros e cristais (atividades discriminadas no código 2.5.5 do Anexo II).\nAlimentação de caldeiras a vapor a carvão ou a lenha.",
    "25 anos"
   ],
   [
@@ -462,7 +462,7 @@ const LIB = {
   [
    "1.1.6",
    "PRESSÃO ATMOSFÉRICA",
-   "Trabalhos em caixões ou câmaras pneumáticas subaquáticas e em tubulações pneumáticos.\nOperação com uso de escafandro.\nOperação de mergulho\nTrabalho sob ar comprimido em túneis pressurizados.",
+   "Trabalhos em caixões ou câmaras pneumáticas subaquáticas e em tubulões pneumáticos.\nOperação com uso de escafandro.\nOperação de mergulho\nTrabalho sob ar comprimido em túneis pressurizados.",
    "20 anos"
   ],
   [
@@ -486,7 +486,7 @@ const LIB = {
   [
    "1.2.4",
    "CHUMBO",
-   "Extração de chumbo.\nFabricação e emprego de chumbo tetraetila ou tetramatila.\nFabricação de objetos e artefatos de chumbo.\nFabricação de acumuladores, pilhas e baterias elétricas contendo chumbo ou compostos de chumbo.\nFabricação de tintas, esmaltes e vernizes à base de compostos de chumbo (atividades discriminadas no código 2.5.6 do Anexo II).\nFundição e laminação de chumbo, zinco-velho, cobre e latão.\nLimpeza, raspagem e reparação de tanques de mistura e armazenamento de gasolina contendo chumbo tetraetila.\nMetalurgia e refinação de chumbo.\nVulcanização de borracha pelo litargírio ou outros compostos de chumbo.",
+   "Extração de chumbo.\nFabricação e emprego de chumbo tetraetila ou tetrametila.\nFabricação de objetos e artefatos de chumbo.\nFabricação de acumuladores, pilhas e baterias elétricas contendo chumbo ou compostos de chumbo.\nFabricação de tintas, esmaltes e vernizes à base de compostos de chumbo (atividades discriminadas no código 2.5.6 do Anexo II).\nFundição e laminação de chumbo, zinco-velho, cobre e latão.\nLimpeza, raspagem e reparação de tanques de mistura e armazenamento de gasolina contendo chumbo tetraetila.\nMetalurgia e refinação de chumbo.\nVulcanização de borracha pelo litargírio ou outros compostos de chumbo.",
    "25 anos"
   ],
   [
@@ -498,7 +498,7 @@ const LIB = {
   [
    "1.2.6",
    "FÓSFORO",
-   "Extração e preparação de fósforo branco e seus compostos.\nFabricação e aplicação de produtos fosforados e organofosforados, inseticidas, parasíticidas e ratívidas.\nFabricação de projéteis incendiários, explosivos e gases asfixiantes à base de fósforo branco.",
+   "Extração e preparação de fósforo branco e seus compostos.\nFabricação e aplicação de produtos fosforados e organofosforados, inseticidas, parasiticidas e raticidas.\nFabricação de projéteis incendiários, explosivos e gases asfixiantes à base de fósforo branco.",
    "25 anos"
   ],
   [
@@ -522,20 +522,20 @@ const LIB = {
   [
    "1.2.10",
    "HIDROCARBONETOS E OUTROS COMPOSTOS DE CARBONO",
-   "Fabricação de benzol, toluoi, xilol (benzeno, tolueno e xileno).\nFabricação e aplicação de inseticidas clorados derivados de hidrocarbonetos.\nFabricação e aplicação de inseticidas e fungicidas derivados de ácido carbônico.\nFabricação de derivados halogenados de hidrocarbonetos alifáticos: cloreto de metila, brometo de metila, clorofórmio, tetracloreto de carbono, dicloretano, tetracloretano, tricloretileno e bromofórmio. \nFabricação e aplicação de inseticida à base de sulfeto de carbono.\nFabricação de seda artificial (viscose) \nFabricação de sulfeto de carbono.\nFabricação de carbonilida.\nFabricação de gás de iluminação.\nFabricação de solventes para tintas, lacas e vernizes, contendo benzol, toluol e xilol.",
+   "Fabricação de benzol, toluol, xilol (benzeno, tolueno e xileno).\nFabricação e aplicação de inseticidas clorados derivados de hidrocarbonetos.\nFabricação e aplicação de inseticidas e fungicidas derivados do ácido carbônico.\nFabricação de derivados halogenados de hidrocarbonetos alifáticos: cloreto de metila, brometo de metila, clorofórmio, tetracloreto de carbono, dicloretano, tetracloretano, tricloretileno e bromofórmio. \nFabricação e aplicação de inseticida à base de sulfeto de carbono.\nFabricação de seda artificial (viscose) \nFabricação de sulfeto de carbono.\nFabricação de carbonilida.\nFabricação de gás de iluminação.\nFabricação de solventes para tintas, lacas e vernizes, contendo benzol, toluol e xilol.",
    "25 anos"
   ],
   [
    "1.2.11",
    "OUTROS TÓXICOS, ASSOCIAÇÃO DE AGENTES",
    "Fabricação de flúor e ácido fluorídrico, cloro e ácido clorídrico e bromo e ácido bromídrico.\nAplicação de revestimentos metálicos, eletroplastia, compreendendo: niquelagem, cromagem, douração, anodização de alumínio e outras operações assemelhadas (atividades discriminadas no código 2.5.4 do Anexo II).\nPintura a pistola – associação de solventes e hidrocarbonados e partículas suspensas (atividades discriminadas entre as do código 2.5.3 do Anexo II).\nTrabalhos em galerias e tanques de esgoto (monóxido de carbono, gás metano, gás sulfídrico e outros).\nSolda elétrica e a oxiacetileno (fumos metálicos).\nIndústrias têxteis: alvejadores, tintureiros, lavadores e estampadores a mão.",
-   "15,20 ou 25 anos"
+   "25 anos"
   ],
   [
    "1.2.12",
    "SÍLICA, SILICATOS, CARVÃO, CIMENTO E AMIANTO",
    "Extração de minérios (atividades discriminadas nos códigos 2.3.1 a 2.3.5 do anexo II).\nExtração de rochas amiantíferas (furação, corte, desmonte, trituração, peneiramento e manipulação).\nExtração, trituração e moagem de talco. \nDecapagem, limpeza de metais, foscamento de vidros com jatos de areia (atividades discriminadas entre as do código 2.5.3 do Anexo II).\nFabricação de cimento\nFabricação de guarnições para freios, materiais isolantes e produtos de fibrocimento.\nFabricação de material refratário para fornos, chaminés e cadinhos, recuperação de resíduos.\nFabricação de mós, rebolos, saponáceos, pós e pastas para polimento de metais.\nMoagem e manipulação de sílica na indústria de vidros, porcelana e outros produtos cerâmicos.\nMistura, cardagem, fiação e tecelagem de amianto. \nTrabalho em pedreiras (atividades discriminadas no código 2.3.4 do anexo II).\nTrabalho em construção de túneis (atividades discriminadas nos códigos 2.3.3 e 2.3.4 do Anexo II).",
-   ""
+   "15, 20 ou 25 anos (extração de minérios, códigos 2.3.1 a 2.3.5 do Anexo II); 25 anos (demais atividades)"
   ],
   [
    "1.3.1",
@@ -545,7 +545,7 @@ const LIB = {
   ],
   [
    "1.3.2",
-   "ANIMAIS DOENTES E MATERIAIS NFECTOCONTAGIANTES",
+   "ANIMAIS DOENTES E MATERIAIS INFECTO-CONTAGIANTES",
    "Trabalhos permanentes expostos ao contato com animais doentes ou materiais infecto-contagiantes (atividades discriminadas entre as do código 2.1.3 do Anexo II: médicos, veterinários, enfermeiros e técnicos de laboratório).",
    "25 anos"
   ],
@@ -596,37 +596,37 @@ const LIB = {
   ],
   [
    "2.3.2",
-   "TRABALHADORES PERMANENTES EM LOCAIS DE SUBSOLO, AFASTADOS DAS FRENTES DE TRABALHO (GELARIAS, RAMPAS, POÇOS, DEPÓSITOS)\nMotoristas, carregadores, condutores de vagonetas, carregadores de explosivos, encarregados do fogo (blasters), eletricistas, engatadores, bombeiros, medeireiros e outros profissionais com atribuições permanentes em minas de subsolo",
+   "TRABALHADORES PERMANENTES EM LOCAIS DE SUBSOLO, AFASTADOS DAS FRENTES DE TRABALHO (GALERIAS, RAMPAS, POÇOS, DEPÓSITOS)\nMotoristas, carregadores, condutores de vagonetas, carregadores de explosivos, encarregados do fogo (blasters), eletricistas, engatadores, bombeiros, madeireiros e outros profissionais com atribuições permanentes em minas de subsolo",
    "20 anos"
   ],
   [
    "2.3.3",
-   "MINEIROS DE SUPERFÍCIE\nTrabalhadores no exercício de atividades de extração em ninas ou depósitos minerais na superfície\nPerfuradores de rochas, cortadores de rochas, carregadores, operadores de escavadeiras, motoreiros, condutores de vagonetas, britadores, carregadores de explosivos, encarregados do fogo (blasters) e outros profissionais com atribuições permanentes de extração em minas ou depósitos minerais de superfície",
+   "MINEIROS DE SUPERFÍCIE\nTrabalhadores no exercício de atividades de extração em minas ou depósitos minerais na superfície\nPerfuradores de rochas, cortadores de rochas, carregadores, operadores de escavadeiras, motoreiros, condutores de vagonetas, britadores, carregadores de explosivos, encarregados do fogo (blasters) e outros profissionais com atribuições permanentes de extração em minas ou depósitos minerais de superfície",
    "25 anos"
   ],
   [
    "2.3.3",
-   "Atividades enquadradas por PARECERES ADMINISTRATIVOS: _x0001_ Zonas de mineração de carvão: MESTRE DE MINERAÇÃO, OPERADOR DE ESCAVADEIRA, SERVENTE DE EXTRAÇÃO E TRATORISTA (desde que exerçam funções permanentes no setor de extração do carvão à superfície) / OPERADOR DE PERFURATRIZ (beneficiamento de carvão) – Pareceres do DNSHT no processo MTPS n° 108.191/73 _x0002_ PENEIREIRO, RECHEGADOR DE VAGONETAS, SILEIRO – Parecer no processo MTb n° 108.035/79 e MPAS/CRPS n° 623.152/79 _x0003_ Serviços em pedreiras: ATIVIDADES EM PEDREIRAS A CÉU ABERTO, NA MÁQUINA DE BRITAGEM, ficando expostos a poeiras minerais e ruídos – Parecer da SSMT no processo MTb n° 106.513/79",
+   "[Nota não normativa — atividades enquadradas por PARECERES ADMINISTRATIVOS, não constam do Anexo II do Decreto 83.080/79]:\n- Zonas de mineração de carvão: MESTRE DE MINERAÇÃO, OPERADOR DE ESCAVADEIRA, SERVENTE DE EXTRAÇÃO E TRATORISTA (desde que exerçam funções permanentes no setor de extração do carvão à superfície) / OPERADOR DE PERFURATRIZ (beneficiamento de carvão) – Pareceres do DNSHT no processo MTPS n° 108.191/73\n- PENEIREIRO, RECHEGADOR DE VAGONETAS, SILEIRO – Parecer no processo MTb n° 108.035/79 e MPAS/CRPS n° 623.152/79\n- Serviços em pedreiras: ATIVIDADES EM PEDREIRAS A CÉU ABERTO, NA MÁQUINA DE BRITAGEM, ficando expostos a poeiras minerais e ruídos – Parecer da SSMT no processo MTb n° 106.513/79",
    "25 anos"
   ],
   [
    "2.3.4",
-   "TRABALHADORES EM PEDREIRAS, TÚNEIS e GALERIAS\nPerfuradores, cavouqueiros, canteiros, encarregados do fogo (blasters) e operadores de pás mecânicas\nAtividades enquadradas por PARECERES ADMINISTRATIVOS: _x0001_ Serviços em pedreiras: MARTELETEIRO, AJUDANTE DE MARTELETEIRO, CAVOUQUEIRO, PERFURADOR DE ROCHAS ou outras denominações que se dêm às mesmas atividades – Parecer da SSMT no processo MTb n° 306.968/82 e MPAS n° 032.459/82 _x0002_ Atividades desenvolvidas na Cia. idroelétrica de São Francisco: TRABALHADOR EM ESCAVAÇÕES DE SUBSOLO, EM TÚNEIS E GALERIAS – Parecer da SSMT no processo MTb n° 110.312/82",
+   "TRABALHADORES EM PEDREIRAS, TÚNEIS e GALERIAS\nPerfuradores, cavouqueiros, canteiros, encarregados do fogo (blasters) e operadores de pás mecânicas\n[Nota não normativa — atividades enquadradas por PARECERES ADMINISTRATIVOS, não constam do Anexo II do Decreto 83.080/79]:\n- Serviços em pedreiras: MARTELETEIRO, AJUDANTE DE MARTELETEIRO, CAVOUQUEIRO, PERFURADOR DE ROCHAS ou outras denominações que se dêm às mesmas atividades – Parecer da SSMT no processo MTb n° 306.968/82 e MPAS n° 032.459/82\n- Atividades desenvolvidas na Cia. idroelétrica de São Francisco: TRABALHADOR EM ESCAVAÇÕES DE SUBSOLO, EM TÚNEIS E GALERIAS – Parecer da SSMT no processo MTb n° 110.312/82",
    "25 anos"
   ],
   [
    "2.3.5",
-   "TRABALHADORES EM EXTRAÇÃO DE PETRÓLEO\nTrabalhadores ocupados em caráter permanente na perfuração de poços petrolíferos e na extração de petróleo \nAtividades enquadradas por PARECERES ADMINISTRATIVOS: _x0001_ Trabalhadores das áreas de extração e de produção de petróleo, consideradas as expressões produção de petróleo, perfuração de poços petrolíferos e extração de petróleo como traduzindo as mesmas atividades – Parecer no processo MTb n° 101.174/81 e INPS n° 5.059.771/71",
+   "TRABALHADORES EM EXTRAÇÃO DE PETRÓLEO\nTrabalhadores ocupados em caráter permanente na perfuração de poços petrolíferos e na extração de petróleo \n[Nota não normativa — atividades enquadradas por PARECERES ADMINISTRATIVOS, não constam do Anexo II do Decreto 83.080/79]:\n- Trabalhadores das áreas de extração e de produção de petróleo, consideradas as expressões produção de petróleo, perfuração de poços petrolíferos e extração de petróleo como traduzindo as mesmas atividades – Parecer no processo MTb n° 101.174/81 e INPS n° 5.059.771/71",
    "25 anos"
   ],
   [
    "2.4.1",
-   "TRANSPORTES FERROVIÁRIOS\nMaquinista de máquinas acionadas a lenha ou a carvão",
+   "TRANSPORTE FERROVIÁRIO\nMaquinista de máquinas acionadas a lenha ou a carvão\nFoguista",
    "25 anos"
   ],
   [
    "2.4.2",
-   "TRANSPORTE URBANO E RODOVIÁRIO\nMotorista de ônibus e de caminhões de cargas (ocupados em caráter permanente)\nAtividades enquadradas por PARECERES ADMINISTRATIVOS: _x0001_ MOTORISTA DE LOTAÇÃO – Parecer do DNSHT no processo MTPS n° 102.022/73 _x0002_ TRATORISTA e OPERADOR DE MÁQUINAS PESADAS – Parecer da SSMT no processo MTb n° 112.258/80 _x0003_ Atividades desenvolvidas na Cia. Hidroelétrica de São Francisco: MOTORISTA (dirigindo caminhões, carretas e todos os tipos de carros, no transporte de materiais e equipamentos destinados à montagem de usina hidroelétrica) – Parecer da SSMT no processo MTb n° 110.312/82 _x0004_ MOTORISTA EM GUINDASTE PORTUÁRIO (motoreiro) – Parecer da SSMT no processo MTb n° 24.000.003.288/55",
+   "TRANSPORTE URBANO E RODOVIÁRIO\nMotorista de ônibus e de caminhões de cargas (ocupados em caráter permanente)\n[Nota não normativa — atividades enquadradas por PARECERES ADMINISTRATIVOS, não constam do Anexo II do Decreto 83.080/79]:\n- MOTORISTA DE LOTAÇÃO – Parecer do DNSHT no processo MTPS n° 102.022/73\n- TRATORISTA e OPERADOR DE MÁQUINAS PESADAS – Parecer da SSMT no processo MTb n° 112.258/80\n- Atividades desenvolvidas na Cia. Hidroelétrica de São Francisco: MOTORISTA (dirigindo caminhões, carretas e todos os tipos de carros, no transporte de materiais e equipamentos destinados à montagem de usina hidroelétrica) – Parecer da SSMT no processo MTb n° 110.312/82\n- MOTORISTA EM GUINDASTE PORTUÁRIO (motoreiro) – Parecer da SSMT no processo MTb n° 24.000.003.288/55",
    "25 anos"
   ],
   [
@@ -641,22 +641,22 @@ const LIB = {
   ],
   [
    "2.4.5",
-   "TRANSPORTE MANUAL DE CARGA NA ÁREA\nEstivadores (trabalhadores ocupados em caráter permanente, em embarcações, no carregamento e descarregamento de carga)\nArrumadores e ensacadores\nOperadores de carga e descarga nos portos\nAtividades enquadradas por PARECERES ADMINISTRATIVOS: _x0001_ CONSERTADORES DE CARGA E DESCARGA NA ÁREA PORTUÁRIA – Parecer da SSMT no processo MTb n° 317.228/79 e MPAS n° 015.361 _x0002_ CONFERENTES DE CARGA E DESCARGA NA ÁREA PORTUÁRIA – Parecer da SSMT no processo MTb n° 24.000.002.234/86 _x0003_ ARRUMADOR (trabalhador braçal) em exercício nos armazéns localizados fora da faixa portuária – Parecer do DNSHT no processo MTPS n° 106.670/75 e INPS n° 2.445.335/74 _x0004_ VIGIA PORTUÁRIO – Parecer da SSMT no processo MTb n° 24.000.007.395/86 _x0005_ TRABALHADORES DE ARMAZÉM, advindos da categoria de trabalhadores de capatazia – Parecer da SSMT no processo n° MPAS n° 032.217/82 _x0006_ ANOTADOR DA CIA. DOCAS DO ESTADO DE SÃO PAULO – Parecer da SSMT no processo MTb n° 24.000.003.047/84)",
+   "TRANSPORTE MANUAL DE CARGA NA ÁREA PORTUÁRIA\nEstivadores (trabalhadores ocupados em caráter permanente, em embarcações, no carregamento e descarregamento de carga)\nArrumadores e ensacadores\nOperadores de carga e descarga nos portos\n[Nota não normativa — atividades enquadradas por PARECERES ADMINISTRATIVOS, não constam do Anexo II do Decreto 83.080/79]:\n- CONSERTADORES DE CARGA E DESCARGA NA ÁREA PORTUÁRIA – Parecer da SSMT no processo MTb n° 317.228/79 e MPAS n° 015.361\n- CONFERENTES DE CARGA E DESCARGA NA ÁREA PORTUÁRIA – Parecer da SSMT no processo MTb n° 24.000.002.234/86\n- ARRUMADOR (trabalhador braçal) em exercício nos armazéns localizados fora da faixa portuária – Parecer do DNSHT no processo MTPS n° 106.670/75 e INPS n° 2.445.335/74\n- VIGIA PORTUÁRIO – Parecer da SSMT no processo MTb n° 24.000.007.395/86\n- TRABALHADORES DE ARMAZÉM, advindos da categoria de trabalhadores de capatazia – Parecer da SSMT no processo n° MPAS n° 032.217/82\n- ANOTADOR DA CIA. DOCAS DO ESTADO DE SÃO PAULO – Parecer da SSMT no processo MTb n° 24.000.003.047/84)",
    "25 anos"
   ],
   [
    "2.5.1",
-   "INDÚSTRIAS METALÚRGICAS E MECÂNICAS\n(Aciarias, fundições de ferro e metais não ferrosos, laminações), forneiros, mãos de forno, reservas de forno, fundidores, soldadores, lingoteiros, tenazeiros, caçambeiros, amarradores, dobradores e desbastadores. Rebarbadores, esmerilhadores, marteleteiros de rebarbação\nOperadores de tambores rotativos e outras máquinas de rebarbação\nOperadores de máquinas para fabricação de tubos por centrifugação\nOperadores de pontes rolantes ou de equipamentos para transporte de peças e caçambas com metal liqüefeito, nos recintos de aciarias, fundições e laminações\nOperadores de fornos de recozimento ou de têmpera: recozedores, temperadores\nAtividades enquadradas por PARECERES ADMINISTRATIVOS: _x0001_ MACHEIRO – Parecer no processo MTb n° 101.386/79 e INPS n° 5.056.542/81 _x0002_ AUXILIAR DE MECÂNICO, AJUDANTE METALÚRGICO e POLIDOR (exercidas em indústria metalúrgica e de fundições de metais não ferrosos) – Parecer da SSMT no processo MTb n° 303.151/81 _x0003_ VAZADOR, MOLDADOR e demais atividades exercidas em ambiente de fundição – Parecer da SSMT no processo MTb n° 103.248/83",
+   "INDÚSTRIAS METALÚRGICAS E MECÂNICAS\n(Aciarias, fundições de ferro e metais não ferrosos, laminações), forneiros, mãos de forno, reservas de forno, fundidores, soldadores, lingoteiros, tenazeiros, caçambeiros, amarradores, dobradores e desbastadores. Rebarbadores, esmerilhadores, marteleteiros de rebarbação\nOperadores de tambores rotativos e outras máquinas de rebarbação\nOperadores de máquinas para fabricação de tubos por centrifugação\nOperadores de pontes rolantes ou de equipamentos para transporte de peças e caçambas com metal liqüefeito, nos recintos de aciarias, fundições e laminações\nOperadores de fornos de recozimento ou de têmpera: recozedores, temperadores\n[Nota não normativa — atividades enquadradas por PARECERES ADMINISTRATIVOS, não constam do Anexo II do Decreto 83.080/79]:\n- MACHEIRO – Parecer no processo MTb n° 101.386/79 e INPS n° 5.056.542/81\n- AUXILIAR DE MECÂNICO, AJUDANTE METALÚRGICO e POLIDOR (exercidas em indústria metalúrgica e de fundições de metais não ferrosos) – Parecer da SSMT no processo MTb n° 303.151/81\n- VAZADOR, MOLDADOR e demais atividades exercidas em ambiente de fundição – Parecer da SSMT no processo MTb n° 103.248/83",
    "25 anos"
   ],
   [
    "2.5.2",
-   "FERRARIAS, ESTAMPARIAS DE METAL A QUENTE E CALDEIRARIA\nFerreiros, marteleteiros, forjadores, estampadores, caldeireiros e prensadores\nOperadores de forno de recozimento, de têmpera, de cementação, forneiros, recozedores, temperadores, cementadores\nOperadores de pontes rolantes ou talha elétrica\nAtividades enquadradas por PARECERES ADMINISTRATIVOS: _x0001_ AJUSTADOR (quando sujeito a ruído, irradiações nãoionizantes e bióxido de nitrogênio) – Parecer no processo MTb n° 119.915/77, MPAS n° 501.483/77 e INPS n° 5.064.456/81 _x0002_ OPERÁRIOS DE MÁQUINAS DIVERSAS (ÁREA PORTUÁRIA) – Parecer da SSMT no processo INPS n° 5.080.251/83",
+   "FERRARIAS, ESTAMPARIAS DE METAL A QUENTE E CALDEIRARIA\nFerreiros, marteleteiros, forjadores, estampadores, caldeireiros e prensadores\nOperadores de forno de recozimento, de têmpera, de cementação, forneiros, recozedores, temperadores, cementadores\nOperadores de pontes rolantes ou talha elétrica\n[Nota não normativa — atividades enquadradas por PARECERES ADMINISTRATIVOS, não constam do Anexo II do Decreto 83.080/79]:\n- AJUSTADOR (quando sujeito a ruído, irradiações nãoionizantes e bióxido de nitrogênio) – Parecer no processo MTb n° 119.915/77, MPAS n° 501.483/77 e INPS n° 5.064.456/81\n- OPERÁRIOS DE MÁQUINAS DIVERSAS (ÁREA PORTUÁRIA) – Parecer da SSMT no processo INPS n° 5.080.251/83",
    "25 anos"
   ],
   [
    "2.5.3",
-   "OPERAÇÕES DIVERSAS\nOperadores de máquinas pneumáticas\nRebitadores com marteletes pneumáticos\nCortadores de chapa a oxiacetileno\nEsmerilhadores\nSoldadores (solda elétrica e a oxiacetileno)\nOperadores de jatos de areia com exposição direta à poeira\nPintores a pistola (com solventes hidrocarbonados e tintas tóxicas)\nFoguistas\nAtividades enquadradas por PARECERES ADMINISTRATIVOS: _x0001_ FUNILEIROS (para os trabalhadores expostos ao ruído e gases tóxicos provenientes de cortes de chapa a oxiacetileno e solda elétrica) – SERRALHEIROS (em analogia a outras atividades, tais como: os esmerilhadores, cortadores de chapa a oxiacetileno e soldadores, pois encontram-se expostos ao ruído, ao calor, a emanações gasosas, a radiações ionizantes e a aerodispersóides) – Parecer da SSMT no processo MPAS n° 34.230/83 _x0002_ LATOEIRO DE VEÍCULOS (ruído: esmerilhamento e uso de martelos – gases tóxicos provenientes de cortes de chapas a oxiacetileno e solda elétrica, exposição a poeira tóxica devido ao lixamento manual de massas e tintas sintéticas) – Parecer da SSMT no processo MTb n° 317.461/82 – Ofício SMT/MTb/DF n° 53/84 _x0003_ PINTORES PORTUÁRIOS DA CIA DOCAS DO ESTADO DE SÃO PAULO – Parecer da SSMT no processo MTb n° 24.000.012.130/84",
+   "OPERAÇÕES DIVERSAS\nOperadores de máquinas pneumáticas\nRebitadores com marteletes pneumáticos\nCortadores de chapa a oxiacetileno\nEsmerilhadores\nSoldadores (solda elétrica e a oxiacetileno)\nOperadores de jatos de areia com exposição direta à poeira\nPintores a pistola (com solventes hidrocarbonados e tintas tóxicas)\nFoguistas\n[Nota não normativa — atividades enquadradas por PARECERES ADMINISTRATIVOS, não constam do Anexo II do Decreto 83.080/79]:\n- FUNILEIROS (para os trabalhadores expostos ao ruído e gases tóxicos provenientes de cortes de chapa a oxiacetileno e solda elétrica) – SERRALHEIROS (em analogia a outras atividades, tais como: os esmerilhadores, cortadores de chapa a oxiacetileno e soldadores, pois encontram-se expostos ao ruído, ao calor, a emanações gasosas, a radiações ionizantes e a aerodispersóides) – Parecer da SSMT no processo MPAS n° 34.230/83\n- LATOEIRO DE VEÍCULOS (ruído: esmerilhamento e uso de martelos – gases tóxicos provenientes de cortes de chapas a oxiacetileno e solda elétrica, exposição a poeira tóxica devido ao lixamento manual de massas e tintas sintéticas) – Parecer da SSMT no processo MTb n° 317.461/82 – Ofício SMT/MTb/DF n° 53/84\n- PINTORES PORTUÁRIOS DA CIA DOCAS DO ESTADO DE SÃO PAULO – Parecer da SSMT no processo MTb n° 24.000.012.130/84",
    "25 anos"
   ],
   [
@@ -666,7 +666,7 @@ const LIB = {
   ],
   [
    "2.5.5",
-   "FABRICAÇÃO DE VIDROS E CRISTAIS\nVidreiros, operadores de forno, forneiros, sopradores de vidros e cristais\nOperadores de máquinas de fabricação de vidro plano, secadores de vidros e cristais, operadores de máquinas de soprar vidros e outros profissionais em trabalhos permanentes nos recintos de fabricação de vidros e cristais\nAtividades enquadradas por PARECERES ADMINISTRATIVOS: _x0001_ GAMBISTA, FAZEDOR DE PÉ, COLHEDOR DE MÁQUINA E DE PRENSA, MAQUINISTA, ABRIDOR E PRENSADOR (modalidades de trabalho de vidreiro) – Boletim do DNSHT n° 13, pág 4/7)",
+   "FABRICAÇÃO DE VIDROS E CRISTAIS\nVidreiros, operadores de forno, forneiros, sopradores de vidros e cristais\nOperadores de máquinas de fabricação de vidro plano, sacadores de vidros e cristais, operadores de máquinas de soprar vidros e outros profissionais em trabalhos permanentes nos recintos de fabricação de vidros e cristais\n[Nota não normativa — atividades enquadradas por PARECERES ADMINISTRATIVOS, não constam do Anexo II do Decreto 83.080/79]:\n- GAMBISTA, FAZEDOR DE PÉ, COLHEDOR DE MÁQUINA E DE PRENSA, MAQUINISTA, ABRIDOR E PRENSADOR (modalidades de trabalho de vidreiro) – Boletim do DNSHT n° 13, pág 4/7)",
    "25 anos"
   ],
   [
@@ -676,12 +676,12 @@ const LIB = {
   ],
   [
    "2.5.7",
-   "PREPARAÇÃO DE COUROS\nCaleadores de couros \nCurtidores de couros\nTrabalhadores em tanagem de couros\nAtividades enquadradas por PARECERES ADMINISTRATIVOS: _x0001_ OPERADOR DE DESCARNE E DIVISÃO DE COUROS, EM CORTUME – Parecer da SSMT no processo MTb n° 105.914/79",
+   "PREPARAÇÃO DE COUROS\nCaleadores de couros \nCurtidores de couros\nTrabalhadores em tanagem de couros\n[Nota não normativa — atividades enquadradas por PARECERES ADMINISTRATIVOS, não constam do Anexo II do Decreto 83.080/79]:\n- OPERADOR DE DESCARNE E DIVISÃO DE COUROS, EM CORTUME – Parecer da SSMT no processo MTb n° 105.914/79",
    "25 anos"
   ],
   [
    "2.5.8",
-   "INDÚSTRIA GRÁFICA E EDITORIAL\nMonotipistas, linotipistas, fundidores de monotipo, fundidores de linotipo, fundidores de estereotipia, eletrotipistas, estereotipistas, galvanotipistas, titulistas, compositores, biqueiros, chapistas, tipógrafos, caixistas, distribuidores, paginadores, emendadores, impressores, minervistas, prelistas, ludistas, litógrafos e fotogravadores\n\nAtividades enquadradas por PARECERES ADMINISTRATIVOS: _x0001_ LITÓGRAFO e FOTÓGRAFO (fotogravador) – Resolução CD/INPS n° 110/71 _x0002_ MECÂNICOS DE LINOTIPO (desde que seja comprovada a exposição permanente durante a jornada de trabalho aos vapores de chumbo e ao calor) – Parecer do DNSHT no processo MTPS n° 106.368/74 e INPS n° 2.400.851/74 _x0003_ APELISTAS e ANUNCISTAS – Ofício do DNSHT/GDG n° 00525, de 14.08.74, processo INPS n° 2.404.266/74 _x0004_ FOTOLITÓGRAFO – Parecer da SSMT no processo INPS n° 5.065.541/82 _x0005_ COPIADOR DE FOTOLITOS – Parecer da SSMT no processo INPS n° 31.050.002.875/85",
+   "INDÚSTRIA GRÁFICA E EDITORIAL\nMonotipistas, linotipistas, fundidores de monotipo, fundidores de linotipo, fundidores de estereotipia, eletrotipistas, estereotipistas, galvanotipistas, titulistas, compositores, biqueiros, chapistas, tipógrafos, caixistas, distribuidores, paginadores, emendadores, impressores, minervistas, prelistas, ludistas, litógrafos e fotogravadores\n\n[Nota não normativa — atividades enquadradas por PARECERES ADMINISTRATIVOS, não constam do Anexo II do Decreto 83.080/79]:\n- LITÓGRAFO e FOTÓGRAFO (fotogravador) – Resolução CD/INPS n° 110/71\n- MECÂNICOS DE LINOTIPO (desde que seja comprovada a exposição permanente durante a jornada de trabalho aos vapores de chumbo e ao calor) – Parecer do DNSHT no processo MTPS n° 106.368/74 e INPS n° 2.400.851/74\n- APELISTAS e ANUNCISTAS – Ofício do DNSHT/GDG n° 00525, de 14.08.74, processo INPS n° 2.404.266/74\n- FOTOLITÓGRAFO – Parecer da SSMT no processo INPS n° 5.065.541/82\n- COPIADOR DE FOTOLITOS – Parecer da SSMT no processo INPS n° 31.050.002.875/85",
    "25 anos"
   ]
  ],
@@ -783,7 +783,7 @@ const LIB = {
   ],
   [
    "1.0.19",
-   "OUTRAS SUBSTÂNCIAS QUÍMICAS\nGRUPO I - ESTIRENO; BUTADIENO-ESTIRENO; ACRILONITRILA; 1-3 BUTADIENO; CLOROPRENO; MERCAPTANOS, n-HEXANO, DIISOCIANATO DE TOLUENO (TDI); AMINAS AROMÁTICAS\na) fabricação e vulcanização de artefatos de borracha;\nb) fabricação e recauchutagem de pneus.\nGRUPO II - AMINAS AROMÁTICAS, AMINOBIFENILA, AURAMINA, AZATIOPRINA, BIS (CLORO METIL) ÉTER, 1-4 BUTANODIOL DIMETANOSULFONATO (MILERAN), CICLOFOSFAMIDA, CLOROAMBUCIL, DIETILESTILBESTROL, ACRONITRILA, NITRONAFTILAMINA 4-DIMETIL-AMINOAZOBENZENO, BENZOPIRENO, BETAPROPIOLACTONA, BISCLOROETILETER, BISCLOROMETIL CLOROMETILETER, DIANIZIDINA, DICLOROBENZIDINA, DIETILSULFATO, DIMETILSULFATO, ETILENOAMINA, ETILENOTIUREIA, FENACETINA, IODETO DE METILA, ETILNITROSURÉIAS, METILENO-ORTOCLOROANILINA (MOCA), NITROSAMINA, ORTOTOLUIDINA, OXIMETALONA, PROCARBAZINA, PROPANOSULTONA, 1-3-BUTADIENO, ÓXIDO DE ETILENO, ESTILBENZENO, DIISOCIANATO DE TOLUENO (TDI), CREOSOTO, 4-AMINODIFENIL, BENZIDINA, BETANAFTILAMINA, ESTIRENO, 1-CLORO-2, 4 - NITRODIFENIL, 3-POXIPROPANO \na) manufatura de magenta (anilina e orto-toluidina);\nb) fabricação de fibras sintéticas;\nc) sínteses químicas;\nd) fabricação da borracha e espumas;\ne) fabricação de plásticos;\nf ) produção de medicamentos;\ng) operações de preservação da madeira com creosoto;\nh) esterilização de materiais cirúrgicos.",
+   "OUTRAS SUBSTÂNCIAS QUÍMICAS\nGRUPO I - ESTIRENO; BUTADIENO-ESTIRENO; ACRILONITRILA; 1-3 BUTADIENO; CLOROPRENO; MERCAPTANOS, HEXANO, DIISOCIANATO DE TOLUENO (TDI); AMINAS AROMÁTICAS\na) fabricação e vulcanização de artefatos de borracha;\nb) fabricação e recauchutagem de pneus.\nGRUPO II - AMINAS AROMÁTICAS, AMINOBIFENILA, AURAMINA, AZATIOPRINA, BIS (CLORO METIL) ÉTER, 1-4 BUTANODIOL DIMETANOSULFONATO (MILERAN), CICLOFOSFAMIDA, CLOROAMBUCIL, DIETILESTILBESTROL, ACRONITRILA, NITRONAFTILAMINA 4-DIMETIL-AMINOAZOBENZENO, BENZOPIRENO, BETAPROPIOLACTONA, BISCLOROETILETER, BISCLOROMETIL CLOROMETILETER, DIANIZIDINA, DICLOROBENZIDINA, DIETILSULFATO, DIMETILSULFATO, ETILENOAMINA, ETILENOTIUREIA, FENACETINA, IODETO DE METILA, ETILNITROSURÉIAS, METILENO-ORTOCLOROANILINA (MOCA), NITROSAMINA, ORTOTOLUIDINA, OXIMETALONA, PROCARBAZINA, PROPANOSULTONA, 1-3-BUTADIENO, ÓXIDO DE ETILENO, ESTILBENZENO, DIISOCIANATO DE TOLUENO (TDI), CREOSOTO, 4-AMINODIFENIL, BENZIDINA, BETANAFTILAMINA, ESTIRENO, 1-CLORO-2, 4 - NITRODIFENIL, 3-POXIPROPANO \na) manufatura de magenta (anilina e orto-toluidina);\nb) fabricação de fibras sintéticas;\nc) sínteses químicas;\nd) fabricação da borracha e espumas;\ne) fabricação de plásticos;\nf ) produção de medicamentos;\ng) operações de preservação da madeira com creosoto;\nh) esterilização de materiais cirúrgicos.",
    "25 anos"
   ],
   [
@@ -1073,7 +1073,7 @@ const LIB = {
    "001336-36-3"
   ],
   [
-   "Bifenis policlorados, ‘dioxin-like’ (‘tipo dioxina’ ou ‘do grupo das dioxinas’), com Fator de Equivalência de Toxicidade de acordo com a OMS (PCBs 77, 81, 105, 114, 118, 123, de Equivalência de Toxicidade de acordo com a OMS (PCBs 77, 81, 105, 114, 118, 123,",
+   "Bifenis policlorados, ‘dioxin-like’ (‘tipo dioxina’ ou ‘do grupo das dioxinas’), com Fator de Equivalência de Toxicidade de acordo com a OMS (PCBs 77, 81, 105, 114, 118, 123, 126, 156, 157, 167, 169, 189)",
    "Não se aplica"
   ],
   [
@@ -2418,3 +2418,7 @@ const LIB = {
   ]
  }
 };
+
+/* As duas últimas linhas da LINACH eram comentários do Manual de Aposentadoria Especial (INSS, 2018),
+   não agentes da Portaria Interministerial 9/2014: ficam num quadro próprio. */
+(function(){ const i=LIB.linach.findIndex(r=>/^CONSIDERAÇÕES DO MANUAL/.test(r[0])); if(i>=0){ LIB.linach_manual=LIB.linach.splice(i).filter(r=>!/^CONSIDERAÇÕES DO MANUAL/.test(r[0])).map(r=>[r[0]]); } })();

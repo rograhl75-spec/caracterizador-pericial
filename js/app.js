@@ -309,14 +309,14 @@ const RS_MANUAL=[
  ['14/10/1996 a 05/03/1997','Acima de 80 dB(A)','NR-15, Anexo 1','Decreto 53.831/64; MP 1.523/96','LTCAT ou demais demonstrações ambientais','Informação sobre EPC','1.1.6','DSS-8030'],
  ['06/03/1997 a 02/12/1998','Acima de 90 dB(A)','NR-15, Anexo 1','Decreto 2.172/97','LTCAT ou demais demonstrações ambientais','Informação sobre EPC','2.0.1','DSS-8030'],
  ['03/12/1998 a 06/05/1999','Acima de 90 dB(A)','NR-15, Anexo 1','Decreto 2.172/97; Lei 9.528/97','LTCAT ou demais demonstrações ambientais','Informação sobre EPC e EPI','2.0.1','DSS-8030, DIRBEN-8030'],
- ['07/05/1999 a 18/11/2003','Acima de 90 dB(A)','NR-15, Anexo 1','Decreto 3.048/99','LTCAT; (+) histograma ou memória de cálculo a partir de 11/10/2001','Informação sobre EPC e EPI','2.0.1','DSS-8030, DIRBEN-8030'],
+ ['07/05/1999 a 18/11/2003','Acima de 90 dB(A)','NR-15, Anexo 1','Decreto 3.048/99','LTCAT (a IN 170/2024 retirou a exigência de histograma a partir de 11/10/2001)','Informação sobre EPC e EPI','2.0.1','DSS-8030, DIRBEN-8030'],
  ['19/11/2003 a 31/12/2003','Acima do LT de 85 dB(A)','NR-15 ou NHO-01','Decreto 3.048/99, red. Decreto 4.882/03','LTCAT ou demais demonstrações ambientais','Informação sobre EPC e EPI','2.0.1','DIRBEN-8030'],
  ['A partir de 01/01/2004','Acima do LT de 85 dB(A), em NEN','NHO-01 (INSS)','Decreto 3.048/99, red. Decreto 4.882/03; IN 99/2003; (+) art. 68, § 12 (Decreto 8.123/13)','LTCAT, se necessário','Informação sobre EPC e EPI','2.0.1','PPP'],
  ['(+) A partir de 01/01/2023','Acima do LT de 85 dB(A), em NEN','NHO-01 (INSS)','IN 128/2022, art. 292; Portaria MTP 313/2021 (red. Portaria MTP 1.010/2021)','LTCAT','Informação sobre EPC e EPI','2.0.1','PPP eletrônico (eSocial, S-2240)']];
 const RS_HARM=[
  ['Até 05/03/1997','Decreto 53.831 (80 dB) e Decreto 83.080 (90 dB) vigentes juntos','O INSS aplica 80 dB(A), o mais favorável'],
  ['Até 05/03/1997','Limite previdenciário de 80 dB(A) abaixo do limite trabalhista de 85 dB(A)','Limiar de integração de 85 dB(A) despreza a faixa de 80 a 85 que enquadra'],
- ['11/10/2001 a 18/11/2003','A IN 57/2001 exige histograma ou memória de cálculo; o decreto não','PPP sem esse anexo pode ser recusado'],
+ ['Até 02/12/1998','Valores múltiplos de ruído no formulário: acima e abaixo do LT vão à Perícia Médica com histograma ou memória de cálculo (IN 128, art. 292, §2º, red. IN 170/2024)','Sem histograma, o período pode ficar sem enquadramento'],
  ['A partir de 19/11/2003','O decreto toma da NR-15 os limites (q = 5) e da Fundacentro só o método; o INSS exige o NEN da NHO-01 (q = 3). As NHO não fixam limites (Portaria Fundacentro 675/2021)','O mesmo ambiente pode enquadrar por um critério e não pelo outro'],
  ['19/11 a 31/12/2003','A IN cria transição que o decreto não prevê','INSS aceita NR-15 ou NHO-01'],
  ['A partir de 17/10/2013','O § 12 (Decreto 8.123) deixa de citar os limites da legislação trabalhista; a IN mantém o Quadro do Anexo 1','A IN sustenta a referência à NR-15 que o decreto retirou'],
@@ -482,7 +482,7 @@ function rsDocumentar(){
   return '<p class="lead">PPP em papel para períodos até 31/12/2022; exclusivamente eletrônico (eSocial, S-2240) a partir de 01/01/2023 (Portaria MTP 313/2021, red. Portaria MTP 1.010/2021; Portaria MTP 334/2022).</p><h3>PPP em papel, seção 15</h3>'+
    tbl(['Período','15.3 Fator de risco','15.4 Intensidade (até 15 caracteres)','15.5 Técnica (até 40 caracteres)'],[
     ['Até 05/03/1997','Ruído contínuo ou intermitente','Lavg em dB(A)','NR-15 Anexo 1 - Lavg q=5'],
-    ['06/03/1997 a 18/11/2003','Ruído contínuo ou intermitente','Lavg em dB(A)','NR-15 Anexo 1 - Lavg q=5 (+ histograma desde 11/10/2001)'],
+    ['06/03/1997 a 18/11/2003','Ruído contínuo ou intermitente','Lavg em dB(A)','NR-15 Anexo 1 - Lavg q=5'],
     ['A partir de 19/11/2003','Ruído contínuo ou intermitente','NEN 87,3 dB(A)','NHO-01 Fundacentro - NEN']].map(r=>r.map(esc)))+
    '<ul><li><b>13.7 Ocorrência GFIP/eSocial:</b> 04 quando houver enquadramento (25 anos).</li><li><b>15.7 EPI eficaz:</b> informar a partir de 03/12/1998, com o CA (15.8); para ruído não afasta o enquadramento.</li><li>Nunca escrever só \"dosímetro\", \"dosimetria\" ou \"decibelímetro\" no 15.5.</li><li>Qualquer mudança nos campos 15.2 a 15.8 abre nova linha de período.</li></ul>'+
    '<p class="note"><b>Em aberto:</b> o INSS exige o NEN da NHO-01 (q = 3) a partir de 2004; a nota do especialista usa q = 5. Opções: NHO-01 no PPP e q = 5 no laudo; NEN q = 5 no PPP; ou os dois valores, identificados.</p>'+
@@ -727,6 +727,7 @@ const LIBT = [
  ['d83080_I','Decreto 83.080/79 — Anexo I (agentes)',['Código','Campo de aplicação','Atividade profissional','Tempo']],
  ['d83080_II','Decreto 83.080/79 — Anexo II (grupos profissionais)',['Código','Atividade profissional','Tempo']],
  ['linach','LINACH — Grupo 1 (Portaria Interministerial 9/2014)',['Agente','CAS']],
+ ['linach_manual','LINACH — considerações do Manual de Aposentadoria Especial (INSS, 2018)',['Texto']],
  ['ag_cancer','Cancerígenos do Anexo IV × LINACH',['Agente do Anexo IV','Código','LINACH Grupo 1','CAS']],
  ['aq_quant','Químicos do Anexo IV com limite (NR-15, Anexo 11/12)',['Agente','Valor teto','Absorção pela pele','ppm','mg/m³']],
  ['aq_qual','Químicos do Anexo IV de avaliação qualitativa',['Agente']],

@@ -1,4 +1,4 @@
-/* IN PRES/INSS 128/2022 — texto literal dos arts. 286 a 302 (art. 293 na redação da IN 141/2022) */
+/* IN PRES/INSS 128/2022 — texto literal dos arts. 286 a 302 (art. 293 na redação da IN 141/2022; arts. 287, 290, 291 e 292 na redação da IN 170/2024). Conferido no DOU em 21/11/2026: as INs posteriores, até a 216/2026, não alteram estes artigos. */
 const IN128 = {
  "286": [
   "Art. 286. O enquadramento de períodos de atividade especial dependerá de comprovação, perante o INSS, da efetiva exposição do segurado a agentes prejudiciais à saúde durante determinado tempo de trabalho permanente.",
@@ -7,7 +7,12 @@ const IN128 = {
  ],
  "287": [
   "Art. 287. São consideradas atividades especiais, conforme definido no Anexo IV do RPS, a exposição a agentes prejudiciais à saúde, em concentração, intensidade e tempo de exposição que ultrapassem os limites de tolerância estabelecidos segundo critérios quantitativos, ou que, dependendo do agente, torne a efetiva exposição em condição especial prejudicial à saúde, segundo critérios de avaliação qualitativa.",
-  "§ 1º A análise da atividade especial de que trata o caput será feita pela Perícia Médica Federal.",
+  "§ 1º A análise da atividade especial de que trata o caput poderá ser feita: (Redação dada pela IN 170/2024)",
+  "I - mediante análise administrativa da conformidade do formulário de atividade especial; ou",
+  "II - pela Perícia Médica Federal quando não for possível a análise administrativa da conformidade do formulário de atividade especial.",
+  "§ 1º-A. A efetiva exposição a agente prejudicial à saúde configura-se quando, mesmo após a adoção das medidas de controle previstas na legislação trabalhista, a nocividade não for eliminada ou neutralizada, assim entendidos: (Incluído pela IN 170/2024)",
+  "I - eliminação - a adoção de medidas de controle que efetivamente impossibilitem a exposição ao agente prejudicial à saúde no ambiente de trabalho; e",
+  "II - neutralização - a adoção de medidas de controle que reduzam a intensidade, a concentração ou a dose do agente prejudicial à saúde ao limite de tolerância previsto no RPS ou, na sua ausência, na legislação trabalhista.",
   "§ 2º Para requerimentos a partir de 17 de outubro de 2013, data da publicação do Decreto nº 8.123, de 16 de outubro de 2013, poderão ser considerados os agentes prejudiciais à saúde reconhecidamente cancerígenos em humanos, aqueles listados pelo Ministério do Trabalho e Previdência, desde que constem no Anexo IV do RPS.",
   "§ 3º Os agentes prejudiciais à saúde não arrolados no Anexo IV do RPS não serão considerados para fins de caracterização de período exercido em condições especiais, mesmo que constem na lista referida no parágrafo anterior.",
   "§ 4º Sem prejuízo do disposto no § 3º, as atividades constantes no Anexo IV do RPS são exaustivas, ressalvadas as exclusivamente relacionadas aos agentes nocivos químicos, que são exemplificativas, observado, nesse caso, a obrigatória relação com os agentes prejudiciais no Anexo IV do RPS.",
@@ -26,8 +31,10 @@ const IN128 = {
   "Parágrafo único. As metodologias e os procedimentos de avaliação contidos nesta Instrução Normativa somente serão exigidos para as avaliações realizadas a partir de 1º de janeiro de 2004, sendo facultado à empresa a sua utilização antes desta data."
  ],
  "290": [
-  "Art. 290. Será considerada a adoção de Equipamento de Proteção Coletiva - EPC que elimine ou neutralize a nocividade, desde que asseguradas as condições de funcionamento do EPC ao longo do tempo, conforme especificação técnica do fabricante e respectivo plano de manutenção, estando essas devidamente registradas pela empresa.",
-  "Parágrafo único. Nos casos de exposição do segurado ao agente nocivo ruído, acima dos limites legais de tolerância, a declaração do empregador o âmbito o Perfil Profissiográfico Previdenciário (PPP), sobre a eficácia do Equipamento de Proteção Individual (EPI), não descaracteriza o enquadramento como atividade especial para fins de aposentadoria."
+  "Art. 290. Para demonstrações ambientais emitidas a partir de 14 de outubro de 1996, data da publicação da Medida Provisória nº 1.523, de 1996, convertida na Lei nº 9.528, de 1997, que alterou o art. 58 da Lei nº 8.213, de 1991, será considerada a adoção de EPC que elimine ou neutralize a nocividade, desde que asseguradas as condições de funcionamento do EPC ao longo do tempo, conforme especificação técnica do fabricante e respectivo plano de manutenção, estando essas devidamente registradas pela empresa. (Redação dada pela IN 170/2024)",
+  "Parágrafo único. A informação acerca da existência de EPC eficaz, constante no documento comprobatório de exposição ao agente prejudicial à saúde, não será considerada na análise de possível enquadramento do período laborado como atividade especial quando o próprio documento informar a presença de agente prejudicial à saúde avaliado:",
+  "I - quantitativamente, com intensidade ou concentração acima dos limites de tolerância admitidos no RPS ou na legislação trabalhista; ou",
+  "II - qualitativamente, para o qual não há limite de tolerância."
  ],
  "291": [
   "Art. 291. Somente será considerada a adoção de Equipamento de Proteção Individual - EPI em demonstrações ambientais emitidas a partir de 3 de dezembro de 1998, data da publicação da Medida Provisória nº 1.729, convertida na Lei nº 9.732, de 11 de dezembro de 1998, e desde que comprovadamente elimine ou neutralize a nocividade e seja respeitado o disposto na NR-06 do MTE, havendo ainda necessidade de que seja assegurada e devidamente registrada pela empresa, no PPP, a observância:",
@@ -36,16 +43,22 @@ const IN128 = {
   "III - do prazo de validade, conforme Certificado de Aprovação do Ministério do Trabalho e Previdência ou do órgão que venha sucedê-la;",
   "IV - da periodicidade de troca definida pelos programas ambientais, comprovada mediante recibo assinado pelo usuário em época própria; e",
   "V - da higienização.",
-  "Parágrafo único. Entende-se como prova incontestável de eliminação ou neutralização dos riscos pelo uso de EPI, citado no Parecer CONJUR/MPS/Nº 616/2010, de 23 de dezembro de 2010, o cumprimento do disposto neste artigo."
+  "§ 1º Entende-se como prova incontestável de eliminação dos riscos pelo uso de EPI, citado no Parecer CONJUR/MPS/Nº 616/2010, de 23 de dezembro de 2010, o cumprimento do disposto neste artigo. (Redação dada pela IN 170/2024)",
+  "§ 2º Nos casos de exposição do segurado ao agente nocivo ruído, acima dos limites legais de tolerância, a declaração do empregador no âmbito do PPP, sobre a eficácia do EPI, não descaracteriza o enquadramento como atividade especial para fins de aposentadoria."
  ],
  "292": [
   "Art. 292. A exposição ocupacional a ruído dará ensejo à caracterização de atividade especial quando os níveis de pressão sonora estiverem acima de 80 (oitenta) dB (A), 90 (noventa) dB (A) ou 85 (oitenta e cinco) dB (A), conforme o caso, observado o seguinte:",
-  "I - até 5 de março de 1997, véspera da publicação do Decreto nº 2.172, de 1997, será efetuado o enquadramento de atividade especial quando a exposição for superior a 80 (oitenta) dB (A), devendo ser informados os valores medidos;",
-  "II - de 6 de março de 1997, data da publicação do Decreto nº 2.172, de 1997, até 10 de outubro de 2001, véspera da publicação da Instrução Normativa INSS/DC nº 57, de 10 de outubro de 2001, será efetuado o enquadramento quando a exposição for superior a 90 (noventa) dB (A);",
-  "III - de 11 de outubro de 2001, data da publicação da Instrução Normativa nº 57, de 2001, até 18 de novembro de 2003, véspera da publicação do Decreto nº 4.882, de 18 de novembro de 2003, será efetuado o enquadramento de atividade especial quando a exposição for superior a 90 (noventa) dB (A), devendo ser anexado o histograma ou memória de cálculos; e",
-  "IV - a partir de 1º de janeiro de 2004, será efetuado o enquadramento quando o Nível de Exposição Normalizado - NEN se situar acima de 85 (oitenta e cinco) dB (A), conforme NHO 1 da FUNDACENTRO, sendo facultado à empresa a sua utilização a partir de 19 de novembro de 2003, data da publicação do Decreto nº 4.882, de 2003, aplicando:",
+  "I - até 5 de março de 1997, véspera da publicação do Decreto nº 2.172, de 1997, será efetuado o enquadramento de atividade especial quando a exposição for superior a 80 (oitenta) dB (A), devendo constar no formulário o valor resultante da medição; (Redação dada pela IN 170/2024)",
+  "II - de 6 de março de 1997, data da publicação do Decreto nº 2.172, de 1997, até 18 de novembro de 2003, véspera da publicação do Decreto nº 4.882, de 18 de novembro de 2003, será efetuado o enquadramento de atividade especial quando a exposição for superior a 90 (noventa) dB (A), devendo constar no formulário o valor resultante da medição;",
+  "III - de 19 de novembro de 2003, data da publicação do Decreto nº 4.882, de 2003, a 31 de dezembro de 2003, prazo estabelecido pela Instrução Normativa nº 99 INSS/DC, de 2003, será efetuado o enquadramento de atividade especial quando a exposição for superior a 85 (oitenta e cinco) dB (A), devendo constar no formulário o valor resultante da medição, sendo facultado à empresa a utilização do Nível de Exposição Normalizado - NEN da NHO-01 da FUNDACENTRO; e",
+  "IV - a partir de 1º de janeiro de 2004, prazo estabelecido pela Instrução Normativa nº 99 INSS/DC, de 2003, será efetuado o enquadramento quando o NEN situar-se acima de 85 (oitenta e cinco) dB (A), conforme NHO-01 da FUNDACENTRO, aplicando:",
   "a) os limites de tolerância definidos no Quadro do Anexo I da NR-15 do MTE; e",
-  "b) as metodologias e os procedimentos de avaliação ambiental definidos nas NHO-01 da FUNDACENTRO."
+  "b) as metodologias e os procedimentos de avaliação ambiental definidos nas NHO-01 da FUNDACENTRO.",
+  "§ 1º Tanto na utilização facultativa disposta no inciso III, quanto na ocorrência do inciso IV, caso não conste expressamente a informação da utilização do NEN, poderá ser aceita a menção à NHO-01 desde que a documentação comprobatória da atividade especial indique que a medição do ruído refere-se a uma jornada diária de 8 (oito) horas. (Incluído pela IN 170/2024)",
+  "§ 2º Para períodos laborados até 2 de dezembro de 1998 com exposição ao agente prejudicial à saúde ruído, se informados no formulário de atividade especial valores múltiplos de intensidade para um único período, caberá:",
+  "I - o enquadramento do período, se todos os valores estiverem acima do limite de tolerância, desde que atendidos os demais requisitos legais;",
+  "II - o não enquadramento do período, se todos os valores estiverem abaixo do limite de tolerância; ou",
+  "III - o envio à análise da Perícia Médica Federal, se houver valores acima e abaixo do limite de tolerância exigido para enquadramento do respectivo período, desde que apresentados o histograma ou a memória de cálculo."
  ],
  "293": [
   "Art. 293. A exposição ocupacional ao calor dará ensejo à caracterização de atividade especial quando:",

@@ -67,7 +67,7 @@ function avaliar(row, agent){
   if(!row.ini || !row.fim || row.fim < row.ini) return {erro:'Informe início e fim do período.', segs:[]};
   const e = agent.engine;
   let cuts = [];
-  if(e==='ruido'){ cuts=['1997-03-06','2001-10-11','2003-11-19','2004-01-01']; if(row.d&&row.d.epiu) cuts.push('1998-12-03'); }
+  if(e==='ruido'){ cuts=['1997-03-06','2003-11-19','2004-01-01']; if(row.d&&row.d.epiu) cuts.push('1998-12-03'); }
   else if(e==='calor') cuts=['1997-03-06','2019-12-11'];
   else if(e==='vibracao') cuts=['1997-03-06','2014-08-13'];
   else if(e==='categoria') cuts=['1995-04-29'];
@@ -89,12 +89,12 @@ function avaliar(row, agent){
           p=R(lavg>80?'E':'N', 'Lavg '+f1(lavg)+(lavg>80?' > ':' ≤ ')+'80 dB(A).'); i=R(p.st, p.txt); }
         else if(b<='2003-11-18'){ base='Dec. 2.172/97 · 3.048/99 · LT 90 dB(A)';
           p=R(lavg>90?'E':'N', 'Lavg '+f1(lavg)+(lavg>90?' > ':' ≤ ')+'90 dB(A).');
-          i=R(p.st, p.txt + (a>='2001-10-11'?' A partir de 11/10/2001 o INSS exige histograma ou memória de cálculo (art. 292, III).':'')); }
+          i=R(p.st, p.txt + (a<='1998-12-02'?' Valores múltiplos no formulário: acima e abaixo do LT vão à Perícia Médica com histograma ou memória de cálculo (art. 292, §2º, red. IN 170/2024).':'')); }
         else { base='Dec. 4.882/03 · NEN > 85 dB(A)';
           p=R(n5>85?'E':'N','NEN (q = 5, Te '+te+' min) = '+f1(n5)+(n5>85?' > ':' ≤ ')+'85 dB(A).');
           if(n3!==null) i=R(n3>85?'E':'N','NEN NHO-01 (q = 3) = '+f1(n3)+(n3>85?' > ':' ≤ ')+'85 dB(A).');
-          else if(b<='2003-12-31') i=R(n5>85?'E':'N','19/11 a 31/12/2003: NHO-01 facultativa (art. 292, IV); leitura da ferramenta: aceita a NR-15 → '+f1(n5)+' dB(A).');
-          else i=R('I','O INSS exige NEN pela NHO-01 (q = 3). Informe o NE para comparar.');
+          else if(b<='2003-12-31') i=R(n5>85?'E':'N','19/11 a 31/12/2003: acima de 85 dB(A) pelo valor medido, NEN da NHO-01 facultativo (art. 292, III, red. IN 170/2024) → '+f1(n5)+' dB(A).');
+          else i=R('I','O INSS exige NEN pela NHO-01 (q = 3); sem o NEN expresso, aceita a menção à NHO-01 com medição de jornada de 8 h (art. 292, §1º). Informe o NE para comparar.');
         }
         /* EPI auditivo: considerado a partir de 03/12/1998 (Lei 9.732/98; IN 128, art. 291) */
         if(d.epiu){
