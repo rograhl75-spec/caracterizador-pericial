@@ -13,10 +13,11 @@ const MARCOS = [
   {d:'2012-09-10', t:'NHO-09 e NHO-10 (Fundacentro)', s:'Metodologia de vibração (VCI e VMB); facultada pelo INSS desde esta data.'},
   {d:'2014-08-13', t:'Anexo 8 NR-15 (Portaria 1.297/14)', s:'Vibração: limites aren e VDVR para enquadramento.'},
   {d:'2014-10-08', t:'Portaria Interministerial 9/14 (LINACH)', s:'INSS: Grupo 1 com CAS — EPI/EPC não descaracterizam.'},
-  {d:'2019-11-13', t:'EC 103/2019', s:'Último dia para conversão de tempo especial em comum; idade mínima.'},
+  {d:'2019-11-13', t:'EC 103/2019', s:'Último dia para conversão de tempo especial em comum. A idade mínima do art. 19, §1º, I, foi declarada inconstitucional pelo STF (ADI 6309, 2026).'},
   {d:'2019-12-11', t:'Portaria SEPRT 1.359/19', s:'Novo Anexo 3 da NR-15 (calor), com LT em função de M (W).'},
   {d:'2020-07-01', t:'Decreto 10.410/20', s:'Art. 68, §4º: cancerígenos — medidas de controle que eliminem a nocividade descaracterizam a exposição.'},
-  {d:'2022-03-29', t:'IN PRES/INSS 128/2022', s:'Revoga a IN 77/2015; alterada pelas INs 133, 141, 170 e 212 (a 212/2026 não altera agentes nocivos).'}
+  {d:'2022-03-29', t:'IN PRES/INSS 128/2022', s:'Revoga a IN 77/2015; alterada por INs posteriores, até a 212/2026 (entre elas 133, 141, 170, 203, 208 e 212). As de 2026 não alteram agentes nocivos.'},
+  {d:'2026-06-03', t:'STF, ADI 6309', s:'Inconstitucional a idade mínima da aposentadoria especial (EC 103/2019, art. 19, §1º, I, a, b e c). Mantidas a vedação de conversão após 13/11/2019 e a regra de cálculo.'}
 ];
 
 /* Regras gerais de conversão (Decreto 3.048/99, art. 70 — redação anterior à EC 103) */
@@ -203,18 +204,20 @@ const TESES = {
    tese:'É constitucional vedar a continuidade da aposentadoria especial se o beneficiário permanece ou retorna a atividade especial.'},
  stf1209:{trib:'STF',num:'Tema 1209',ref:'RE 1.368.225',ano:2026,area:'prev',titulo:'Vigilante',
    tese:'A atividade de vigilante, com ou sem arma de fogo, não se caracteriza como especial para a aposentadoria do art. 201, §1º, da Constituição (julgado em 18/02/2026). O fundamento de que a periculosidade, por si só, não gera aposentadoria especial pode repercutir em outros agentes de risco, como a eletricidade: acompanhar.'},
+ stf6309:{trib:'STF',num:'ADI 6309',ref:'ADI 6.309',ano:2026,area:'prev',titulo:'Idade mínima na aposentadoria especial',
+   tese:'É inconstitucional a idade mínima de 55, 58 ou 60 anos para a aposentadoria especial (EC 103/2019, art. 19, §1º, I, a, b e c; julgamento concluído em 03/06/2026, ata publicada em 11/06/2026). Continuam válidas a vedação de converter tempo especial em comum após 13/11/2019 e a regra de cálculo da EC 103. A decisão não alcança automaticamente os regimes próprios (RPPS).'},
  stj534:{trib:'STJ',num:'Tema 534',ref:'REsp 1.306.113',ano:2012,area:'prev',titulo:'Eletricidade após 05/03/1997',
    tese:'As normas que listam agentes e atividades nocivos são exemplificativas. É possível reconhecer como especial, depois de 05/03/1997, o trabalho com exposição a eletricidade, desde que permanente, não ocasional nem intermitente, e comprovado por prova técnica.'},
  stj694:{trib:'STJ',num:'Tema 694',ref:'REsp 1.398.260',ano:2014,area:'prev',titulo:'Ruído entre 1997 e 2003',
    tese:'O limite para o ruído é de 90 dB de 06/03/1997 a 18/11/2003. O limite de 85 dB do Decreto 4.882/03 não retroage.'},
  stj1083:{trib:'STJ',num:'Tema 1083',ref:'REsp 1.886.795',ano:2021,area:'prev',titulo:'Ruído variável: NEN',
    tese:'Com níveis de ruído variáveis, a especialidade é aferida pelo NEN. Na falta dessa informação, adota-se o nível máximo (pico), desde que perícia judicial comprove habitualidade e permanência.'},
- stj1090:{trib:'STJ',num:'Tema 1090',ref:'—',ano:2025,area:'prev',titulo:'EPI eficaz no PPP',
+ stj1090:{trib:'STJ',num:'Tema 1090',ref:'REsp 2.082.072 e outros',ano:2025,area:'prev',titulo:'EPI eficaz no PPP',
    tese:'A informação de EPI eficaz no PPP descaracteriza, em princípio, o tempo especial, salvo exceções. Cabe ao segurado provar a ineficácia: falta de adequação ao risco, certificado irregular, falta de manutenção ou de treinamento. Havendo dúvida sobre a eficácia, decide-se a favor do segurado.'},
  stj1307:{trib:'STJ',num:'Tema 1307',ref:'REsp 2.164.724',ano:2026,area:'prev',titulo:'Motoristas e cobradores: penosidade',
    tese:'É possível reconhecer como especial, por penosidade, a atividade de motorista ou cobrador de ônibus e de motorista de caminhão após a Lei 9.032/95, desde que perícia técnica individualizada comprove exposição habitual e permanente a condições concretas de desgaste à saúde.'},
- stj1291:{trib:'STJ',num:'Tema 1291',ref:'—',ano:2025,area:'prev',titulo:'Contribuinte individual não cooperado',
-   tese:'O contribuinte individual não cooperado pode ter reconhecida a atividade especial após a Lei 9.032/95, se comprovar a exposição; não se exige formulário emitido por empresa. Há recurso extraordinário pendente no STF.'},
+ stj1291:{trib:'STJ',num:'Tema 1291',ref:'REsp 2.163.429 e 2.163.998',ano:2025,area:'prev',titulo:'Contribuinte individual não cooperado',
+   tese:'O contribuinte individual não cooperado pode ter reconhecida a atividade especial após a Lei 9.032/95, se comprovar a exposição; não se exige formulário emitido por empresa. Há notícia de que o STF negou repercussão geral à questão (Tema 1447): confirmar no portal do STF.'},
  tnu170:{trib:'TNU',num:'Tema 170',ref:'PEDILEF',ano:2018,area:'prev',titulo:'Cancerígenos (LINACH)',
    tese:'O art. 68, §4º, do Decreto 3.048/99 (Decreto 8.123/13) aplica-se a períodos anteriores. Para qualquer período, dispensa avaliação quantitativa, e o EPI não descaracteriza.'},
  tnu174:{trib:'TNU',num:'Tema 174',ref:'PEDILEF 0505614-83.2017',ano:2018,area:'prev',titulo:'Metodologia do ruído',
@@ -240,6 +243,11 @@ const TESES = {
  s39:{trib:'TST',num:'Súmula 39',ref:'—',ano:null,area:'trab',titulo:'Frentistas',tese:'Os empregados que operam bomba de gasolina têm direito ao adicional de periculosidade.'},
  oj345:{trib:'TST',num:'OJ 345 SDI-1',ref:'—',ano:null,area:'trab',titulo:'Radiação ionizante',tese:'A exposição a radiação ionizante ou substância radioativa enseja adicional de periculosidade (Portaria 518/2003).'},
  oj385:{trib:'TST',num:'OJ 385 SDI-1',ref:'—',ano:null,area:'trab',titulo:'Inflamáveis em prédio vertical',tese:'É devido o adicional a todos os empregados de prédio vertical onde haja armazenamento de inflamável em quantidade acima do limite legal.'},
+ tst80:{trib:'TST',num:'Tema 80 (IRR)',ref:'RRAg 0010702-77.2023.5.03.0167',ano:2025,area:'trab',titulo:'Frio: intervalo térmico',tese:'O trabalho em câmara frigorífica ou ambiente artificialmente frio sem o intervalo de recuperação térmica do art. 253 da CLT dá direito ao adicional de insalubridade, ainda que com uso de EPI (Pleno, 24/03/2025).'},
+ tst180:{trib:'TST',num:'Tema 180 (IRR)',ref:'RR 0020103-82.2024.5.04.0282',ano:2025,area:'trab',titulo:'Álcalis cáusticos em produtos de limpeza',tese:'O contato com álcalis cáusticos diluídos em produtos de limpeza de uso comum não gera adicional de insalubridade: não se equipara à "fabricação e manuseio de álcalis cáusticos" do Anexo 13.'},
+ tst82:{trib:'TST',num:'Tema 82 (IRR)',ref:'RRAg 0020213-03.2023.5.04.0772',ano:2025,area:'trab',titulo:'Motorista que acompanha o abastecimento',tese:'Não tem direito ao adicional de periculosidade o motorista que apenas acompanha o abastecimento feito por terceiro, sem contato direto com o combustível (Pleno, 24/03/2025).'},
+ tst87:{trib:'TST',num:'Tema 87 (IRR)',ref:'RRAg 1000840-29.2018.5.02.0471',ano:2025,area:'trab',titulo:'Troca de cilindro de GLP de empilhadeira',tese:'É devido o adicional de periculosidade ao trabalhador que abastece empilhadeiras trocando cilindros de GLP, ainda que a exposição seja de tempo reduzido.'},
+ tst101:{trib:'TST',num:'Tema 101 (IRR)',ref:'IRR 0000229-71.2024.5.21.0013',ano:2026,area:'trab',titulo:'Motociclistas',tese:'O art. 193, §4º, da CLT é autoaplicável: o adicional de periculosidade do trabalhador em motocicleta em vias públicas independe de regulamentação prévia, salvo prova de enquadramento nas exceções da norma regulamentar (acórdão publicado em 05/2026; embargos de declaração pendentes).'},
  irr17:{trib:'TST',num:'IRR Tema 17',ref:'—',ano:2019,area:'trab',titulo:'Cumulação de adicionais',tese:'É vedada a cumulação dos adicionais de insalubridade e periculosidade, ainda que os fatos geradores sejam distintos (art. 193, §2º, da CLT).'}
 };
 
@@ -253,10 +261,10 @@ const NR15 = [
  {n:6, t:'Trabalho sob condições hiperbáricas', g:'máximo', tipo:'quali', s:'Ar comprimido (tubulões, túneis) e mergulho.'},
  {n:7, t:'Radiações não ionizantes', g:'médio', tipo:'quali', s:'Micro-ondas, ultravioleta e laser, por laudo de inspeção. A radiação solar não gera adicional (OJ 173, I).'},
  {n:8, t:'Vibração', g:'médio', tipo:'calc', calc:'vibracao', s:'VMB: aren > 5 m/s². VCI: aren > 1,1 m/s² ou VDVR > 21,0 m/s¹·⁷⁵.'},
- {n:9, t:'Frio', g:'médio', tipo:'quali', s:'Câmaras frigoríficas ou locais com condições similares, sem proteção adequada, por laudo de inspeção.'},
+ {n:9, t:'Frio', g:'médio', tipo:'quali', s:'Câmaras frigoríficas ou locais com condições similares, sem proteção adequada, por laudo de inspeção. Sem o intervalo térmico do art. 253 da CLT, o EPI não afasta o adicional (TST, Tema 80).'},
  {n:10, t:'Umidade', g:'médio', tipo:'quali', s:'Locais alagados ou encharcados, com umidade excessiva, por laudo de inspeção.'},
  {n:11, t:'Agentes químicos com limite de tolerância', g:'conforme Quadro 1', tipo:'calc', calc:'quim11', s:'Quadro 1 completo, pesquisável por nome, sinônimo ou fórmula. Caracteriza quando a média das amostras supera o LT; para agentes com valor teto, quando qualquer amostra supera o LT. O grau é o do Quadro 1.'},
- {n:12, t:'Poeiras minerais', g:'máximo', tipo:'calc', calc:'poeira', s:'Asbesto (2,0 f/cm³), manganês e sílica livre cristalizada (LT por % de quartzo).'},
+ {n:12, t:'Poeiras minerais', g:'máximo', tipo:'calc', calc:'poeira', s:'Asbesto (2,0 f/cm³), manganês e sílica livre cristalizada (LT por % de quartzo). Na mineração, o Anexo V da NR-22 (Portarias MTE 105 e 261/2026) fixa 0,05 mg/m³ de sílica respirável para prevenção; para insalubridade continua valendo este anexo (NR-01, item 1.5.2).'},
  {n:13, t:'Agentes químicos (avaliação qualitativa)', g:'mínimo, médio ou máximo, por atividade', tipo:'lista', lista:'a13', s:'Lista integral do anexo: insalubridade pela atividade descrita, por inspeção no local, sem medição.'},
  {n:'13-A', t:'Benzeno', g:'ver Anexo 13', tipo:'quali', s:'Estabelece o VRT-MPT e medidas de prevenção. Não fixa grau de insalubridade: o grau é atribuído pelo perito (interpretação usual: por analogia com o Anexo 13).'},
  {n:14, t:'Agentes biológicos', g:'médio ou máximo', tipo:'lista', lista:'a14', s:'Avaliação qualitativa, pelo contato permanente nas atividades listadas.'}

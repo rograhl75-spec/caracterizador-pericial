@@ -1,0 +1,51 @@
+name: Monitor da legislação
+
+# Roda todo dia às 07:17 (Brasília) e também pelo botão "Run workflow" na aba Actions.
+on:
+  schedule:
+    - cron: '17 10 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write   # gravar dados/alertas.js e scripts/estado.json
+  issues: write     # abrir a Issue com as alterações
+
+concurrency:
+  group: monitor-legislacao
+  cancel-in-progress: false
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      TEM_CLAUDE: ${{ secrets.ANTHROPIC_API_KEY != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # Só instala o SDK do Claude se o segredo ANTHROPIC_API_KEY estiver cadastrado (análise opcional).
+      - name: Instalar SDK do Claude
+        if: env.TEM_CLAUDE == 'true'
+        run: npm install --prefix scripts --no-audit --no-fund
+
+      - name: Verificar fontes oficiais
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: node scripts/monitor.mjs
+
+      - name: Gravar alertas e estado
+        run: |
+          git config user.name "monitor-legislacao[bot]"
+          git config user.email "monitor-legislacao@users.noreply.github.com"
+          git add dados/alertas.js scripts/estado.json
+          if git diff --cached --quiet; then
+            echo "Sem mudanças para gravar."
+          else
+            git commit -m "Monitor: verificação de $(date -u +%Y-%m-%d)"
+            git push
+          fi

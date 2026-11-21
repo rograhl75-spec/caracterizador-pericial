@@ -5,6 +5,7 @@ const NR16_GERAL = [
  ['16.2.1','O empregado poderá optar pelo adicional de insalubridade que porventura lhe seja devido.'],
  ['16.3','Caracterização ou descaracterização pelo empregador, mediante laudo de Médico do Trabalho ou Engenheiro de Segurança do Trabalho (art. 195 da CLT).'],
  ['16.3.1','O laudo deve estar disponível aos trabalhadores, sindicatos e à inspeção do trabalho (Portaria MTE 2.021/2025, vigente desde 03/04/2026).'],
+ ['NR-01, 1.5.2','A caracterização de atividades insalubres ou perigosas segue a NR-15 e a NR-16; o gerenciamento de riscos da NR-01 (PGR) não caracteriza nem afasta adicional.'],
  ['16.4','O disposto no item 16.3 não prejudica a ação fiscalizadora do Ministério do Trabalho nem a realização ex officio da perícia.'],
  ['16.5','Explosivos sujeitos a degradação química ou autocatalítica, ou à ação de agentes exteriores (calor, umidade, faíscas, fogo, fenômenos sísmicos, choque e atritos).'],
  ['16.6','Transporte de inflamáveis líquidos ou gasosos liquefeitos, em quaisquer vasilhames e a granel, é perigoso, exceto pequenas quantidades: até 200 L (líquidos) e 135 kg (gasosos liquefeitos).'],
@@ -29,7 +30,7 @@ const NR16 = [
   {tit:'Item 2', txt:'O trabalhador enquadrado faz jus a 30% sobre o salário, sem gratificações, prêmios ou participação nos lucros, ressalvada a opção pela insalubridade.'},
   {tit:'Item 3 — Áreas de risco (Quadros 2, 3 e 4)', calc:'explosivos', txt:'a) armazenagem de pólvoras químicas, artifícios pirotécnicos e produtos químicos para misturas explosivas ou fogos de artifício (Quadro 2); b) armazenagem de explosivos iniciadores (Quadro 3); c) armazenagem de explosivos de ruptura e pólvoras mecânicas — pólvora negra e chocolate ou parda (Quadro 4); d) depósitos barricados ou entrincheirados: distâncias do Quadro 4 reduzidas à metade; e) é obrigatória a delimitação física da área de risco.'}
  ]},
-{id:'a2', n:'Anexo II', t:'Inflamáveis', port:'Portaria MTb 3.214/1978; Portaria MTE 545/2000', j:['s39','oj385','s364'],
+{id:'a2', n:'Anexo II', t:'Inflamáveis', port:'Portaria MTb 3.214/1978; Portaria MTE 545/2000', j:['s39','oj385','s364','tst82','tst87'],
  secoes:[
   {tit:'Item 1 — Atividades ou operações perigosas', sel:'atv', cols:['Atividade','Têm direito ao adicional (30%)'], itens:[
    ['a','Na produção, transporte, processamento e armazenamento de gás liquefeito','Na produção, transporte, processamento e armazenamento de gás liquefeito'],
@@ -96,12 +97,12 @@ const NR16 = [
    ['8','Supervisão/fiscalização operacional','Supervisão e/ou fiscalização direta dos locais de trabalho para acompanhamento e orientação dos vigilantes'],
    ['9','Telemonitoramento/telecontrole','Execução de controle e/ou monitoramento de locais, através de sistemas eletrônicos de segurança']]}
  ]},
-{id:'a4', n:'Anexo IV', t:'Energia elétrica', port:'Portaria MTE 1.078/2014', j:['s364','s191'],
+{id:'a4', n:'Anexo IV', t:'Energia elétrica', port:'Portaria MTE 1.078/2014 · nova NR-10 em 01/06/2027 (Portaria MTE 737/2026)', j:['s364','s191'],
  secoes:[
   {tit:'Item 1 — Têm direito ao adicional', sel:'atv', cols:['Hipótese','Descrição'], itens:[
    ['a','Alta tensão','Atividades ou operações em instalações ou equipamentos elétricos energizados em alta tensão'],
    ['b','Proximidade','Atividades ou operações com trabalho em proximidade, conforme a NR-10'],
-   ['c','Baixa tensão no SEC','Atividades em instalações ou equipamentos energizados em baixa tensão no sistema elétrico de consumo, quando descumprido o item 10.2.8 e subitens da NR-10'],
+   ['c','Baixa tensão no SEC','Atividades em instalações ou equipamentos energizados em baixa tensão no sistema elétrico de consumo, quando descumprido o item 10.2.8 e subitens da NR-10. Atenção: a nova NR-10 (Portaria MTE 737/2026, em vigor a partir de 01/06/2027) não tem item 10.2.8; acompanhar o ajuste desta remissão'],
    ['d','Sistema elétrico de potência (SEP)','Empresas que operam instalações ou equipamentos do SEP e suas contratadas, nas atividades e áreas de risco do Quadro I']]},
   {tit:'Item 2 — Não é devido o adicional', sel:'exc', cols:['Hipótese','Descrição'], itens:[
    ['a','Desenergizado e liberado','Atividades no sistema elétrico de consumo em instalações desenergizadas e liberadas, sem possibilidade de energização acidental (NR-10)'],
@@ -116,7 +117,7 @@ const NR16 = [
    ['III','Inspeção, testes, ensaios, calibração, medição e reparos em equipamentos e materiais elétricos, eletrônicos, eletromecânicos e de segurança individual e coletiva em sistemas elétricos de potência de alta e baixa tensão','a) oficinas e laboratórios de testes e manutenção elétrica, eletrônica e eletromecânica com equipamentos energizados ou passíveis de energização acidental; b) sala de controle e casas de máquinas de usinas e unidades geradoras; c) pátios e salas de operação de subestações, inclusive consumidoras; d) salas de ensaios elétricos de alta tensão; e) sala de controle dos centros de operações'],
    ['IV','Treinamento em equipamentos ou instalações do SEP, energizadas ou desenergizadas mas com possibilidade de energização acidental ou por falha operacional','a) todas as áreas descritas nos itens anteriores']]}
  ]},
-{id:'a5', n:'Anexo V', t:'Motocicleta', port:'Portaria MTE 2.021/2025 (vigente desde 03/04/2026)', j:['s364'],
+{id:'a5', n:'Anexo V', t:'Motocicleta', port:'Portaria MTE 2.021/2025 (vigente desde 03/04/2026)', j:['s364','tst101'],
  secoes:[
   {tit:'Item 2 — Campo de aplicação', txt:'2.1 Atividades que envolvam deslocamento de trabalhadores em motocicletas nas vias terrestres do Código de Trânsito Brasileiro. 2.2 Motocicleta: veículo automotor de duas rodas, com ou sem side-car, conduzido em posição montada ou sentada (motonetas). 2.3 Não se aplica a veículos que não necessitem de emplacamento ou que não exijam CNH.'},
   {tit:'Item 3.1 — Atividade perigosa', sel:'atv', cols:['Item','Descrição'], itens:[

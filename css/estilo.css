@@ -527,3 +527,12 @@ h4.sub{font-size:.95rem; margin-top:4px}
 @media (max-width:600px){ .brand p{display:none} .brand h1{font-size:1.25rem} }
 footer{border-top:1px solid var(--line); padding-block:18px 28px; font-size:.82rem; color:var(--muted); display:flex; flex-direction:column; gap:4px}
 @media (prefers-reduced-motion: reduce){ *{scroll-behavior:auto!important} }
+
+/* ===== alertas do monitor de legislação e tabela de fontes ===== */
+#alertas{margin-top:14px}
+.alerta{background:var(--c-bg); border:1px solid var(--line); border-left:4px solid var(--c); border-radius:8px; padding:10px 14px; color:var(--ink)}
+.alerta summary{cursor:pointer; line-height:1.4}
+.alerta ul{margin:10px 0 2px; padding-left:18px; display:flex; flex-direction:column; gap:8px}
+.alerta a{color:inherit; overflow-wrap:anywhere}
+.fontes .tscroll{overflow-x:auto}
+.fontes table.rt td a{overflow-wrap:anywhere}
