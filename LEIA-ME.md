@@ -35,7 +35,7 @@ Para atualizar, edite o arquivo no próprio GitHub (ícone de lápis) ou envie a
 
 ## Atualização automática da legislação
 
-O robô `scripts/monitor.mjs` roda todo dia no GitHub Actions (`.github/workflows/monitor-legislacao.yml`, 07:17 de Brasília, ou pelo botão **Actions → Monitor da legislação → Run workflow**). Ele:
+O robô `scripts/monitor.mjs` roda duas vezes por dia no GitHub Actions (`.github/workflows/monitor-legislacao.yml`, 07:17 e 18:43 de Brasília, ou pelo botão **Actions → Monitor da legislação → Run workflow**). Ele:
 
 1. abre as páginas oficiais listadas em `dados/fontes.js` (NR-01, 09, 10, 15 e 16 no MTE; portarias SST do ano; INs do INSS; Lei 8.213, Decreto 3.048 e EC 103 no Planalto; NHO da Fundacentro; busca no Diário Oficial);
 2. compara com a verificação anterior (`scripts/estado.json`);

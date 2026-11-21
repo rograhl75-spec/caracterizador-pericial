@@ -237,7 +237,10 @@ function avaliar(row, agent){
       else { base='Anexo IV (3.0.1)';
         p=R(al?'E':'N', al?'Atividade da alínea '+al+') do 3.0.1.':'Atividade fora do rol do 3.0.1 (o Anexo 14 da NR-15 não se aplica).');
         i=R(al?'E':'N', al?'Alínea '+al+') do 3.0.1'+(al==='a'?'; o INSS exige contato com pacientes infectocontagiosos ou materiais contaminados.':'.'):'Atividade fora do rol do 3.0.1.'); }
-      p=aplicaEPI(p,row,seg); i=aplicaEPI(i,row,seg);
+      if(d.t383 && !ate97){ /* TNU, Tema 383 (2026): nessas situações o EPI eficaz não afasta a especialidade */
+        p=aplicaEPI(p,row,seg,{ignora:'TNU, Tema 383: aerossóis, urgência/UTI ou ala infectocontagiosa'});
+        i=aplicaEPI(i,row,seg,{controverso:'a TNU (Tema 383) afasta o EPI nessa situação; o INSS aplica a regra geral (STJ, Tema 1090)'});
+      } else { p=aplicaEPI(p,row,seg); i=aplicaEPI(i,row,seg); }
     }
     out.push({ini:a, fim:b, dias:daysIncl(a,b), base, perito:p, inss:i});
   }
