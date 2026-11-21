@@ -20,7 +20,9 @@ Site estático (HTML, CSS e JavaScript), sem servidor e sem banco de dados. Func
 | `dados/alertas.js` | Alertas gravados pelo robô (aparecem como faixa no topo do site) | Marcar alerta como `revisado` |
 | `scripts/monitor.mjs` | Robô que verifica as fontes oficiais todo dia | Incluir ou ajustar fonte vigiada (em `fontes.js`) |
 | `js/motor.js` | Regras de enquadramento por período (cálculos) | Mudar critério de cálculo |
-| `js/app.js` | Telas, busca, impressão | Mudar funcionamento das telas |
+| `js/app.js` | Telas, busca, impressão, casos salvos, perfil do profissional | Mudar funcionamento das telas |
+| `termos.html`, `privacidade.html` | Termos de uso e política de privacidade (minutas) | Após revisão jurídica |
+| `tests/` | Testes automáticos da lógica de enquadramento | Ao mudar `js/motor.js` ou regras |
 
 A ordem de carregamento dos scripts no `index.html` importa: dados primeiro, depois `motor.js`, por último `app.js`.
 
@@ -32,6 +34,16 @@ A ordem de carregamento dos scripts no `index.html` importa: dados primeiro, dep
 4. Endereço: `https://SEU-USUARIO.github.io/caracterizador-pericial`.
 
 Para atualizar, edite o arquivo no próprio GitHub (ícone de lápis) ou envie a nova versão por cima. O site atualiza em um ou dois minutos.
+
+## Casos, perfil e privacidade
+
+- **Vários casos:** em Aposentadoria especial → Análise de caso, a barra "Meus casos" cria, duplica, exclui, exporta e importa casos (arquivos `.json`). O formato antigo (um caso só) é migrado automaticamente.
+- **Perfil e dados:** nome, profissão, registro (CREA, CRM, OAB) e timbrado próprio (imagem A4) ou cabeçalho simples. Esses dados saem no cabeçalho e na assinatura dos relatórios. Ali também ficam o backup completo e o botão para apagar todos os dados.
+- **Privacidade:** tudo fica no navegador do usuário (localStorage); nada é enviado a servidor. No primeiro acesso aparece o aviso de aceite dos Termos de uso.
+
+## Testes
+
+`node --test tests/motor.test.mjs` roda os testes da lógica (limites de ruído por período, regras da IN 170/2024, EPI, Tema 383 da TNU, conversão até 13/11/2019, totais do caso-exemplo e integridade da base). O GitHub roda os mesmos testes a cada pull request (`.github/workflows/testes.yml`). Se uma mudança alterar um resultado, o teste falha e mostra a diferença.
 
 ## Atualização automática da legislação
 
@@ -53,4 +65,4 @@ Teste local: `node scripts/monitor.mjs --dry` (não grava nada).
 
 ## Observação
 
-Ferramenta didática. Não substitui a análise do caso concreto nem a redação oficial das normas.
+Ferramenta de apoio técnico. Não substitui a análise do caso concreto nem a redação oficial das normas.

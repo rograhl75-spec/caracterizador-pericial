@@ -1,0 +1,93 @@
+/* Testes da lógica de enquadramento (js/motor.js).
+   Cada teste cita a regra que protege: se uma mudança alterar o resultado, o teste falha. */
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { carregar } from './carregar.mjs';
+
+const X = carregar();
+const st = segs => segs.map(s => s.perito.st + '/' + s.inss.st).join(' ');
+
+test('ruído até 05/03/1997: limite de 80 dB(A) (Dec. 53.831/64)', () => {
+  assert.equal(st(X.periodo('ruido', '1990-01-01', '1996-12-31', { lavg: 82, te: 480 })), 'E/E');
+  assert.equal(st(X.periodo('ruido', '1990-01-01', '1996-12-31', { lavg: 80, te: 480 })), 'N/N');
+});
+
+test('ruído de 06/03/1997 a 18/11/2003: limite de 90 dB(A) (STJ, Tema 694)', () => {
+  assert.equal(st(X.periodo('ruido', '1998-01-01', '2002-12-31', { lavg: 91, te: 480 })), 'E/E');
+  assert.equal(st(X.periodo('ruido', '1998-01-01', '2002-12-31', { lavg: 88, te: 480 })), 'N/N');
+});
+
+test('ruído: a IN 170/2024 não exige mais histograma a partir de 11/10/2001', () => {
+  const s = X.periodo('ruido', '2002-01-01', '2002-12-31', { lavg: 95, te: 480 });
+  assert.equal(s.length, 1, 'o período de 2002 não deve ser cortado em 11/10/2001');
+  assert.doesNotMatch(s[0].inss.txt, /histograma/);
+});
+
+test('ruído de 19/11 a 31/12/2003: INSS pelo valor medido, NEN facultativo (art. 292, III)', () => {
+  const s = X.periodo('ruido', '2003-11-19', '2003-12-31', { lavg: 88, te: 480 });
+  assert.equal(st(s), 'E/E');
+  assert.match(s[0].inss.txt, /art\. 292, III/);
+});
+
+test('ruído a partir de 2004: INSS exige NEN da NHO-01 (q = 3)', () => {
+  assert.equal(X.periodo('ruido', '2010-01-01', '2010-12-31', { lavg: 88, te: 480 })[0].inss.st, 'I');
+  assert.equal(st(X.periodo('ruido', '2010-01-01', '2010-12-31', { lavg: 88, te: 480, ne3: 86 })), 'E/E');
+  assert.equal(st(X.periodo('ruido', '2010-01-01', '2010-12-31', { lavg: 84, te: 480, ne3: 84 })), 'N/N');
+});
+
+test('ruído: EPI eficaz não descaracteriza (STF, Tema 555)', () => {
+  assert.equal(st(X.periodo('ruido', '2010-01-01', '2010-12-31', { lavg: 90, te: 480, ne3: 90 }, { epi: true })), 'E/E');
+});
+
+test('biológicos: EPI eficaz afasta em princípio (STJ, Tema 1090)', () => {
+  const s = X.periodo('biologico', '2015-01-01', '2015-12-31', { alinea: 'a' }, { epi: true });
+  assert.equal(st(s), 'N/N');
+});
+
+test('biológicos: Tema 383 da TNU — EPI não afasta para saúde em UTI, aerossóis ou ala infectocontagiosa', () => {
+  const s = X.periodo('biologico', '2015-01-01', '2015-12-31', { alinea: 'a', t383: true }, { epi: true });
+  assert.equal(s[0].perito.st, 'E');
+  assert.equal(s[0].inss.st, 'C');
+});
+
+test('biológicos: fora do rol do código 3.0.1 não enquadra', () => {
+  assert.equal(st(X.periodo('biologico', '2015-01-01', '2015-12-31', {})), 'N/N');
+});
+
+test('EPI só é considerado a partir de 03/12/1998 (Lei 9.732/98)', () => {
+  const s = X.periodo('biologico', '1998-01-01', '1999-12-31', { alinea: 'a' }, { epi: true });
+  assert.equal(s[0].fim, '1998-12-02');
+  assert.equal(s[0].perito.st, 'E');
+  assert.equal(s[s.length - 1].perito.st, 'N');
+});
+
+test('conversão de tempo especial só até 13/11/2019 (EC 103/2019)', () => {
+  assert.equal(X.diasConv({ ini: '2019-11-01', fim: '2019-11-30', dias: 30 }), 13);
+  assert.equal(X.diasConv({ ini: '2020-01-01', fim: '2020-12-31', dias: 366 }), 0);
+  assert.deepEqual(JSON.parse(JSON.stringify(X.FATORES[25])), { M: 1.2, H: 1.4 });
+});
+
+test('caso-exemplo: totais conhecidos (regressão)', () => {
+  const t = X.totais(X.EXEMPLO);
+  assert.deepEqual({ perito: t.perito.dias, inss: t.inss.dias, divergentes: t.diverg },
+    { perito: 10304, inss: 7566, divergentes: 1 }); /* = 28 a 2 m 24 d e 20 a 8 m 26 d, como na tela */
+});
+
+test('base de dados: toda tese citada nas fichas e na NR-16 existe', () => {
+  const faltando = [];
+  X.AGENTS.forEach(a => (a.juris || []).forEach(j => { if (!X.TESES[j.slice(2)]) faltando.push(a.id + ' → ' + j); }));
+  X.NR16.forEach(an => (an.j || []).forEach(k => { if (!X.TESES[k]) faltando.push(an.id + ' → ' + k); }));
+  assert.deepEqual(faltando, []);
+});
+
+test('base de dados: Anexo 11 com graus válidos e Quadro 1 do Anexo 3 decrescente', () => {
+  const graus = new Set(['mínimo', 'médio', 'máximo', '-', '', undefined, null]);
+  assert.deepEqual(JSON.parse(JSON.stringify(X.A11.filter(x => !graus.has(x.g)).map(x => x.n))), []);
+  for (let i = 1; i < X.Q1_2019.length; i++) {
+    assert.ok(X.Q1_2019[i][0] > X.Q1_2019[i - 1][0] && X.Q1_2019[i][1] < X.Q1_2019[i - 1][1], 'linha ' + i);
+  }
+});
+
+test('base de dados: toda fonte tem versão e data de conferência', () => {
+  X.FONTES.forEach(f => { assert.ok(f.versao, f.id); assert.match(f.conferido, /^\d{4}-\d{2}-\d{2}$/, f.id); });
+});
