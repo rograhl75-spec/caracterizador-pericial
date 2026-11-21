@@ -1,0 +1,220 @@
+#!/usr/bin/env node
+/* Robô de monitoramento da legislação — Caracterizador Pericial
+ *
+ * Lê as fontes de dados/fontes.js, baixa cada página oficial, compara com a última
+ * execução (scripts/estado.json) e, quando aparece documento novo ou o texto muda:
+ *   1. registra um alerta em dados/alertas.js (o site mostra a faixa "em revisão");
+ *   2. abre uma Issue no GitHub (quando roda no GitHub Actions);
+ *   3. opcionalmente, pede ao Claude uma análise de impacto (se ANTHROPIC_API_KEY existir).
+ * Nada no conteúdo jurídico do app é alterado automaticamente: a correção é sempre revisada.
+ *
+ * Uso:  node scripts/monitor.mjs [--dry] [--fonte=id]
+ *   --dry      não grava arquivos nem abre Issue (só mostra o que encontrou)
+ *   --fonte=id verifica só uma fonte
+ */
+import fs from 'node:fs';
+import path from 'node:path';
+import vm from 'node:vm';
+import crypto from 'node:crypto';
+import { fileURLToPath } from 'node:url';
+
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const ARQ_FONTES = path.join(ROOT, 'dados/fontes.js');
+const ARQ_ALERTAS = path.join(ROOT, 'dados/alertas.js');
+const ARQ_ESTADO = path.join(ROOT, 'scripts/estado.json');
+const args = process.argv.slice(2);
+const DRY = args.includes('--dry');
+const SO = (args.find(a => a.startsWith('--fonte=')) || '').split('=')[1];
+const FALHAS_PARA_AVISAR = 7;            // execuções seguidas sem acesso antes de avisar
+const HOJE = new Date().toISOString().slice(0, 10);
+const ANO = new Date().getUTCFullYear();
+const UA = 'Mozilla/5.0 (compatible; caracterizador-pericial-monitor/1.0)';
+
+/* ---------- leitura dos arquivos de dados (são scripts do site, não JSON) ---------- */
+function carregar(arquivo, nomes) {
+  const ctx = { module: undefined };
+  vm.createContext(ctx);
+  vm.runInContext(fs.readFileSync(arquivo, 'utf8') + `\n;globalThis.__r = {${nomes.join(',')}};`, ctx);
+  return ctx.__r;
+}
+const { FONTES } = carregar(ARQ_FONTES, ['FONTES']);
+const { ALERTAS } = carregar(ARQ_ALERTAS, ['ALERTAS']);
+const estado = fs.existsSync(ARQ_ESTADO) ? JSON.parse(fs.readFileSync(ARQ_ESTADO, 'utf8')) : {};
+
+/* ---------- utilitários ---------- */
+const sha = s => crypto.createHash('sha256').update(s).digest('hex');
+const anos = u => u.replaceAll('{ano-1}', String(ANO - 1)).replaceAll('{ano}', String(ANO));
+const entidades = s => s.replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'")
+  .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#(\d+);/g, (_, n) => String.fromCharCode(+n));
+const semTags = s => entidades(s.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>|<!--[\s\S]*?-->/gi, ' ')
+  .replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim();
+const normUrl = (h, base) => {
+  try {
+    const u = new URL(entidades(h), base);
+    u.hash = ''; u.search = '';
+    return u.href.replace(/\/(view|@@download\/file)$/, '').replace(/\/$/, '');
+  } catch { return null; }
+};
+
+async function baixar(url, tentativas = 3) {
+  let ultimo;
+  for (let i = 0; i < tentativas; i++) {
+    try {
+      const r = await fetch(url, { headers: { 'User-Agent': UA, 'Accept-Language': 'pt-BR,pt;q=0.9' }, redirect: 'follow', signal: AbortSignal.timeout(45000) });
+      if (r.status === 404) return { status: 404 };
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return { status: r.status, tipo: r.headers.get('content-type') || '', corpo: Buffer.from(await r.arrayBuffer()) };
+    } catch (e) { ultimo = e; await new Promise(ok => setTimeout(ok, 2000 * (i + 1))); }
+  }
+  throw ultimo;
+}
+
+/* Links (href + texto) de uma página HTML, filtrados por regex. */
+function extrairLinks(html, base, filtro) {
+  const re = new RegExp(filtro, 'i'), out = new Map();
+  for (const m of html.matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi)) {
+    const href = normUrl(m[1], base); if (!href) continue;
+    const texto = semTags(m[2]);
+    if (/sharer|whatsapp|twitter|linkedin|facebook/i.test(href)) continue;
+    if (!re.test(href) && !re.test(texto)) continue;
+    if (!out.has(href) || (texto && !out.get(href))) out.set(href, texto);
+  }
+  return out;
+}
+
+/* Busca no DOU (portal in.gov.br): resultados vêm num JSON embutido na página. */
+async function buscarDou(termo) {
+  const u = 'https://www.in.gov.br/consulta/-/buscar/dou?q=' + encodeURIComponent(termo) + '&s=todos&exactDate=mes&sortType=0';
+  const r = await baixar(u);
+  const html = r.corpo?.toString('utf8') || '';
+  const m = html.match(/<script[^>]*id="_br_com_seatecnologia_in_buscadou_BuscaDouPortlet_params"[^>]*>([\s\S]*?)<\/script>/);
+  if (!m) throw new Error('formato da busca do DOU mudou');
+  const itens = (JSON.parse(m[1]).jsonArray || []);
+  return new Map(itens.map(x => ['https://www.in.gov.br/web/dou/-/' + x.urlTitle,
+    `${x.title || ''} (DOU ${x.pubDate || ''}${x.hierarchyStr ? ', ' + x.hierarchyStr : ''})`]));
+}
+
+/* ---------- verificação de uma fonte ---------- */
+async function verificar(f) {
+  const cfg = f.monitor, st = estado[f.id] || {};
+  const novos = [];
+  try {
+    if (cfg.modo === 'texto') {
+      const r = await baixar(f.url);
+      const html = r.corpo.toString(/charset=iso-8859-1|windows-1252/i.test(r.tipo) ? 'latin1' : 'utf8');
+      const h = sha(semTags(html));
+      if (st.hash && st.hash !== h) novos.push({ tipo: 'texto-alterado', titulo: `${f.nome}: o texto oficial mudou`, url: f.url });
+      st.hash = h;
+    } else {
+      let links = new Map(), algum = false;
+      if (cfg.modo === 'dou') {
+        const re = cfg.filtro ? new RegExp(cfg.filtro, 'i') : null;
+        for (const t of cfg.termos) { for (const [k, v] of await buscarDou(t)) if (!re || re.test(v)) links.set(k, v); algum = true; }
+      } else {
+        for (const u of (cfg.urls || [f.url]).map(anos)) {
+          const r = await baixar(u);
+          if (r.status === 404) continue;
+          algum = true;
+          for (const [k, v] of extrairLinks(r.corpo.toString('utf8'), u, cfg.linkFiltro || '\\.pdf')) links.set(k, v);
+        }
+      }
+      if (!algum) throw new Error('nenhuma das URLs respondeu');
+      const antes = new Set(st.links || []);
+      if (st.links) for (const [href, texto] of links) if (!antes.has(href)) novos.push({ tipo: 'novo-documento', titulo: texto || href.split('/').pop(), url: href });
+      /* guarda a união: um link que some e volta não gera alerta repetido */
+      st.links = [...new Set([...(st.links || []), ...links.keys()])].sort();
+    }
+    st.falhas = 0; delete st.erro; st.ok = HOJE;
+  } catch (e) {
+    st.falhas = (st.falhas || 0) + 1; st.erro = String(e.message || e);
+    if (st.falhas === FALHAS_PARA_AVISAR) novos.push({ tipo: 'fonte-inacessivel', titulo: `${f.nome}: sem acesso há ${FALHAS_PARA_AVISAR} verificações (${st.erro})`, url: f.url });
+  }
+  estado[f.id] = st;
+  return novos.map(n => ({ id: sha(f.id + '|' + n.tipo + '|' + n.url + (n.tipo === 'novo-documento' ? '' : '|' + HOJE)).slice(0, 12), fonte: f.id, nomeFonte: f.nome, data: HOJE, status: 'pendente', ...n }));
+}
+
+/* ---------- análise de impacto opcional pelo Claude ---------- */
+async function analisar(alertas) {
+  if (!process.env.ANTHROPIC_API_KEY || !alertas.length) return;
+  let Anthropic;
+  try { ({ default: Anthropic } = await import('@anthropic-ai/sdk')); }
+  catch { console.warn('SDK @anthropic-ai/sdk não instalado: análise pulada.'); return; }
+  const client = new Anthropic();
+  const sistema = 'Você apoia a manutenção do "Caracterizador Pericial", ferramenta didática de um engenheiro de segurança do trabalho para laudos de aposentadoria especial (Lei 8.213/91, Decreto 3.048/99, IN PRES/INSS 128/2022, NHO da Fundacentro, LINACH), insalubridade (NR-15 e anexos) e periculosidade (NR-16 e anexos), com teses do STF, STJ, TNU e TST. ' +
+    'Para o documento recebido, responda em português, em até 8 linhas: (1) o que ele muda; (2) se afeta algo que o app usa — limites de tolerância, graus, anexos, marcos de vigência, regras do INSS para agentes nocivos, PPP/LTCAT, adicionais — e qual parte; (3) a primeira linha deve ser "Impacto: alto", "Impacto: médio" ou "Impacto: nenhum". Não invente conteúdo que não esteja no documento; se não houver texto suficiente, diga isso.';
+  for (const a of alertas.filter(x => x.tipo !== 'fonte-inacessivel').slice(0, 6)) {
+    const conteudo = [];
+    try {
+      if (/\.pdf$/i.test(a.url)) {
+        const r = await baixar(a.url, 2);
+        if (r.corpo && r.corpo.length < 15e6 && /pdf/i.test(r.tipo + a.url))
+          conteudo.push({ type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: r.corpo.toString('base64') } });
+      } else if (a.tipo === 'novo-documento') {
+        const r = await baixar(a.url, 2);
+        if (r.corpo) conteudo.push({ type: 'text', text: 'Texto da página:\n' + semTags(r.corpo.toString('utf8')).slice(0, 60000) });
+      }
+    } catch { /* segue só com título e URL */ }
+    conteudo.push({ type: 'text', text: `Fonte monitorada: ${a.nomeFonte}\nDocumento: ${a.titulo}\nURL: ${a.url}\nTipo de alerta: ${a.tipo}` });
+    try {
+      const resp = await client.beta.messages.create({
+        model: 'claude-opus-5-5',
+        max_tokens: 16000,
+        betas: ['server-side-fallback-2026-07-01'],
+        fallbacks: 'default',
+        output_config: { effort: 'medium' },
+        system: sistema,
+        messages: [{ role: 'user', content: conteudo }],
+      });
+      if (resp.stop_reason === 'refusal') { a.analise = 'Análise automática recusada pelo modelo; revisar manualmente.'; continue; }
+      a.analise = resp.content.filter(b => b.type === 'text').map(b => b.text).join('\n').trim();
+    } catch (e) {
+      console.warn('Falha na análise de', a.url, '-', e.message);
+    }
+  }
+}
+
+/* ---------- Issue no GitHub ---------- */
+async function abrirIssue(alertas) {
+  const token = process.env.GITHUB_TOKEN, repo = process.env.GITHUB_REPOSITORY;
+  const corpo = ['O robô de monitoramento encontrou mudanças nas fontes oficiais. Nada foi alterado no conteúdo do app.', '',
+    ...alertas.map(a => `### ${a.nomeFonte}\n- **${a.titulo}**\n- ${a.url}\n- Tipo: ${a.tipo} · alerta \`${a.id}\`` + (a.analise ? `\n\n> ${a.analise.replace(/\n/g, '\n> ')}` : '')),
+    '', '**Para concluir a revisão:** corrija os arquivos de `dados/` se for o caso, atualize `versao` e `conferido` em `dados/fontes.js` e troque o `status` do alerta para `revisado` em `dados/alertas.js`.'].join('\n');
+  const titulo = `Legislação: ${alertas.length} alteração(ões) para revisar (${HOJE.split('-').reverse().join('/')})`;
+  if (!token || !repo || DRY) { console.log('\n--- Issue (não aberta) ---\n' + titulo + '\n\n' + corpo); return null; }
+  const r = await fetch(`https://api.github.com/repos/${repo}/issues`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json', 'User-Agent': UA },
+    body: JSON.stringify({ title: titulo, body: corpo, labels: ['legislacao'] }),
+  });
+  if (!r.ok) { console.warn('Issue não aberta: HTTP', r.status, await r.text()); return null; }
+  return (await r.json()).html_url;
+}
+
+/* ---------- execução ---------- */
+const alvo = FONTES.filter(f => f.monitor && (!SO || f.id === SO));
+const resultados = await Promise.all(alvo.map(f => verificar(f).catch(e => { console.warn(f.id, e); return []; })));
+const conhecidos = new Set(ALERTAS.map(a => a.id));
+const novos = resultados.flat().filter(a => !conhecidos.has(a.id));
+
+for (const f of alvo) {
+  const s = estado[f.id];
+  console.log(`${s.erro ? '✗' : '✓'} ${f.id.padEnd(8)} ${s.erro ? 'erro: ' + s.erro + ` (${s.falhas}ª vez)` : (s.links ? s.links.length + ' documentos' : 'texto ok')}`);
+}
+console.log(novos.length ? `\n${novos.length} alteração(ões) nova(s):\n` + novos.map(a => `- [${a.fonte}] ${a.titulo}\n  ${a.url}`).join('\n') : '\nNenhuma alteração nova.');
+
+await analisar(novos);
+if (novos.length) {
+  const issue = await abrirIssue(novos);
+  if (issue) novos.forEach(a => { a.issue = issue; });
+}
+if (!DRY) {
+  fs.writeFileSync(ARQ_ESTADO, JSON.stringify(estado, null, 1) + '\n');
+  const todos = [...ALERTAS, ...novos];
+  fs.writeFileSync(ARQ_ALERTAS,
+    '/* ===== Alertas de alteração em fontes oficiais =====\n' +
+    '   Arquivo gravado pelo robô (scripts/monitor.mjs, GitHub Actions). Pode ser editado à mão:\n' +
+    "   depois de revisar um alerta, troque status:'pendente' por status:'revisado'. */\n" +
+    `const MONITOR = ${JSON.stringify({ ultima: HOJE })};\n` +
+    `const ALERTAS = ${JSON.stringify(todos, null, 1)};\n` +
+    "if (typeof module !== 'undefined') module.exports = {ALERTAS, MONITOR};\n");
+}

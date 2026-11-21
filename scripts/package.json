@@ -1,0 +1,9 @@
+{
+  "name": "caracterizador-pericial-monitor",
+  "private": true,
+  "type": "module",
+  "description": "Robô de monitoramento da legislação (GitHub Actions). O SDK só é usado se houver ANTHROPIC_API_KEY.",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.12.0"
+  }
+}

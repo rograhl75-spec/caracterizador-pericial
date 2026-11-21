@@ -37,8 +37,9 @@ function renderInicio(){
    area('a-per','Trabalhista · NR-16','Periculosidade','Todos os anexos com itens, quadros e áreas de risco, hipóteses de exclusão e frequência da exposição (Súmula 364).',[['periculosidade','Abrir a NR-16']])+'</div></section>'+
    '<section class="forwho"><h2 class="ih">Para quem</h2><div class="fw-grid"><div><b>Atuação</b><ul class="chips"><li>Perito judicial</li><li>Assistente técnico</li><li>Laudos extrajudiciais</li><li>Pareceres técnicos</li></ul></div><div><b>Profissão</b><ul class="chips"><li>Engenheiro de segurança do trabalho</li><li>Médico do trabalho</li><li>Técnico de segurança do trabalho</li><li>Enfermeiro do trabalho</li></ul></div></div></section>'+
    '<section class="isec"><h2 class="ih">Como usar</h2><ol class="steps"><li><b>Pesquise</b><span>Digite no campo do topo um agente, substância, atividade ou tese, inclusive por sinônimo (toluol, amianto, H2S).</span></li><li><b>Escolha a área</b><span>Aposentadoria especial, insalubridade ou periculosidade: cada uma com a sua legislação e os seus critérios por período.</span></li><li><b>Siga os passos</b><span>Critério, levantamento em campo, metodologia e simulação com os seus dados, com a nota do especialista ao lado do critério oficial.</span></li><li><b>Imprima</b><span>Gere o relatório, a ficha ou a consulta no papel timbrado, em PDF ou papel.</span></li></ol></section>'+
-   '<div class="grid2"><section class="isec panel"><h2 class="ih">Base normativa</h2><ul class="blist"><li>Lei 8.213/91 e Decreto 3.048/99 (Anexo IV), com Decretos 53.831/64, 83.080/79, 2.172/97, 4.882/03, 8.123/13 e 10.410/20</li><li>IN PRES/INSS 128/2022 e alterações (INs 133, 141, 170 e 212)</li><li>Manual de Aposentadoria Especial do INSS (2018)</li><li>NR-15 e NR-16 atualizadas, com a Portaria MTE 2.021/2025</li><li>NHO da Fundacentro (01, 06, 09, 10 e demais) e ISO 2631/5349</li><li>LINACH (Portaria Interministerial 9/2014)</li><li>Teses do STF, STJ, TNU e súmulas e OJs do TST</li></ul><p class="fine">Base conferida em 28/10/2026. Confira sempre a redação oficial antes de citar.</p></section>'+
+   '<div class="grid2"><section class="isec panel"><h2 class="ih">Base normativa</h2><ul class="blist"><li>Lei 8.213/91 e Decreto 3.048/99 (Anexo IV), com Decretos 53.831/64, 83.080/79, 2.172/97, 4.882/03, 8.123/13 e 10.410/20</li><li>IN PRES/INSS 128/2022 e alterações posteriores, até a IN 212/2026</li><li>Manual de Aposentadoria Especial do INSS (2018)</li><li>NR-15 e NR-16 atualizadas, com a Portaria MTE 2.021/2025</li><li>NHO da Fundacentro (01, 06, 09, 10 e demais) e ISO 2631/5349</li><li>LINACH (Portaria Interministerial 9/2014)</li><li>Teses do STF, STJ, TNU e súmulas e OJs do TST</li></ul><p class="fine">Datas de conferência de cada fonte na tabela abaixo. Confira sempre a redação oficial antes de citar.</p></section>'+
    '<section class="isec panel about"><h2 class="ih">Sobre a Grahl</h2><img class="about-logo" alt="" src="'+BRAND.logo+'"><p><b>Grahl Consultoria e Treinamentos</b> é conduzida por <b>Rogério Grahl</b>, Engenheiro Químico e Engenheiro de Segurança do Trabalho, com mais de 30 anos na indústria química e 19 anos em segurança do trabalho. Desde 2015 dedica-se à consultoria técnica, às perícias judiciais e à assistência técnica, e é professor de pós-graduação na disciplina Elaboração de Laudos Técnicos.</p><ul class="blist"><li><b>Perícia judicial:</b> insalubridade (NR-15), periculosidade (NR-16) e acidentes de trabalho; aposentadoria especial e ações regressivas; perícias em processos químicos</li><li><b>Assistência técnica:</b> análise preventiva do posto de trabalho, elaboração de quesitos e impugnação técnica de laudos</li><li><b>Auditoria de conformidade:</b> PGR, LIP e LTCAT confrontados com as condições reais de operação</li><li><b>Consultoria industrial:</b> injeção de poliuretano rígido (processo descontínuo) e responsabilidade técnica no setor químico</li><li><b>Docência e treinamento:</b> perícia judicial, laudos de insalubridade, periculosidade e aposentadoria especial</li></ul><p class="small">Engenharia de Segurança do Trabalho (UEL, 2007) · MBA em Gestão Empresarial (FGV, 2003) · Engenharia Química (FURB, 1995)</p><p class="small">CREA-SC 1039223-9 · CRQ 09302007 · Londrina, PR</p><div class="contacts"><a href="https://grahlconsultoria.com.br/" target="_blank" rel="noopener">grahlconsultoria.com.br</a><span>WhatsApp (43) 99884-6888</span><span>rograhl75@gmail.com</span><span>Instagram @rogerio_grahl</span></div></section></div>'+
+   fontesHtml()+
    '<p class="fine center">Ferramenta de consulta técnica. Os resultados não substituem a análise do caso concreto, a inspeção do local de trabalho nem o laudo técnico assinado por profissional habilitado.</p>';
 }
 
@@ -311,7 +312,7 @@ const RS_MANUAL=[
  ['07/05/1999 a 18/11/2003','Acima de 90 dB(A)','NR-15, Anexo 1','Decreto 3.048/99','LTCAT; (+) histograma ou memória de cálculo a partir de 11/10/2001','Informação sobre EPC e EPI','2.0.1','DSS-8030, DIRBEN-8030'],
  ['19/11/2003 a 31/12/2003','Acima do LT de 85 dB(A)','NR-15 ou NHO-01','Decreto 3.048/99, red. Decreto 4.882/03','LTCAT ou demais demonstrações ambientais','Informação sobre EPC e EPI','2.0.1','DIRBEN-8030'],
  ['A partir de 01/01/2004','Acima do LT de 85 dB(A), em NEN','NHO-01 (INSS)','Decreto 3.048/99, red. Decreto 4.882/03; IN 99/2003; (+) art. 68, § 12 (Decreto 8.123/13)','LTCAT, se necessário','Informação sobre EPC e EPI','2.0.1','PPP'],
- ['(+) A partir de 01/01/2023','Acima do LT de 85 dB(A), em NEN','NHO-01 (INSS)','IN 128/2022, art. 292; Portaria DIRBEN/INSS 1.100/2023','LTCAT','Informação sobre EPC e EPI','2.0.1','PPP eletrônico (eSocial, S-2240)']];
+ ['(+) A partir de 01/01/2023','Acima do LT de 85 dB(A), em NEN','NHO-01 (INSS)','IN 128/2022, art. 292; Portaria MTP 313/2021 (red. Portaria MTP 1.010/2021)','LTCAT','Informação sobre EPC e EPI','2.0.1','PPP eletrônico (eSocial, S-2240)']];
 const RS_HARM=[
  ['Até 05/03/1997','Decreto 53.831 (80 dB) e Decreto 83.080 (90 dB) vigentes juntos','O INSS aplica 80 dB(A), o mais favorável'],
  ['Até 05/03/1997','Limite previdenciário de 80 dB(A) abaixo do limite trabalhista de 85 dB(A)','Limiar de integração de 85 dB(A) despreza a faixa de 80 a 85 que enquadra'],
@@ -478,7 +479,7 @@ function rsSimular(a){
    '<details class="cmpdet"><summary>Comparar com outros critérios (q = 3, NHT-06 × NR-15, fórmula)</summary>'+cmpHtml()+'</details>';
 }
 function rsDocumentar(){
-  return '<p class="lead">PPP em papel para períodos até 31/12/2022; exclusivamente eletrônico (eSocial, S-2240) a partir de 01/01/2023 (Portaria DIRBEN/INSS 1.100/2023).</p><h3>PPP em papel, seção 15</h3>'+
+  return '<p class="lead">PPP em papel para períodos até 31/12/2022; exclusivamente eletrônico (eSocial, S-2240) a partir de 01/01/2023 (Portaria MTP 313/2021, red. Portaria MTP 1.010/2021; Portaria MTP 334/2022).</p><h3>PPP em papel, seção 15</h3>'+
    tbl(['Período','15.3 Fator de risco','15.4 Intensidade (até 15 caracteres)','15.5 Técnica (até 40 caracteres)'],[
     ['Até 05/03/1997','Ruído contínuo ou intermitente','Lavg em dB(A)','NR-15 Anexo 1 - Lavg q=5'],
     ['06/03/1997 a 18/11/2003','Ruído contínuo ou intermitente','Lavg em dB(A)','NR-15 Anexo 1 - Lavg q=5 (+ histograma desde 11/10/2001)'],
@@ -631,7 +632,7 @@ function renderInsal(){
   else if(an.tipo==='lista' && an.lista==='a14'){ const k=insv('a14',''); h+='<div class="opts">'+A14.map((x,j)=>'<label class="opt" for="a14-'+j+'"><input type="radio" name="a14" id="a14-'+j+'" data-ins="a14" value="'+j+'"'+(String(k)===String(j)?' checked':'')+'><span><em class="g-'+(x.g==='máximo'?'max':'med')+'">'+x.g+'</em>'+esc(x.t)+'</span></label>').join('')+'</div>'+(k===''?resultado(null,'médio','Escolha a atividade.'):resultado(true,A14[k].g,'Contato permanente na atividade listada. Para insalubridade, o Anexo 14 se aplica; para aposentadoria especial, não (código 3.0.1).')); }
   else if(an.tipo==='lista' && an.lista==='a13') h+=a13Lista();
   else h+='<p class="muted">Anexo revogado. Não gera adicional.</p>';
-  h+='</div></section><aside class="panel"><div class="ph"><h3>Valor do adicional</h3></div>'+'<label class="f" for="i-base"><span>Base de cálculo (R$)</span><input id="i-base" type="text" inputmode="decimal" step="0.01" data-ins="base" value="'+esc(insv('base',''))+'" placeholder="Salário mínimo ou piso da norma coletiva"></label><p class="fine">Informe a base para ver o valor mensal no resultado.</p><div class="ph"><h3>Súmulas e OJs</h3></div><ul class="sm-list">'+['s47','s80','s289','s448','oj173','sv4','irr17'].map(k=>'<li><b>'+TESES[k].num+'</b> '+esc(TESES[k].tese)+'</li>').join('')+'</ul></aside></div>';
+  h+='</div></section><aside class="panel"><div class="ph"><h3>Valor do adicional</h3></div>'+'<label class="f" for="i-base"><span>Base de cálculo (R$)</span><input id="i-base" type="text" inputmode="decimal" step="0.01" data-ins="base" value="'+esc(insv('base',''))+'" placeholder="Salário mínimo ou piso da norma coletiva"></label><p class="fine">Informe a base para ver o valor mensal no resultado.</p><div class="ph"><h3>Súmulas e OJs</h3></div><ul class="sm-list">'+['s47','s80','s289','s448','oj173','sv4','irr17','tst80','tst180'].map(k=>'<li><b>'+TESES[k].num+'</b> '+esc(TESES[k].tese)+'</li>').join('')+'</ul><div class="ph"><h3>Itens gerais</h3></div><dl class="dl16 small"><dt>NR-15, 15.4.1.3</dt><dd>O laudo caracterizador da insalubridade deve ficar disponível aos trabalhadores, aos sindicatos das categorias profissionais e à inspeção do trabalho (Portaria MTE 2.021/2025, vigente desde 03/04/2026).</dd><dt>NR-01, 1.5.2</dt><dd>A caracterização de atividades insalubres ou perigosas segue a NR-15 e a NR-16. Os fatores de risco psicossociais (item 1.5.3.1.4, vigente desde 26/05/2026, Portarias MTE 1.419/2024 e 765/2025) entram no PGR, mas não geram adicional nem tempo especial.</dd></dl></aside></div>';
   return h;
 }
 
@@ -942,6 +943,32 @@ document.addEventListener('click', ev=>{
   if(ev.target.closest('.pvclose')||ev.target.id==='preview'){ $('#preview').hidden=true; }
 });
 document.addEventListener('keydown', ev=>{ if(ev.key==='Escape'){ const p=$('#preview'); if(p&&!p.hidden) p.hidden=true; } });
+
+/* ---------- fontes oficiais e alertas do monitor ---------- */
+const brData = d => d ? d.split('-').reverse().join('/') : '—';
+const FONTES_OK = typeof FONTES!=='undefined' ? FONTES : [];
+const ALERTAS_PEND = (typeof ALERTAS!=='undefined' ? ALERTAS : []).filter(a=>a.status==='pendente');
+const fonteNome = id => (FONTES_OK.find(f=>f.id===id)||{}).nome || id;
+function fontesHtml(){
+  if(!FONTES_OK.length) return '';
+  const pend = id => ALERTAS_PEND.filter(a=>a.fonte===id).length;
+  return '<section class="isec panel fontes"><h2 class="ih">Fontes oficiais e conferência</h2><div class="tscroll"><table class="rt"><thead><tr><th>Fonte</th><th>Versão considerada no app</th><th>Conferida em</th><th>Monitor</th></tr></thead><tbody>'+
+   FONTES_OK.map(f=>'<tr><td>'+(f.url?'<a href="'+esc(f.url)+'" target="_blank" rel="noopener">'+esc(f.nome)+' ↗</a>':esc(f.nome))+'</td><td>'+esc(f.versao)+'</td><td>'+brData(f.conferido)+'</td><td>'+(pend(f.id)?'<span class="chip st-C">'+pend(f.id)+' em revisão</span>':f.monitor?'diário':'auditoria semanal')+'</td></tr>').join('')+
+   '</tbody></table></div><p class="fine">O robô verifica diariamente as páginas oficiais'+(typeof MONITOR!=='undefined'&&MONITOR.ultima?' (última verificação: '+brData(MONITOR.ultima)+')':'')+' e avisa quando surge documento novo. A jurisprudência é revista na auditoria semanal. Nenhuma alteração entra no app sem revisão.</p></section>';
+}
+function renderAlertas(){
+  const el=document.getElementById('alertas'); if(!el) return;
+  if(!ALERTAS_PEND.length){ el.hidden=true; return; }
+  el.hidden=false;
+  el.innerHTML='<details class="alerta"><summary><b>'+ALERTAS_PEND.length+(ALERTAS_PEND.length>1?' alterações':' alteração')+' em fontes oficiais aguardando revisão.</b> Os dados afetados podem estar desatualizados.</summary><ul>'+
+   ALERTAS_PEND.map(a=>'<li><span class="small">'+brData(a.data)+' · '+esc(fonteNome(a.fonte))+'</span><br><a href="'+esc(a.url)+'" target="_blank" rel="noopener">'+esc(a.titulo)+' ↗</a>'+(a.nota?'<br><span class="small">'+esc(a.nota)+'</span>':'')+'</li>').join('')+'</ul></details>';
+}
+(function(){
+  const c=document.getElementById('conferencia'); if(!c||!FONTES_OK.length) return;
+  const ds=FONTES_OK.map(f=>f.conferido).filter(Boolean).sort();
+  c.textContent='Base normativa e jurisprudência conferidas entre '+brData(ds[0])+' e '+brData(ds[ds.length-1])+', conforme a fonte (veja Início).';
+})();
+renderAlertas();
 
 document.getElementById('logo').src=BRAND.logo;
 document.getElementById('tabs').innerHTML = TABS.map(([k,t])=>'<a href="#'+k+'">'+t+'</a>').join('');
