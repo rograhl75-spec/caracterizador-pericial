@@ -264,7 +264,7 @@ const NR15 = [
  {n:5, t:'Radiações ionizantes', g:'máximo', tipo:'quali', s:'LT da norma CNEN NN-3.01. Superar o LT caracteriza.'},
  {n:6, t:'Trabalho sob condições hiperbáricas', g:'máximo', tipo:'quali', s:'Ar comprimido (tubulões, túneis) e mergulho.'},
  {n:7, t:'Radiações não ionizantes', g:'médio', tipo:'quali', s:'Micro-ondas, ultravioleta e laser, por laudo de inspeção. A radiação solar não gera adicional (OJ 173, I).'},
- {n:8, t:'Vibração', g:'médio', tipo:'calc', calc:'vibracao', s:'VMB: aren > 5 m/s². VCI: aren > 1,1 m/s² ou VDVR > 21,0 m/s¹·⁷⁵.'},
+ {n:8, t:'Vibração', g:'médio', tipo:'calc', calc:'vibracao', s:'VMB: aren > 5 m/s². VCI: aren > 1,1 m/s² ou VDVR > 21,0 m/s¹·⁷⁵. Vigente desde 14/08/2014 (Portaria MTE 1.297/2014, publicada e em vigor nessa data; a IN 128 do INSS usa 13/08/2014).'},
  {n:9, t:'Frio', g:'médio', tipo:'quali', s:'Câmaras frigoríficas ou locais com condições similares, sem proteção adequada, por laudo de inspeção. Sem o intervalo térmico do art. 253 da CLT, o EPI não afasta o adicional (TST, Tema 80).'},
  {n:10, t:'Umidade', g:'médio', tipo:'quali', s:'Locais alagados ou encharcados, com umidade excessiva, por laudo de inspeção.'},
  {n:11, t:'Agentes químicos com limite de tolerância', g:'conforme Quadro 1', tipo:'calc', calc:'quim11', s:'Quadro 1 completo, pesquisável por nome, sinônimo ou fórmula. Caracteriza quando a média das amostras supera o LT; para agentes com valor teto, quando qualquer amostra supera o LT. O grau é o do Quadro 1.'},
