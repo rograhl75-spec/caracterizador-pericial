@@ -31,7 +31,7 @@
    "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/seguranca-e-saude-no-trabalho/sst-portarias/2019/portaria_seprt_915_-aprova_a_nova_nr_01.pdf",
    "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/seguranca-e-saude-no-trabalho/sst-portarias/2020/portaria_seprt_6-735_-altera_a_nr_09.pdf"
   ],
-  "falhas": 1,
+  "falhas": 2,
   "ok": "2026-11-21",
   "erro": "site sem resposta nesta execução (www.gov.br)"
  },
@@ -60,7 +60,7 @@
    "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/seguranca-e-saude-no-trabalho/sst-portarias/2024/portaria-mte-no-344-altera-glossario-nr-01-e-12.pdf",
    "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/seguranca-e-saude-no-trabalho/sst-portarias/2025/portaria-mte-no-765-prorroga-inicio-de-vigencia-cap-1-5-da-nr-01.pdf"
   ],
-  "falhas": 1,
+  "falhas": 2,
   "ok": "2026-11-21",
   "erro": "site sem resposta nesta execução (www.gov.br)"
  },
@@ -78,7 +78,7 @@
    "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/seguranca-e-saude-no-trabalho/sst-portarias/2021/portaria-mtp-no-672-procedimentos-sst-1-1.pdf",
    "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/seguranca-e-saude-no-trabalho/sst-portarias/2026-1/portaria-mte-no-737-nova-nr-10.pdf"
   ],
-  "falhas": 1,
+  "falhas": 2,
   "ok": "2026-11-21",
   "erro": "site sem resposta nesta execução (www.gov.br)"
  },
@@ -119,7 +119,7 @@
    "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/seguranca-e-saude-no-trabalho/sst-portarias/2019/portaria_seprt_1359_-altera_anexo_3_nr_15_e_inclui_anexo_3_na_nr_9__calor.pdf",
    "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/seguranca-e-saude-no-trabalho/sst-portarias/2021/portaria-mtp-no-426-anexos-i-vibracao-e-iii-calor-da-nr-09.pdf"
   ],
-  "falhas": 1,
+  "falhas": 2,
   "ok": "2026-11-21",
   "erro": "site sem resposta nesta execução (www.gov.br)"
  },
@@ -151,7 +151,7 @@
    "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/seguranca-e-saude-no-trabalho/sst-portarias/2017/portaria_sit_598_-gtt_anexo_5_nr_16-_revogada.pdf",
    "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/seguranca-e-saude-no-trabalho/sst-portarias/2018/portaria_sit_787_-estrutura_e_interpretacao_de_nrs-_atualizada_2019.pdf"
   ],
-  "falhas": 1,
+  "falhas": 2,
   "ok": "2026-11-21",
   "erro": "site sem resposta nesta execução (www.gov.br)"
  },
@@ -171,7 +171,7 @@
    "https://www.gov.br/fundacentro/pt-br/centrais-de-conteudo/projeto-caminhos-do-trabalho",
    "https://www.gov.br/fundacentro/search"
   ],
-  "falhas": 1,
+  "falhas": 2,
   "ok": "2026-11-21",
   "erro": "site sem resposta nesta execução (www.gov.br)"
  },
@@ -213,7 +213,7 @@
    "https://www.gov.br/inss/pt-br/centrais-de-conteudo/legislacao/instrucao-normativa/2026/instrucao-normativa-pres-inss-no-213-de-17-de-agosto-de-2026",
    "https://www.gov.br/inss/pt-br/centrais-de-conteudo/legislacao/instrucao-normativa/2026/instrucao-normativa-pres-inss-no-215-de-15-de-outubro-de-2026"
   ],
-  "falhas": 1,
+  "falhas": 2,
   "ok": "2026-11-21",
   "erro": "fetch failed (ECONNRESET)"
  },
@@ -226,7 +226,7 @@
    "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/seguranca-e-saude-no-trabalho/sst-portarias/2026-1/portaria-mte-no-261-ajusta-port-105_26-que-altera-a-nr-22.pdf",
    "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/seguranca-e-saude-no-trabalho/sst-portarias/2026-1/portaria-mte-no-737-nova-nr-10.pdf"
   ],
-  "falhas": 1,
+  "falhas": 2,
   "ok": "2026-11-21",
   "erro": "site sem resposta nesta execução (www.gov.br)"
  },
