@@ -11,6 +11,8 @@
  * Uso:  node scripts/monitor.mjs [--dry] [--fonte=id]
  *   --dry      não grava arquivos nem abre Issue (só mostra o que encontrou)
  *   --fonte=id verifica só uma fonte
+ *   --teste    simula um documento novo (Portaria MTE 737/2026), abre Issue de teste e chama o Claude;
+ *              não grava alertas nem estado
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -23,6 +25,7 @@ const ARQ_FONTES = path.join(ROOT, 'dados/fontes.js');
 const ARQ_ALERTAS = path.join(ROOT, 'dados/alertas.js');
 const ARQ_ESTADO = path.join(ROOT, 'scripts/estado.json');
 const args = process.argv.slice(2);
+const TESTE = args.includes('--teste');
 const DRY = args.includes('--dry');
 const SO = (args.find(a => a.startsWith('--fonte=')) || '').split('=')[1];
 const FALHAS_PARA_AVISAR = 7;            // execuções seguidas sem acesso antes de avisar
@@ -179,7 +182,7 @@ async function abrirIssue(alertas) {
   const corpo = ['O robô de monitoramento encontrou mudanças nas fontes oficiais. Nada foi alterado no conteúdo do app.', '',
     ...alertas.map(a => `### ${a.nomeFonte}\n- **${a.titulo}**\n- ${a.url}\n- Tipo: ${a.tipo} · alerta \`${a.id}\`` + (a.analise ? `\n\n> ${a.analise.replace(/\n/g, '\n> ')}` : '')),
     '', '**Para concluir a revisão:** corrija os arquivos de `dados/` se for o caso, atualize `versao` e `conferido` em `dados/fontes.js` e troque o `status` do alerta para `revisado` em `dados/alertas.js`.'].join('\n');
-  const titulo = `Legislação: ${alertas.length} alteração(ões) para revisar (${HOJE.split('-').reverse().join('/')})`;
+  const titulo = (TESTE ? '[TESTE — pode fechar] ' : '') + `Legislação: ${alertas.length} alteração(ões) para revisar (${HOJE.split('-').reverse().join('/')})`;
   if (!token || !repo || DRY) { console.log('\n--- Issue (não aberta) ---\n' + titulo + '\n\n' + corpo); return null; }
   const r = await fetch(`https://api.github.com/repos/${repo}/issues`, {
     method: 'POST',
@@ -195,6 +198,9 @@ const alvo = FONTES.filter(f => f.monitor && (!SO || f.id === SO));
 const resultados = await Promise.all(alvo.map(f => verificar(f).catch(e => { console.warn(f.id, e); return []; })));
 const conhecidos = new Set(ALERTAS.map(a => a.id));
 const novos = resultados.flat().filter(a => !conhecidos.has(a.id));
+if (TESTE) novos.push({ id: 'teste-' + HOJE, fonte: 'sst', nomeFonte: 'Portarias SST do MTE (TESTE)', data: HOJE, status: 'pendente', tipo: 'novo-documento',
+  titulo: '[TESTE] Portaria MTE nº 737/2026 (Nova NR-10)',
+  url: 'https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/seguranca-e-saude-no-trabalho/sst-portarias/2026-1/portaria-mte-no-737-nova-nr-10.pdf' });
 
 for (const f of alvo) {
   const s = estado[f.id];
@@ -207,7 +213,8 @@ if (novos.length) {
   const issue = await abrirIssue(novos);
   if (issue) novos.forEach(a => { a.issue = issue; });
 }
-if (!DRY) {
+if (TESTE) console.log('\nExecução de teste: ' + (novos.find(a => a.analise) ? 'análise do Claude OK.' : 'sem análise do Claude (sem chave ou falha).') + ' Nada foi gravado.');
+if (!DRY && !TESTE) {
   fs.writeFileSync(ARQ_ESTADO, JSON.stringify(estado, null, 1) + '\n');
   const todos = [...ALERTAS, ...novos];
   fs.writeFileSync(ARQ_ALERTAS,
