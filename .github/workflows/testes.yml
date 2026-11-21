@@ -1,0 +1,25 @@
+name: Testes
+
+# Confere a sintaxe de todos os scripts e roda os testes da lógica de enquadramento
+# a cada pull request e a cada alteração na main.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  testes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+      - name: Sintaxe dos scripts
+        run: for f in dados/*.js js/*.js; do node --check "$f" || exit 1; done
+      - name: Testes da lógica
+        run: node --test tests/motor.test.mjs

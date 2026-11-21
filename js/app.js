@@ -16,10 +16,26 @@ const EXEMPLO = {nome:'Caso exemplo (fictício) — operador de produção', sex
 ]};
 
 let S = {gq:'', agq:'', tq:'', tab:'inicio', caso:JSON.parse(JSON.stringify(EXEMPLO)), ag:'ruido', a15:1, a16:'a2', tf:'todos', lib:'d3048_IV', q:'', ins:{}, per:{}};
-try { const raw=localStorage.getItem('caracterizador:v1'); if(raw){ const o=JSON.parse(raw); if(o&&o.caso&&Array.isArray(o.caso.rows)){ o.caso.rows=o.caso.rows.filter(r=>r&&AGENTS.some(a=>a.id===r.agente)); S.caso=o.caso; } } } catch(e){}
-function save(){ try{ localStorage.setItem('caracterizador:v1', JSON.stringify({caso:S.caso})); }catch(e){} }
+/* ===== Casos salvos (vários) — ficam só neste navegador ===== */
+const STORE='caracterizador:v2', STORE_PERFIL='caracterizador:perfil';
+let DB={ativo:null, casos:{}};
+const novoId=()=>'c'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const agora=()=>new Date().toISOString();
+function limpaCaso(c){ c=c||{}; c.nome=c.nome||'Caso sem nome'; c.sexo=c.sexo==='M'?'M':'H'; c.rows=(Array.isArray(c.rows)?c.rows:[]).filter(r=>r&&AGENTS.some(a=>a.id===r.agente)); return c; }
+try{
+  const raw=localStorage.getItem(STORE);
+  if(raw){ const o=JSON.parse(raw); if(o&&o.casos&&typeof o.casos==='object') DB=o; }
+  else { const v1=localStorage.getItem('caracterizador:v1'); /* migração do formato antigo (um caso só) */
+    if(v1){ const o=JSON.parse(v1); if(o&&o.caso&&Array.isArray(o.caso.rows)){ const id=novoId(); DB={ativo:id,casos:{[id]:Object.assign(o.caso,{id,alterado:agora()})}}; } } }
+}catch(e){}
+Object.keys(DB.casos).forEach(id=>{ DB.casos[id]=limpaCaso(DB.casos[id]); DB.casos[id].id=id; });
+function casosOrdenados(){ return Object.values(DB.casos).sort((x,y)=>String(y.alterado||'').localeCompare(String(x.alterado||''))); }
+if(!DB.ativo||!DB.casos[DB.ativo]){ const l=casosOrdenados(); if(l.length) DB.ativo=l[0].id; else { const id=novoId(); DB.casos[id]=Object.assign(JSON.parse(JSON.stringify(EXEMPLO)),{id,alterado:agora()}); DB.ativo=id; } }
+S.caso=DB.casos[DB.ativo];
+function persist(){ try{ localStorage.setItem(STORE, JSON.stringify(DB)); return true; }catch(e){ avisar('Não foi possível salvar no navegador (armazenamento cheio ou bloqueado). Exporte seus casos para não perdê-los.'); return false; } }
+function save(){ S.caso.alterado=agora(); DB.casos[DB.ativo]=S.caso; persist(); }
 
-const TABS = [['inicio','Início'],['aposentadoria','Aposentadoria especial'],['insalubridade','Insalubridade'],['periculosidade','Periculosidade'],['teses','Teses'],['biblioteca','Biblioteca']];
+const TABS = [['inicio','Início'],['aposentadoria','Aposentadoria especial'],['insalubridade','Insalubridade'],['periculosidade','Periculosidade'],['teses','Teses'],['biblioteca','Biblioteca'],['perfil','Perfil e dados']];
 const AP_SUB = [['agentes','Consulta por agente','Critério, campo, metodologia, simulação e PPP'],['caso','Análise de caso','Histórico do segurado, período a período'],['resultado','Resultado do caso','Tempo especial, linha do tempo e divergências']];
 
 function chip(st, short){ return '<span class="chip st-'+st+'">'+(short?st==='E'?'Especial':st==='N'?'Não':st==='C'?'Controverso':'Faltam dados':ST[st])+'</span>'; }
@@ -153,12 +169,12 @@ function totBar(){
 }
 function renderCaso(){
   const c=S.caso;
-  return '<section class="intro"><div><p class="eyebrow">Análise de caso</p><h2>Aposentadoria especial por período</h2><p class="muted">Cada período é dividido nos marcos legais do agente e avaliado por dois critérios: o do perito, com a metodologia do professor, e o do INSS (IN 128/2022). Fatores de conversão do art. 70 do Decreto 3.048/99, só até 13/11/2019.</p></div></section>'+
-  '<div class="casehead"><label class="f wide" for="c-nome"><span>Identificação do caso</span><input id="c-nome" type="text" data-c="nome" value="'+esc(c.nome)+'"></label>'+
+  return '<section class="intro"><div><p class="eyebrow">Análise de caso</p><h2>Aposentadoria especial por período</h2><p class="muted">Cada período é dividido nos marcos legais do agente e avaliado por dois critérios: o do especialista (critério técnico da Grahl, com a fundamentação de cada ponto) e o do INSS (IN 128/2022). Fatores de conversão do art. 70 do Decreto 3.048/99, só até 13/11/2019.</p></div></section>'+
+  casebar()+'<div class="casehead"><label class="f wide" for="c-nome"><span>Identificação do caso</span><input id="c-nome" type="text" data-c="nome" value="'+esc(c.nome)+'"></label>'+
   '<label class="f" for="c-sexo"><span>Segurado</span><select id="c-sexo" data-c="sexo"><option value="H"'+(c.sexo!=='M'?' selected':'')+'>Homem</option><option value="M"'+(c.sexo==='M'?' selected':'')+'>Mulher</option></select></label>'+
-  '<div class="btns"><button data-act="add">Adicionar período</button><button class="ghost" data-act="ex">Carregar exemplo</button><button class="ghost" data-act="clr">Limpar caso</button><button class="ghost" data-act="copy">Copiar quadro-resumo</button><button class="printbtn" data-print="caso">Imprimir relatório</button></div></div>'+
+  '<div class="btns"><button data-act="add">Adicionar período</button><button class="ghost" data-act="clr">Limpar períodos</button><button class="ghost" data-act="copy">Copiar quadro-resumo</button><button class="printbtn" data-print="caso">Imprimir relatório</button></div></div>'+
   '<div id="totbar">'+totBar()+'</div><div class="rows">'+c.rows.map(rowCard).join('')+'</div>'+
-  (c.rows.length?'':'<p class="empty">Nenhum período. Use <b>Adicionar período</b> ou <b>Carregar exemplo</b>.</p>')+
+  (c.rows.length?'':'<p class="empty">Nenhum período. Use <b>Adicionar período</b> ou crie um caso a partir do <button class="linkbtn" data-act="ex">exemplo</button>.</p>')+
   '<p class="fine">Os dois critérios aplicam a informação de EPI eficaz a partir de 03/12/1998, conforme o STJ (Tema 1090), salvo ruído e cancerígenos LINACH. Contagem em dias corridos; a conversão em anos, meses e dias usa 365/30 dias.</p>';
 }
 function resumoTexto(){
@@ -521,7 +537,7 @@ function renderAgentes(){
   if(a.comp) f+='<h3>Decreto × IN × Manual do INSS</h3><div class="scrollx"><table class="pt cmp"><thead><tr>'+a.comp.cols.map(c=>'<th>'+c+'</th>').join('')+'</tr></thead><tbody>'+a.comp.rows.map(r=>'<tr>'+r.map((c,k)=>'<td'+(k===0?' class="mono"':'')+'>'+esc(c)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
   if(a.id==='vibracao') f+='<h3>Referências ISO para 06/03/1997 a 12/08/2014</h3><div class="isogrid">'+ISO_VIB.map(x=>'<div class="iso"><b>'+esc(x.rot)+'</b>'+(x.v!==null?'<span class="isov">'+String(x.v).replace('.',',')+' '+x.un+(x.vdv?' · VDV '+String(x.vdv).replace('.',',')+' m/s¹·⁷⁵':'')+'</span>':'<span class="isov">sem LT</span>')+'<p>'+esc(x.nota)+'</p></div>').join('')+'</div><p class="fine">A IN 128/2022 não diz qual edição ou qual valor da ISO usar. Na análise de caso, escolha a referência no campo "Referência ISO"; o padrão é o limite superior da zona de cautela da ISO 2631-1:1997.</p>';
   if(a.art&&a.art.length) f+='<details class="lit"><summary>Texto literal da IN PRES/INSS 128/2022 — art. '+a.art.join(', ')+'</summary>'+a.art.map(n=>(IN128[n]||[]).map((p,k)=>'<p'+(k===0?' class="art0"':'')+'>'+esc(p)+'</p>').join('')).join('<hr>')+(a.art.includes('293')?'<p class="fine">Redação dada pela IN PRES/INSS 141/2022.</p>':'')+'</details>';
-  f+='<h3>Texto das normas</h3>'+(leg||'<p class="muted">Sem texto cadastrado.</p>')+'<p class="fine">Textos transcritos das planilhas originais do curso. Confira sempre a redação oficial no Planalto.</p></article>';
+  f+='<h3>Texto das normas</h3>'+(leg||'<p class="muted">Sem texto cadastrado.</p>')+'<p class="fine">Textos transcritos das normas e do Manual do INSS. Confira sempre a redação oficial no Planalto.</p></article>';
   return '<div class="agwrap">'+list+f+'</div>';
 }
 
@@ -741,7 +757,7 @@ function cellHtml(v,q){ v=String(v||''); if(/^https?:\/\//.test(v)) return '<a h
 function renderBib(){
   const q=S.q.trim(), norm=s=>String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase(), nq=norm(q);
   const tabs = S.lib==='todas' ? LIBT : LIBT.filter(t=>t[0]===S.lib);
-  let h='<section class="intro"><div><p class="eyebrow">Biblioteca</p><h2>Normas e quadros do curso</h2><p class="muted">Conteúdo das planilhas originais (Agentes Nocivos e Legislação Previdenciária), agora pesquisável. A IN 77/2015 foi revogada pela IN 128/2022 e não consta aqui.</p></div></section>';
+  let h='<section class="intro"><div><p class="eyebrow">Biblioteca</p><h2>Normas e quadros</h2><p class="muted">Conteúdo das planilhas originais (Agentes Nocivos e Legislação Previdenciária), agora pesquisável. A IN 77/2015 foi revogada pela IN 128/2022 e não consta aqui.</p></div></section>';
   h+='<div class="libbar"><label class="f" for="lib-sel"><span>Quadro</span><select id="lib-sel" data-lib="1"><option value="todas"'+(S.lib==='todas'?' selected':'')+'>Todos os quadros</option>'+LIBT.map(t=>'<option value="'+t[0]+'"'+(S.lib===t[0]?' selected':'')+'>'+esc(t[1])+'</option>').join('')+'</select></label><label class="f grow" for="lib-q"><span>Pesquisar</span><input id="lib-q" type="search" value="'+esc(S.q)+'" placeholder="Ex.: soldagem, 1.0.19, caldeira, benzeno" data-q="1"></label></div>';
   let total=0;
   for(const [k,tit,heads] of tabs){
@@ -804,7 +820,7 @@ function go(dest){
 function render(){
   document.querySelectorAll('.tabs a').forEach(a=>a.setAttribute('aria-current', a.getAttribute('href')==='#'+S.tab?'page':'false'));
   const m=$('#main');
-  m.innerHTML = S.tab==='inicio'?renderInicio(): S.tab==='busca'?renderBusca(): S.tab==='aposentadoria'?renderAposentadoria(): S.tab==='insalubridade'?renderInsal(): S.tab==='periculosidade'?renderPeric(): S.tab==='teses'?renderTeses(): renderBib();
+  m.innerHTML = S.tab==='inicio'?renderInicio(): S.tab==='busca'?renderBusca(): S.tab==='aposentadoria'?renderAposentadoria(): S.tab==='insalubridade'?renderInsal(): S.tab==='periculosidade'?renderPeric(): S.tab==='teses'?renderTeses(): S.tab==='perfil'?renderPerfil(): renderBib();
 }
 function route(){ let h=location.hash.slice(1); const LEG={agentes:'aposentadoria/agentes',painel:'aposentadoria/resultado'}; if(LEG[h]){ h=LEG[h]; history.replaceState(null,'','#'+h); } const [h0,h1]=h.split('/');
   if(SRCH){ if(SRCH.fromGo){ SRCH.fromGo=false; } else { if(SRCH.tq!==null&&S.tq===SRCH.tq) S.tq=''; if(SRCH.q!==null&&S.q===SRCH.q){ S.q=''; S.lib='todas'; } if(SRCH.q11!==null&&S.ins.q11===SRCH.q11){ S.ins.q11=''; } SRCH=null; } } S.tab = TABS.some(t=>t[0]===h0)?h0:(h0==='busca'?'busca':'inicio'); if(S.tab==='aposentadoria') S.ap = AP_SUB.some(x=>x[0]===h1)?h1:(S.ap||'agentes'); render(); }
@@ -864,8 +880,8 @@ document.addEventListener('click', ev=>{
   if(b.dataset.simrst){ delete S.sim[S.ag]; render(); return; }
   if(b.dataset.del!==undefined){ S.caso.rows.splice(+b.dataset.del,1); save(); render(); return; }
   if(b.dataset.act==='add'){ const last=S.caso.rows[S.caso.rows.length-1]; const hj=new Date().toISOString().slice(0,10); let ini= last&&last.fim?addDays(last.fim,1):'2000-01-01'; if(ini>hj) ini=hj; let fim=addDays(ini,364); if(fim>hj) fim=hj; S.caso.rows.push({empresa:'',funcao:'',ini, fim, agente:'ruido', tempo:25, epi:false, d:{te:480}}); save(); render(); const r=document.querySelectorAll('.row'); if(r.length) r[r.length-1].scrollIntoView({behavior:'smooth',block:'start'}); return; }
-  if(b.dataset.act==='ex'){ S.caso=JSON.parse(JSON.stringify(EXEMPLO)); save(); render(); return; }
-  if(b.dataset.act==='clr'){ if(b.dataset.armed){ S.caso={nome:'Novo caso',sexo:'H',rows:[]}; save(); render(); } else { b.dataset.armed='1'; b.textContent='Toque de novo para limpar'; setTimeout(()=>{ if(b.isConnected){ delete b.dataset.armed; b.textContent='Limpar caso'; } },3000); } return; }
+  if(b.dataset.act==='ex'){ novoCaso(JSON.parse(JSON.stringify(EXEMPLO))); return; }
+  if(b.dataset.act==='clr'){ if(b.dataset.armed){ S.caso.rows=[]; save(); render(); } else { b.dataset.armed='1'; b.textContent='Toque de novo para limpar'; setTimeout(()=>{ if(b.isConnected){ delete b.dataset.armed; b.textContent='Limpar períodos'; } },3000); } return; }
   if(b.dataset.act==='copy'){ const txt=resumoTexto(); const done=()=>{ b.textContent='Quadro copiado'; setTimeout(()=>b.textContent='Copiar quadro-resumo',2000); };
     try{ navigator.clipboard.writeText(txt).then(done, ()=>fallbackCopy(txt,b)); }catch(e){ fallbackCopy(txt,b); } return; }
   if(b.dataset.a15){ S.a15=b.dataset.a15; render(); return; }
@@ -923,7 +939,8 @@ function printOut(kind){
   else if(kind==='insal'){ html='<h1>Insalubridade — NR-15</h1><p class="meta">Consulta emitida em '+hoje()+'</p>'+freeze($('#pinsal')); }
   else if(kind==='peric'){ html='<h1>Periculosidade — NR-16</h1><p class="meta">Consulta emitida em '+hoje()+'</p>'+freeze($('#pperic')); }
   const root=$('#printroot');
-  root.innerHTML='<img class="lh" alt="" src="'+(ori==='landscape'?BRAND.a4h:BRAND.a4v)+'"><table class="pwrap"><thead><tr><td><div class="sp-top"></div></td></tr></thead><tbody>'+splitRows(html)+'<tr><td class="pbody"><p class="disc">Documento gerado pelo Caracterizador Pericial — ferramenta didática; não substitui a análise do caso concreto nem a redação oficial das normas. Grahl Consultoria e Treinamentos · grahlconsultoria.com.br</p></td></tr></tbody><tfoot><tr><td><div class="sp-bot"></div></td></tr></tfoot></table>';
+  const TB=timbradoPara(ori);
+  root.innerHTML=(TB.img?'<img class="lh" alt="" src="'+TB.img+'">':'')+'<table class="pwrap'+(TB.simples?' simples':'')+'"><thead><tr><td><div class="sp-top">'+(TB.simples?cabecalhoSimples():'')+'</div></td></tr></thead><tbody>'+splitRows(html)+(kind==='caso'?'<tr><td class="pbody">'+blocoAssinatura()+'</td></tr>':'')+'<tr><td class="pbody"><p class="disc">Documento elaborado com o apoio do Caracterizador Pericial (Grahl Consultoria e Treinamentos). Ferramenta de apoio técnico: não substitui a análise do caso concreto nem a redação oficial das normas; a conclusão é de responsabilidade do profissional que assina.</p></td></tr></tbody><tfoot><tr><td><div class="sp-bot"></div></td></tr></tfoot></table>';
   root.dataset.ori=ori;
   $('#pagestyle').textContent='@page{size:A4 '+ori+';margin:0}';
   const emFrame = (()=>{ try{ return window.self!==window.top; }catch(e){ return true; } })();
@@ -944,6 +961,120 @@ document.addEventListener('click', ev=>{
   if(ev.target.closest('.pvclose')||ev.target.id==='preview'){ $('#preview').hidden=true; }
 });
 document.addEventListener('keydown', ev=>{ if(ev.key==='Escape'){ const p=$('#preview'); if(p&&!p.hidden) p.hidden=true; } });
+
+/* ---------- casos: abrir, novo, duplicar, excluir, exportar, importar ---------- */
+function avisar(msg){ let t=document.getElementById('toast'); if(!t){ t=document.createElement('div'); t.id='toast'; t.setAttribute('role','status'); document.body.appendChild(t); } t.textContent=msg; t.classList.add('on'); clearTimeout(avisar._t); avisar._t=setTimeout(()=>t.classList.remove('on'),4200); }
+const dataBR = iso => iso ? new Date(iso).toLocaleDateString('pt-BR') : '';
+function casebar(){
+  const l=casosOrdenados();
+  return '<section class="casebar panel" aria-label="Meus casos"><label class="f grow" for="c-sel"><span>Meus casos ('+l.length+')</span><select id="c-sel" data-casesel="1">'+
+   l.map(c=>'<option value="'+esc(c.id)+'"'+(c.id===DB.ativo?' selected':'')+'>'+esc(c.nome||'Caso sem nome')+' · '+c.rows.length+' período(s)'+(c.alterado?' · '+dataBR(c.alterado):'')+'</option>').join('')+
+   '</select></label><div class="btns"><button class="ghost sm" data-cs="novo">Novo caso</button><button class="ghost sm" data-cs="dup">Duplicar</button><button class="ghost sm" data-cs="exp">Exportar caso</button><button class="ghost sm" data-cs="imp">Importar</button><button class="ghost sm danger" data-cs="del">Excluir caso</button></div>'+
+   '<p class="fine">Os casos ficam salvos só neste navegador; nada é enviado a servidor. Exporte para guardar uma cópia ou abrir em outro computador.</p></section>';
+}
+function abrirCaso(id){ if(!DB.casos[id]) return; DB.ativo=id; S.caso=DB.casos[id]; persist(); render(); }
+function novoCaso(base){ const id=novoId(); DB.casos[id]=Object.assign(limpaCaso(base||{nome:'Novo caso',sexo:'H',rows:[]}),{id,alterado:agora()}); abrirCaso(id); avisar('Caso criado: '+DB.casos[id].nome); }
+function duplicarCaso(){ const c=JSON.parse(JSON.stringify(S.caso)); c.nome=(c.nome||'Caso')+' (cópia)'; novoCaso(c); }
+function excluirCaso(){ const nome=S.caso.nome; delete DB.casos[DB.ativo]; const l=casosOrdenados(); if(l.length){ DB.ativo=l[0].id; S.caso=l[0]; persist(); render(); avisar('Caso excluído: '+nome); } else { DB.ativo=null; novoCaso(); } }
+function baixar(nome, obj){ const blob=new Blob([JSON.stringify(obj,null,1)],{type:'application/json'}); const u=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=u; a.download=nome; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),2000); }
+const nomeArq = s => String(s||'caso').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^\w-]+/g,'-').replace(/^-+|-+$/g,'').slice(0,60)||'caso';
+const PACOTE = (tipo, extra) => Object.assign({app:'caracterizador-pericial', formato:1, tipo, exportado:agora()}, extra);
+function exportarCaso(){ baixar('caso-'+nomeArq(S.caso.nome)+'.json', PACOTE('casos',{casos:[S.caso]})); }
+function exportarTudo(){ baixar('caracterizador-backup-'+agora().slice(0,10)+'.json', PACOTE('backup',{casos:casosOrdenados(), perfil:perfilSemImagens()})); }
+function importarArquivo(file){
+  const rd=new FileReader();
+  rd.onload=()=>{ try{
+      const o=JSON.parse(rd.result);
+      const lista = Array.isArray(o.casos)?o.casos : (o.caso?[o.caso] : (Array.isArray(o.rows)?[o]:null));
+      if(!lista||!lista.length) throw new Error('arquivo sem casos');
+      let primeiro=null;
+      lista.forEach(c=>{ const id=(c.id&&!DB.casos[c.id])?c.id:novoId(); DB.casos[id]=Object.assign(limpaCaso(JSON.parse(JSON.stringify(c))),{id,alterado:c.alterado||agora()}); primeiro=primeiro||id; });
+      if(o.tipo==='backup'&&o.perfil&&typeof o.perfil==='object'){ const p=perfil(); PERFIL=Object.assign({},o.perfil,{a4v:p.a4v||'',a4h:p.a4h||''}); salvarPerfil(); }
+      DB.ativo=primeiro; S.caso=DB.casos[primeiro]; persist(); render();
+      avisar(lista.length+(lista.length>1?' casos importados.':' caso importado.'));
+    }catch(e){ avisar('Arquivo inválido: use um arquivo exportado pelo Caracterizador Pericial (.json).'); } };
+  rd.readAsText(file);
+}
+
+/* ---------- perfil do profissional (aparece nos relatórios) ---------- */
+let PERFIL={};
+try{ PERFIL=JSON.parse(localStorage.getItem(STORE_PERFIL)||'{}')||{}; }catch(e){ PERFIL={}; }
+const perfil = () => PERFIL;
+function salvarPerfil(){ try{ localStorage.setItem(STORE_PERFIL, JSON.stringify(PERFIL)); return true; }catch(e){ avisar('Não foi possível salvar o perfil: a imagem do timbrado é grande demais para o navegador. Use uma imagem menor.'); return false; } }
+function perfilSemImagens(){ const p=Object.assign({},PERFIL); delete p.a4v; delete p.a4h; return p; }
+const PROFISSOES=['Engenheiro(a) de Segurança do Trabalho','Médico(a) do Trabalho','Advogado(a)','Técnico(a) de Segurança do Trabalho','Higienista ocupacional','Outro'];
+function assinaturaTxt(){ const p=PERFIL; return [p.nome, [p.prof,p.registro].filter(Boolean).join(' · ')].filter(Boolean); }
+function pf(id,rot,ph,tipo){ return '<label class="f" for="pf-'+id+'"><span>'+rot+'</span><input id="pf-'+id+'" type="'+(tipo||'text')+'" data-pf="'+id+'" value="'+esc(PERFIL[id]||'')+'" placeholder="'+esc(ph||'')+'"></label>'; }
+function renderPerfil(){
+  const p=PERFIL, tb=p.timbrado||'grahl', nCasos=Object.keys(DB.casos).length;
+  const img=(k,rot,dica)=>'<div class="tbimg"><span class="small"><b>'+rot+'</b> · '+dica+'</span>'+(p[k]?'<img alt="Prévia do timbrado" src="'+p[k]+'"><button class="ghost sm" data-pfdel="'+k+'">Remover</button>':'<label class="ghost sm filebtn" for="pf-'+k+'">Escolher imagem<input id="pf-'+k+'" type="file" accept="image/png,image/jpeg" data-pfimg="'+k+'"></label>')+'</div>';
+  return '<section class="intro"><div><p class="eyebrow">Configuração</p><h2>Perfil e dados</h2><p class="muted">Seus dados aparecem no cabeçalho e na assinatura dos relatórios impressos. Tudo fica salvo só neste navegador.</p></div></section>'+
+  '<div class="grid2"><section class="panel"><div class="ph"><h3>Profissional responsável</h3></div><div class="fields">'+
+   pf('nome','Nome completo','Ex.: Maria da Silva')+
+   '<label class="f" for="pf-prof"><span>Profissão</span><select id="pf-prof" data-pf="prof"><option value="">Escolha</option>'+PROFISSOES.map(x=>'<option'+(p.prof===x?' selected':'')+'>'+x+'</option>').join('')+'</select></label>'+
+   pf('registro','Registro profissional','Ex.: CREA-PR 123456/D, CRM-SP 12345, OAB/PR 12.345')+
+   pf('contato','Contato','E-mail ou telefone')+pf('cidade','Cidade/UF','Ex.: Londrina/PR')+
+  '</div><div class="ph"><h3>Timbrado dos relatórios</h3></div><fieldset class="fr"><legend class="sr">Timbrado</legend>'+
+   [['grahl','Timbrado padrão do Caracterizador'],['proprio','Meu timbrado (imagem)'],['simples','Cabeçalho simples com meus dados']].map(([k,t])=>'<label class="cb" for="tb-'+k+'"><input type="radio" name="tb" id="tb-'+k+'" data-pf="timbrado" value="'+k+'"'+(tb===k?' checked':'')+'><span>'+t+'</span></label>').join('')+'</fieldset>'+
+   (tb==='proprio'?'<div class="tbimgs">'+img('a4v','A4 em pé','usado nas fichas e consultas')+img('a4h','A4 deitado','usado no relatório do caso')+'</div><p class="fine">Use a página A4 inteira (cabeçalho em cima, rodapé embaixo e o meio em branco), em PNG ou JPG. A imagem é reduzida para caber no navegador.</p>':'')+
+   '<div class="sigprev"><span class="small">Assinatura nos relatórios</span><b>'+(assinaturaTxt().map(esc).join('<br>')||'— preencha nome, profissão e registro —')+'</b></div>'+
+  '</section><aside class="panel"><div class="ph"><h3>Meus dados</h3></div><p class="small">'+nCasos+(nCasos>1?' casos salvos':' caso salvo')+' neste navegador.</p>'+
+   '<div class="btns col"><button class="ghost" data-cs="backup">Baixar backup completo</button><label class="ghost filebtn" for="pf-restore">Restaurar backup<input id="pf-restore" type="file" accept=".json,application/json" data-pfrestore="1"></label><button class="ghost danger" data-cs="wipe">Apagar todos os meus dados</button></div>'+
+   '<p class="fine">O backup inclui todos os casos e o perfil (sem as imagens do timbrado). Apagar remove casos, perfil e preferências deste navegador, sem possibilidade de recuperação.</p>'+
+   '<div class="ph"><h3>Documentos</h3></div><ul class="blist"><li><a href="termos.html" target="_blank" rel="noopener">Termos de uso ↗</a></li><li><a href="privacidade.html" target="_blank" rel="noopener">Política de privacidade ↗</a></li></ul>'+
+   (p.aceite?'<p class="fine">Termos aceitos em '+dataBR(p.aceite.data)+' (versão '+esc(p.aceite.versao)+').</p>':'')+
+  '</aside></div>';
+}
+function reduzImagem(file, larguraMax, cb){
+  if(!/^image\/(png|jpeg)$/.test(file.type)){ avisar('Use uma imagem PNG ou JPG.'); return; }
+  const rd=new FileReader();
+  rd.onload=()=>{ const im=new Image(); im.onload=()=>{ const k=Math.min(1,larguraMax/im.width), c=document.createElement('canvas'); c.width=Math.round(im.width*k); c.height=Math.round(im.height*k); const g=c.getContext('2d'); g.fillStyle='#fff'; g.fillRect(0,0,c.width,c.height); g.drawImage(im,0,0,c.width,c.height); cb(c.toDataURL('image/jpeg',0.82)); }; im.onerror=()=>avisar('Não foi possível ler a imagem.'); im.src=rd.result; };
+  rd.readAsDataURL(file);
+}
+/* timbrado e cabeçalho usados na impressão */
+function timbradoPara(ori){
+  const p=PERFIL;
+  if(p.timbrado==='proprio'){ const src= ori==='landscape' ? (p.a4h||'') : (p.a4v||''); return {img:src, simples:!src}; }
+  if(p.timbrado==='simples') return {img:'', simples:true};
+  return {img: ori==='landscape'?BRAND.a4h:BRAND.a4v, simples:false};
+}
+function cabecalhoSimples(){ const l=assinaturaTxt(); const p=PERFIL; const linha=[p.contato,p.cidade].filter(Boolean).join(' · '); return '<div class="phead"><b>'+esc(l[0]||'Caracterizador Pericial')+'</b>'+(l[1]?'<span>'+esc(l[1])+'</span>':'')+(linha?'<span>'+esc(linha)+'</span>':'')+'</div>'; }
+function blocoAssinatura(){ const l=assinaturaTxt(); if(!l.length) return ''; return '<div class="assin"><div class="linha"></div>'+l.map(esc).join('<br>')+(PERFIL.cidade?'<br><small>'+esc(PERFIL.cidade)+', '+hoje()+'</small>':'')+'</div>'; }
+
+/* ---------- aceite dos termos (primeiro acesso) ---------- */
+const TERMOS_VERSAO='2026-11';
+function avisoTermos(){
+  if(PERFIL.aceite&&PERFIL.aceite.versao===TERMOS_VERSAO) return;
+  const d=document.createElement('div'); d.id='termos'; d.setAttribute('role','dialog'); d.setAttribute('aria-label','Termos de uso');
+  d.innerHTML='<div class="wrap"><p>O Caracterizador Pericial é uma ferramenta de apoio técnico. Os resultados não substituem a análise do caso concreto nem o juízo do profissional que assina o laudo ou a peça. Os dados que você digita ficam só neste navegador. Ao continuar, você concorda com os <a href="termos.html" target="_blank" rel="noopener">Termos de uso</a> e a <a href="privacidade.html" target="_blank" rel="noopener">Política de privacidade</a>.</p><button data-cs="aceito">Concordo</button></div>';
+  document.body.appendChild(d);
+}
+
+document.addEventListener('change', ev=>{
+  const t=ev.target;
+  if(t.dataset.casesel){ abrirCaso(t.value); return; }
+  if(t.id==='c-file'&&t.files&&t.files[0]){ importarArquivo(t.files[0]); t.value=''; return; }
+  if(t.dataset.pfrestore&&t.files&&t.files[0]){ importarArquivo(t.files[0]); t.value=''; return; }
+  if(t.dataset.pfimg&&t.files&&t.files[0]){ const k=t.dataset.pfimg; reduzImagem(t.files[0], k==='a4h'?1754:1240, url=>{ const ant=PERFIL[k]; PERFIL[k]=url; if(!salvarPerfil()){ PERFIL[k]=ant; } render(); }); return; }
+  if(t.dataset.pf){ PERFIL[t.dataset.pf]=t.value; salvarPerfil(); if(t.dataset.pf==='timbrado'||t.dataset.pf==='prof') render(); return; }
+});
+document.addEventListener('input', ev=>{ const t=ev.target; if(t.dataset.pf&&t.tagName==='INPUT'&&t.type==='text'){ PERFIL[t.dataset.pf]=t.value; salvarPerfil(); const s=document.querySelector('.sigprev b'); if(s) s.innerHTML=assinaturaTxt().map(esc).join('<br>')||'— preencha nome, profissão e registro —'; } });
+document.addEventListener('click', ev=>{
+  const b=ev.target.closest('[data-cs],[data-pfdel]'); if(!b) return;
+  if(b.dataset.pfdel){ delete PERFIL[b.dataset.pfdel]; salvarPerfil(); render(); return; }
+  const k=b.dataset.cs;
+  if(k==='novo') novoCaso();
+  else if(k==='dup') duplicarCaso();
+  else if(k==='exp') exportarCaso();
+  else if(k==='imp'){ let f=document.getElementById('c-file'); if(!f){ f=document.createElement('input'); f.type='file'; f.id='c-file'; f.accept='.json,application/json'; f.hidden=true; document.body.appendChild(f); } f.click(); }
+  else if(k==='backup') exportarTudo();
+  else if(k==='aceito'){ PERFIL.aceite={versao:TERMOS_VERSAO, data:agora()}; salvarPerfil(); const d=document.getElementById('termos'); if(d) d.remove(); }
+  else if(k==='del'||k==='wipe'){
+    if(!b.dataset.armed){ b.dataset.armed='1'; const orig=b.textContent; b.textContent= k==='del'?'Toque de novo para excluir':'Toque de novo para apagar tudo'; setTimeout(()=>{ if(b.isConnected){ delete b.dataset.armed; b.textContent=orig; } },3500); return; }
+    if(k==='del') excluirCaso();
+    else { try{ [STORE,STORE_PERFIL,'caracterizador:v1'].forEach(x=>localStorage.removeItem(x)); }catch(e){} location.reload(); }
+  }
+});
 
 /* ---------- fontes oficiais e alertas do monitor ---------- */
 const brData = d => d ? d.split('-').reverse().join('/') : '—';
@@ -967,9 +1098,10 @@ function renderAlertas(){
 (function(){
   const c=document.getElementById('conferencia'); if(!c||!FONTES_OK.length) return;
   const ds=FONTES_OK.map(f=>f.conferido).filter(Boolean).sort();
-  c.textContent='Base normativa e jurisprudência conferidas entre '+brData(ds[0])+' e '+brData(ds[ds.length-1])+', conforme a fonte (veja Início).';
+  c.textContent= ds[0]===ds[ds.length-1] ? 'Base normativa e jurisprudência conferidas em '+brData(ds[0])+' (detalhes em Início).' : 'Base normativa e jurisprudência conferidas entre '+brData(ds[0])+' e '+brData(ds[ds.length-1])+', conforme a fonte (veja Início).';
 })();
 renderAlertas();
+avisoTermos();
 
 document.getElementById('logo').src=BRAND.logo;
 document.getElementById('tabs').innerHTML = TABS.map(([k,t])=>'<a href="#'+k+'">'+t+'</a>').join('');

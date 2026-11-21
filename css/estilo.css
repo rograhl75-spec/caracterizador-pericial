@@ -536,3 +536,31 @@ footer{border-top:1px solid var(--line); padding-block:18px 28px; font-size:.82r
 .alerta a{color:inherit; overflow-wrap:anywhere}
 .fontes .tscroll{overflow-x:auto}
 .fontes table.rt td a{overflow-wrap:anywhere}
+
+/* ===== casos, perfil e aviso de termos ===== */
+.casebar{gap:10px; margin-bottom:14px}
+.casebar .f.grow{flex:1; min-width:0}
+.casebar select{max-width:100%}
+button.danger,.ghost.danger{color:var(--n); border-color:var(--n)}
+button.linkbtn{background:none; border:none; padding:0; color:var(--ink); text-decoration:underline; font:inherit; cursor:pointer}
+.filebtn{display:inline-flex; align-items:center; justify-content:center; font:600 .9rem var(--f-body); border-radius:6px; padding:9px 14px; cursor:pointer; border:1px solid var(--line); color:var(--ink); background:transparent}
+.filebtn.sm{padding:6px 10px; font-size:.82rem}
+.filebtn input{position:absolute; width:1px; height:1px; opacity:0; pointer-events:none}
+.filebtn:focus-within{outline:2px solid var(--focus); outline-offset:2px}
+.btns.col{flex-direction:column; align-items:stretch}
+.tbimgs{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px}
+.tbimg{display:flex; flex-direction:column; gap:6px; align-items:flex-start}
+.tbimg img{max-width:100%; max-height:220px; border:1px solid var(--line); border-radius:4px; background:#fff}
+.sigprev{display:flex; flex-direction:column; gap:4px; border-top:1px solid var(--line); padding-top:10px}
+#toast{position:fixed; left:50%; bottom:18px; transform:translate(-50%,20px); opacity:0; pointer-events:none; background:var(--band); color:var(--band-ink); padding:10px 16px; border-radius:8px; font-size:.9rem; max-width:calc(100vw - 32px); transition:.2s; z-index:50}
+#toast.on{opacity:1; transform:translate(-50%,0)}
+#termos{position:fixed; left:0; right:0; bottom:0; background:var(--surface); border-top:3px solid var(--gold-line); box-shadow:0 -6px 24px rgba(0,0,0,.18); z-index:40; padding-block:14px}
+#termos .wrap{display:flex; gap:14px; align-items:center; flex-wrap:wrap}
+#termos p{flex:1 1 320px; margin:0; font-size:.88rem; color:var(--ink)}
+#termos a{color:inherit}
+/* impressão: cabeçalho simples e assinatura */
+.pwrap.simples .sp-top{display:flex; flex-direction:column; justify-content:flex-end; padding:0 16mm 4mm; box-sizing:border-box}
+.phead{display:flex; flex-direction:column; border-bottom:2px solid #1E3A5F; padding-bottom:2mm; color:#1E3A5F; font:9.5pt/1.35 var(--f-body)}
+.phead b{font:800 12pt/1.2 var(--f-disp)}
+.assin{margin:14mm 0 0 auto; width:80mm; text-align:center; font-size:10pt; line-height:1.4}
+.assin .linha{border-top:1px solid #111; margin-bottom:2mm}
