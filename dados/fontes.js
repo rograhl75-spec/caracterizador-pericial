@@ -36,9 +36,9 @@ const FONTES = [
  {id:'dou', nome:'Diário Oficial da União (busca por termos)', area:'ambos', versao:'—', conferido:'2026-11-21',
   url:'https://www.in.gov.br/consulta', monitor:{modo:'dou', termos:['"Norma Regulamentadora nº 15"','"Norma Regulamentadora nº 16"','"NR-15"','"NR-16"','"Instrução Normativa PRES/INSS"','"aposentadoria especial"','"Decreto nº 3.048"'],
    filtro:'^(portaria|instru[çc][ãa]o normativa|decreto|lei|medida provis|resolu[çc][ãa]o|emenda)[^(]*\\(DOU[^)]*(trabalho|previd|seguro social|poder executivo|presid[êe]ncia|congresso)'}},
- {id:'stf', nome:'STF: repercussão geral e controle concentrado', area:'ambos', versao:'Temas 555, 709, 1209 e ADI 6309 (embargos pendentes nos dois últimos)', conferido:'2026-11-21', url:'https://portal.stf.jus.br/jurisprudenciaRepercussao/', monitor:null},
- {id:'stj', nome:'STJ: recursos repetitivos', area:'prev', versao:'Temas 534, 694, 1083, 1090, 1291, 1307; Tema 1475 (eletricidade) afetado', conferido:'2026-11-21', url:'https://processo.stj.jus.br/repetitivos/temas_repetitivos/', monitor:null},
- {id:'tnu', nome:'TNU: representativos', area:'prev', versao:'Temas 170, 174, 211, 317 (rejulgado em 2025), 323, 337, 382, 383', conferido:'2026-11-21', url:'https://www.cjf.jus.br/cjf/corregedoria-da-justica-federal/turma-nacional-de-uniformizacao', monitor:null},
- {id:'tst', nome:'TST: súmulas, OJs e temas repetitivos', area:'trab', versao:'Temas 17, 80, 82, 87, 101 (embargos e ADPF 1.337 pendentes) e 180; súmulas conferidas', conferido:'2026-11-21', url:'https://www.tst.jus.br/en/nugep-sp/recursos-repetitivos/precedentes-vinculantes', monitor:null}
+ {id:'stf', nome:'STF: repercussão geral e controle concentrado', area:'ambos', versao:'Temas 555, 709, 1209, 1470, ADI 6309 e ADPF 1.337 (situação em 21/11/2026)', conferido:'2026-11-21', url:'https://portal.stf.jus.br/jurisprudenciaRepercussao/', monitor:null},
+ {id:'stj', nome:'STJ: recursos repetitivos', area:'prev', versao:'Temas 534, 694, 1083, 1090, 1291, 1307 e 1475 (eletricidade, em julgamento)', conferido:'2026-11-21', url:'https://processo.stj.jus.br/repetitivos/temas_repetitivos/', monitor:null},
+ {id:'tnu', nome:'TNU: representativos', area:'prev', versao:'Temas 170, 174, 211, 317 (rejulgado em 2025), 323, 337, 382, 383, 397 e 399', conferido:'2026-11-21', url:'https://www.cjf.jus.br/cjf/corregedoria-da-justica-federal/turma-nacional-de-uniformizacao', monitor:null},
+ {id:'tst', nome:'TST: súmulas, OJs e temas repetitivos', area:'trab', versao:'Temas 17, 80, 82, 87, 101, 180 e 209; súmulas conferidas', conferido:'2026-11-21', url:'https://www.tst.jus.br/en/nugep-sp/recursos-repetitivos/precedentes-vinculantes', monitor:null}
 ];
 if (typeof module !== 'undefined') module.exports = {FONTES};

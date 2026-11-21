@@ -109,7 +109,7 @@ const AGENTS = [
   ['a partir de 06/03/1997','Não arrolado no Anexo IV','Somente pela via judicial, com prova técnica']],
  perito:['Até 05/03/1997: tensão superior a 250 V (código 1.1.8).','Depois de 05/03/1997 o agente não consta do Anexo IV; a ferramenta marca como controverso quando há exposição acima de 250 V.'],
  inss:['IN 128/2022, art. 301: frio, eletricidade, radiações não ionizantes e umidade só enquadram até 05/03/1997.'],
- juris:['T:stj534','T:stf1209']},
+ juris:['T:stj534','T:stj1475','T:stf1209']},
 
 {id:'frio', nome:'Frio', grupo:'Físicos', engine:'ate97', tempo:25, c53:['1.1.2'], c83:['1.1.2'], cIV:null, sheet:'FRIO', nr15:'Anexo 9', mx:['Q','C','C','C'],
  periodos:[
@@ -203,7 +203,7 @@ const TESES = {
  stf709:{trib:'STF',num:'Tema 709',ref:'RE 791.961',ano:2020,area:'prev',titulo:'Continuidade em atividade especial',
    tese:'É constitucional vedar a continuidade da aposentadoria especial se o beneficiário permanece ou retorna a atividade especial. O benefício começa na DER e cessa quando se verificar a continuidade ou o retorno à atividade nociva.'},
  stf1209:{trib:'STF',num:'Tema 1209',ref:'RE 1.368.225',ano:2026,area:'prev',titulo:'Vigilante',
-   tese:'A atividade de vigilante, com ou sem arma de fogo, não se caracteriza como especial para a aposentadoria do art. 201, §1º, da Constituição (sessão virtual de 06 a 13/02/2026; acórdão publicado em 04/03/2026). Há embargos pendentes com proposta de modulação que preserva benefícios já concedidos e decisões transitadas em julgado. O fundamento de que a periculosidade, por si só, não gera aposentadoria especial pode repercutir em outros agentes de risco, como a eletricidade (ver STJ, Tema 1475).'},
+   tese:'A atividade de vigilante, com ou sem arma de fogo, não se caracteriza como especial para a aposentadoria do art. 201, §1º, da Constituição (sessão virtual de 06 a 13/02/2026; acórdão publicado em 04/03/2026). Nos embargos já há 8 votos para modular: ficam preservados os benefícios concedidos ou com requisitos cumpridos e a coisa julgada até a publicação da ata, sem devolução de valores; julgamento suspenso por vista do Min. Gilmar Mendes desde 09/10/2026. O fundamento de que a periculosidade, por si só, não gera aposentadoria especial pode repercutir em outros agentes de risco, como a eletricidade (ver STJ, Tema 1475).'},
  stf6309:{trib:'STF',num:'ADI 6309',ref:'ADI 6.309',ano:2026,area:'prev',titulo:'Idade mínima na aposentadoria especial',
    tese:'É inconstitucional a idade mínima de 55, 58 ou 60 anos para a aposentadoria especial (EC 103/2019, art. 19, §1º, I, a, b e c; julgamento em 03/06/2026, acórdão publicado em 02/10/2026; embargos de declaração pendentes). Continuam válidas a vedação de converter tempo especial em comum após 13/11/2019 e a regra de cálculo da EC 103. A decisão trata da regra do RGPS; não alcança automaticamente os regimes próprios.'},
  stj534:{trib:'STJ',num:'Tema 534',ref:'REsp 1.306.113',ano:2012,area:'prev',titulo:'Eletricidade após 05/03/1997',
@@ -218,6 +218,14 @@ const TESES = {
    tese:'É possível reconhecer como especial, por penosidade, a atividade de motorista ou cobrador de ônibus e de motorista de caminhão após a Lei 9.032/95, desde que perícia técnica individualizada comprove exposição habitual e permanente a condições concretas de desgaste à saúde (julgado em 07/05/2026; embargos de declaração pendentes).'},
  stj1291:{trib:'STJ',num:'Tema 1291',ref:'REsp 2.163.429 e 2.163.998',ano:2025,area:'prev',titulo:'Contribuinte individual não cooperado',
    tese:'O contribuinte individual não cooperado tem direito ao reconhecimento de atividade especial após a Lei 9.032/95, se comprovar a exposição a agentes nocivos; não se exige formulário emitido por empresa. O STF negou repercussão geral à questão por ser infraconstitucional (Tema 1447, RE 1.588.024, decisão de 14/03/2026, trânsito em 22/05/2026).'},
+ stj1475:{trib:'STJ',num:'Tema 1475',ref:'REsp 2.267.903',ano:2026,area:'prev',titulo:'Eletricidade após 1997 (em julgamento)',
+   tese:'O STJ vai decidir se a periculosidade da eletricidade, depois que o Decreto 2.172/1997 a retirou dos regulamentos, ainda permite reconhecer tempo especial (relevância reconhecida, DJEN de 15/10/2026). Processos suspensos em todo o país, inclusive nos JEFs; o Tema 159 da TNU está em revisão e o Tema 534 do STJ, em reexame. Sem data de julgamento. No laudo, descreva tensão, habitualidade, permanência e tipo de exposição, e registre que o enquadramento depende deste tema.'},
+ stf1470:{trib:'STF',num:'Tema 1470',ref:'RE 1.605.997',ano:2026,area:'prev',titulo:'Agentes comunitários de saúde e de endemias (em julgamento)',
+   tese:'O STF vai definir se a aposentadoria especial de agentes comunitários de saúde e de combate às endemias (art. 198, §10, da CF, EC 120/2022) vale de imediato ou depende de lei complementar. Repercussão geral reconhecida em 06/08/2026; relator Min. Zanin; sem data de julgamento. A TNU (Tema 347) exige comprovar a exposição.'},
+ tnu397:{trib:'TNU',num:'Tema 397',ref:'PEDILEF 0517155-11.2020.4.05.8300',ano:2026,area:'prev',titulo:'Ácido sulfúrico como cancerígeno (em julgamento)',
+   tese:'A TNU vai decidir se o ácido sulfúrico é agente reconhecidamente cancerígeno para fins do art. 68, §4º, do Decreto 3.048/99 (avaliação qualitativa; EPI irrelevante). Afetado em 06/08/2026, sem tese. No laudo, registre a forma física: névoa de ácidos inorgânicos fortes (IARC Grupo 1) é diferente de contato com solução.'},
+ tnu399:{trib:'TNU',num:'Tema 399',ref:'PEDILEF 5031713-65.2024.4.04.7000',ano:2026,area:'prev',titulo:'Poeira de madeira (em julgamento)',
+   tese:'A TNU vai decidir se a poeira de madeira é agente nocivo apto à especialidade e quais requisitos se exigem para apurá-la. Afetado em 30/09/2026, sem tese. No laudo, registre espécie da madeira, atividade, concentração e controles.'},
  tnu170:{trib:'TNU',num:'Tema 170',ref:'PEDILEF 5006019-50.2013.4.04.7204',ano:2018,area:'prev',titulo:'Cancerígenos (LINACH)',
    tese:'O art. 68, §4º, do Decreto 3.048/99 (Decreto 8.123/13) aplica-se a períodos anteriores. Para qualquer período, dispensa avaliação quantitativa, e o EPI não descaracteriza.'},
  tnu174:{trib:'TNU',num:'Tema 174',ref:'PEDILEF 0505614-83.2017.4.05.8300',ano:2018,area:'prev',titulo:'Metodologia do ruído',
@@ -228,10 +236,10 @@ const TESES = {
    tese:'A menção a dose, dosímetro ou dosimetria no PPP não basta para concluir que se observou a NHO-01 e/ou a NR-15 (Tema 174): é necessária menção expressa a essas normas (novo julgamento em 18/09/2025; a tese de 2024, que presumia a observância, foi anulada).'},
  tnu323:{trib:'TNU',num:'Tema 323',ref:'PEDILEF 0510577-41.2020.4.05.8200',ano:2025,area:'prev',titulo:'Calor: taxa metabólica',
    tese:'De 06/03/1997 a 18/11/2003: com descanso no próprio local e atividade de mesma categoria, dispensa-se informar a taxa metabólica; com descanso em outro local ou categorias distintas, é obrigatória a taxa média ponderada M (kcal/h). A partir de 01/01/2004 (ou, facultativamente, 19/11/2003), é obrigatória a NHO-06 e a taxa M (W).'},
- tnu382:{trib:'TNU',num:'Tema 382',ref:'—',ano:2026,area:'prev',titulo:'Tolueno: exposição cutânea',
-   tese:'A exposição cutânea ao tolueno não autoriza a análise qualitativa do Anexo 13 da NR-15 (julgado em 15/04/2026).'},
- tnu383:{trib:'TNU',num:'Tema 383',ref:'—',ano:2026,area:'prev',titulo:'Saúde: EPI e aerossóis',
-   tese:'O EPI eficaz informado no PPP não afasta a especialidade dos profissionais de saúde em hospital que realizam ou auxiliam procedimentos geradores de aerossol, atuam em urgência ou emergência (CTI/UTI, pronto-socorro, centro cirúrgico) ou trabalham em alas de doenças infectocontagiosas. Fora dessas situações, exige-se impugnação específica (Tema 213/TNU e Tema 1090/STJ) (julgado em 24/09/2026).'},
+ tnu382:{trib:'TNU',num:'Tema 382',ref:'PEDILEF 5012678-57.2022.4.04.7108',ano:2026,area:'prev',titulo:'Tolueno: exposição cutânea',
+   tese:'A exposição cutânea ao tolueno, mesmo líquido, não basta para a especialidade por análise qualitativa do Anexo 13 da NR-15 (julgado em 15/04/2026; trânsito em 26/05/2026).'},
+ tnu383:{trib:'TNU',num:'Tema 383',ref:'PEDILEF 1004356-32.2019.4.01.3802',ano:2026,area:'prev',titulo:'Saúde: EPI e aerossóis',
+   tese:'O EPI eficaz informado no PPP não afasta a especialidade dos profissionais de saúde em hospital que realizam ou auxiliam procedimentos geradores de aerossol, atuam em urgência ou emergência (CTI/UTI, pronto-socorro, centro cirúrgico) ou trabalham em alas de doenças infectocontagiosas. Fora dessas situações, a eficácia do EPI só cai com impugnação específica (Tema 213/TNU e Tema 1090/STJ) (julgado em 24/09/2026).'},
  tnu337:{trib:'TNU',num:'Tema 337',ref:'PEDILEF 5018712-43.2020.4.04.7100 e 5019035-87.2021.4.04.7205',ano:2025,area:'prev',titulo:'Aeronauta: pressão hipobárica',
    tese:'Após a Lei 9.032/95, a pressão hipobárica, por si só, não torna especial a atividade de aeronauta sem estudo técnico conclusivo.'},
  /* trabalhistas */
@@ -252,6 +260,10 @@ const TESES = {
  tst82:{trib:'TST',num:'Tema 82 (IRR)',ref:'RRAg 0020213-03.2023.5.04.0772',ano:2025,area:'trab',titulo:'Motorista que acompanha o abastecimento',tese:'Não tem direito ao adicional de periculosidade o motorista que apenas acompanha o abastecimento feito por terceiro, sem contato direto com o combustível (Pleno, 24/03/2025).'},
  tst87:{trib:'TST',num:'Tema 87 (IRR)',ref:'RRAg 1000840-29.2018.5.02.0471',ano:2025,area:'trab',titulo:'Troca de cilindro de GLP de empilhadeira',tese:'É devido o adicional de periculosidade ao trabalhador que abastece empilhadeiras trocando cilindros de GLP, ainda que a operação dure tempo extremamente reduzido (Pleno, 24/03/2025).'},
  tst101:{trib:'TST',num:'Tema 101 (IRR)',ref:'IncJulgRREmbRep 0000229-71.2024.5.21.0013',ano:2026,area:'trab',titulo:'Motociclistas',tese:'O art. 193, §4º, da CLT é autoaplicável: o adicional é devido a todos que trabalham com motocicleta em vias públicas. A exceção precisa estar prevista em norma do MTE e ser comprovada por laudo de médico do trabalho ou engenheiro de segurança (art. 195 da CLT; item 16.3 da NR-16); não retroage nem autoriza devolver valores já pagos; a prova cabe a quem alega a exceção. Sem modulação (Pleno, 17/04/2026; acórdão publicado em 05/2026). Pendentes: embargos de declaração da CNI no TST e a ADPF 1.337 no STF.'},
+ adpf1337:{trib:'STF',num:'ADPF 1.337',ref:'—',ano:2026,area:'trab',titulo:'Motociclistas: Tema 101 e Anexo V (em julgamento)',
+   tese:'A ABIR questiona no STF a tese do Tema 101 do TST e a Portaria MTE 2.021/2025 (Anexo V da NR-16); relator Min. André Mendonça. Sem liminar: o Tema 101 e o Anexo V seguem eficazes. Informações, AGU e PGR já se manifestaram; concluso ao relator desde 13/11/2026.'},
+ tst209:{trib:'TST',num:'Tema 209 (IRR)',ref:'—',ano:2025,area:'trab',titulo:'Hospital, função não assistencial (em julgamento)',
+   tese:'O TST vai decidir se quem trabalha em hospital em função não assistencial tem direito ao adicional de insalubridade por exposição habitual e intermitente a agentes infectocontagiosos. Afetado em 30/06/2025, com suspensão dos processos; sem julgamento até 21/11/2026.'},
  irr17:{trib:'TST',num:'IRR Tema 17',ref:'IRR 239-55.2011.5.02.0319 (SBDI-1)',ano:2019,area:'trab',titulo:'Cumulação de adicionais',tese:'O art. 193, §2º, da CLT foi recepcionado pela Constituição e veda a cumulação dos adicionais de insalubridade e periculosidade, ainda que os fatos geradores sejam distintos e autônomos.'}
 };
 
