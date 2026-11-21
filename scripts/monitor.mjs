@@ -59,19 +59,23 @@ const normUrl = (h, base) => {
   } catch { return null; }
 };
 
-async function baixar(url, tentativas = 3) {
+const HOSTS_FORA = new Set();
+async function baixar(url, tentativas = 2) {
+  const host = new URL(url).host;
+  if (HOSTS_FORA.has(host)) throw new Error('site sem resposta nesta execução (' + host + ')');
   let ultimo;
   for (let i = 0; i < tentativas; i++) {
     try {
-      const r = await fetch(url, { headers: { 'User-Agent': UA, 'Accept-Language': 'pt-BR,pt;q=0.9' }, redirect: 'follow', signal: AbortSignal.timeout(45000) });
+      const r = await fetch(url, { headers: { 'User-Agent': UA, 'Accept-Language': 'pt-BR,pt;q=0.9' }, redirect: 'follow', signal: AbortSignal.timeout(25000) });
       if (r.status === 404) return { status: 404 };
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return { status: r.status, tipo: r.headers.get('content-type') || '', corpo: Buffer.from(await r.arrayBuffer()) };
     } catch (e) {
       ultimo = new Error(e.message + (e.cause ? ' (' + (e.cause.code || e.cause.message) + ')' : ''));
-      await new Promise(ok => setTimeout(ok, 5000 * (i + 1)));
+      await new Promise(ok => setTimeout(ok, 4000));
     }
   }
+  if (/fetch failed|timeout|aborted/i.test(String(ultimo && ultimo.message))) HOSTS_FORA.add(host);
   throw ultimo;
 }
 
