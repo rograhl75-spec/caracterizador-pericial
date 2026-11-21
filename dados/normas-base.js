@@ -255,7 +255,7 @@ const TESES = {
 const NR15 = [
  {n:1, t:'Ruído contínuo ou intermitente', g:'médio', tipo:'calc', calc:'ruido', s:'LT de 85 dB(A) para 8 h, fator de duplicação q = 5. Dose acima de 100% caracteriza. Acima de 115 dB(A) sem proteção: risco grave e iminente.'},
  {n:2, t:'Ruído de impacto', g:'médio', tipo:'calc', calc:'impacto', s:'LT de 130 dB linear (pico) ou 120 dB(C) em resposta rápida. Acima de 140 dB(lin) ou 130 dB(C) sem proteção: risco grave e iminente.'},
- {n:3, t:'Calor', g:'médio', tipo:'calc', calc:'calor', s:'IBUTG médio acima do LT do Quadro 1, em função da taxa metabólica M (W). Não se aplica a céu aberto sem fonte artificial (item 1.1.1).'},
+ {n:3, t:'Calor', g:'médio', tipo:'calc', calc:'calor', s:'IBUTG médio acima do LT do Quadro 1, em função da taxa metabólica M (W). Não se aplica a céu aberto sem fonte artificial (item 1.1.1). O anexo remete à NHO-06 2ª edição (2017); a Fundacentro publicou a 3ª edição em 2025, mas a NR-15 não foi alterada para citá-la.'},
  {n:4, t:'Iluminamento', g:'—', tipo:'revogado', s:'Revogado pela Portaria MTPS 3.751/1990. Iluminação não gera adicional.'},
  {n:5, t:'Radiações ionizantes', g:'máximo', tipo:'quali', s:'LT da norma CNEN NN-3.01. Superar o LT caracteriza.'},
  {n:6, t:'Trabalho sob condições hiperbáricas', g:'máximo', tipo:'quali', s:'Ar comprimido (tubulões, túneis) e mergulho.'},

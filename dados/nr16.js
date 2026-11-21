@@ -102,7 +102,7 @@ const NR16 = [
   {tit:'Item 1 — Têm direito ao adicional', sel:'atv', cols:['Hipótese','Descrição'], itens:[
    ['a','Alta tensão','Atividades ou operações em instalações ou equipamentos elétricos energizados em alta tensão'],
    ['b','Proximidade','Atividades ou operações com trabalho em proximidade, conforme a NR-10'],
-   ['c','Baixa tensão no SEC','Atividades em instalações ou equipamentos energizados em baixa tensão no sistema elétrico de consumo, quando descumprido o item 10.2.8 e subitens da NR-10. Atenção: a nova NR-10 (Portaria MTE 737/2026, em vigor a partir de 01/06/2027) não tem item 10.2.8; acompanhar o ajuste desta remissão'],
+   ['c','Baixa tensão no SEC','Atividades em instalações ou equipamentos energizados em baixa tensão no sistema elétrico de consumo, quando descumprido o item 10.2.8 e subitens da NR-10. Atenção: a nova NR-10 (Portaria MTE 737/2026, em vigor a partir de 01/06/2027) não tem item 10.2.8. As medidas de proteção coletiva desse item passam ao capítulo 10.6, e a desenergização aos itens 10.5 e 10.13. Até o MTE ajustar o Anexo 4, a leitura usual é remeter ao 10.6 (interpretação, não texto oficial)'],
    ['d','Sistema elétrico de potência (SEP)','Empresas que operam instalações ou equipamentos do SEP e suas contratadas, nas atividades e áreas de risco do Quadro I']]},
   {tit:'Item 2 — Não é devido o adicional', sel:'exc', cols:['Hipótese','Descrição'], itens:[
    ['a','Desenergizado e liberado','Atividades no sistema elétrico de consumo em instalações desenergizadas e liberadas, sem possibilidade de energização acidental (NR-10)'],

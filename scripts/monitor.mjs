@@ -108,7 +108,11 @@ async function verificar(f) {
     if (cfg.modo === 'texto') {
       const r = await baixar(f.url);
       const html = r.corpo.toString(/charset=iso-8859-1|windows-1252/i.test(r.tipo) ? 'latin1' : 'utf8');
-      const h = sha(semTags(html));
+      const texto = semTags(html);
+      /* página de erro ou de bloqueio não pode ser tomada como o texto da norma */
+      if (texto.length < 5000 || (cfg.contem && !texto.toLowerCase().includes(cfg.contem.toLowerCase())))
+        throw new Error('página recebida não contém o texto esperado (' + (cfg.contem || 'tamanho') + ')');
+      const h = sha(texto);
       if (st.hash && st.hash !== h) novos.push({ tipo: 'texto-alterado', titulo: `${f.nome}: o texto oficial mudou`, url: f.url });
       st.hash = h;
     } else {
@@ -125,6 +129,7 @@ async function verificar(f) {
         }
       }
       if (!algum) throw new Error('nenhuma das URLs respondeu');
+      if (!links.size && cfg.modo !== 'dou') throw new Error('nenhum documento encontrado: o formato da página pode ter mudado');
       const antes = new Set(st.links || []);
       if (st.links) for (const [href, texto] of links) if (!antes.has(href)) novos.push({ tipo: 'novo-documento', titulo: texto || href.split('/').pop(), url: href });
       /* guarda a união: um link que some e volta não gera alerta repetido */
