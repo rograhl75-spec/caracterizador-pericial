@@ -67,7 +67,10 @@ async function baixar(url, tentativas = 3) {
       if (r.status === 404) return { status: 404 };
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return { status: r.status, tipo: r.headers.get('content-type') || '', corpo: Buffer.from(await r.arrayBuffer()) };
-    } catch (e) { ultimo = e; await new Promise(ok => setTimeout(ok, 2000 * (i + 1))); }
+    } catch (e) {
+      ultimo = new Error(e.message + (e.cause ? ' (' + (e.cause.code || e.cause.message) + ')' : ''));
+      await new Promise(ok => setTimeout(ok, 5000 * (i + 1)));
+    }
   }
   throw ultimo;
 }
@@ -195,7 +198,12 @@ async function abrirIssue(alertas) {
 
 /* ---------- execução ---------- */
 const alvo = FONTES.filter(f => f.monitor && (!SO || f.id === SO));
-const resultados = await Promise.all(alvo.map(f => verificar(f).catch(e => { console.warn(f.id, e); return []; })));
+/* uma fonte por vez, com pausa: vários acessos simultâneos ao gov.br costumam ser recusados */
+const resultados = [];
+for (const f of alvo) {
+  resultados.push(await verificar(f).catch(e => { console.warn(f.id, e); return []; }));
+  await new Promise(ok => setTimeout(ok, 1500));
+}
 const conhecidos = new Set(ALERTAS.map(a => a.id));
 const novos = resultados.flat().filter(a => !conhecidos.has(a.id));
 if (TESTE) novos.push({ id: 'teste-' + HOJE, fonte: 'sst', nomeFonte: 'Portarias SST do MTE (TESTE)', data: HOJE, status: 'pendente', tipo: 'novo-documento',
