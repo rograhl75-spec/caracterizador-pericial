@@ -117,7 +117,7 @@ const NR16 = [
    ['III','Inspeção, testes, ensaios, calibração, medição e reparos em equipamentos e materiais elétricos, eletrônicos, eletromecânicos e de segurança individual e coletiva em sistemas elétricos de potência de alta e baixa tensão','a) oficinas e laboratórios de testes e manutenção elétrica, eletrônica e eletromecânica com equipamentos energizados ou passíveis de energização acidental; b) sala de controle e casas de máquinas de usinas e unidades geradoras; c) pátios e salas de operação de subestações, inclusive consumidoras; d) salas de ensaios elétricos de alta tensão; e) sala de controle dos centros de operações'],
    ['IV','Treinamento em equipamentos ou instalações do SEP, energizadas ou desenergizadas mas com possibilidade de energização acidental ou por falha operacional','a) todas as áreas descritas nos itens anteriores']]}
  ]},
-{id:'a5', n:'Anexo V', t:'Motocicleta', port:'Portaria MTE 2.021/2025 (vigente desde 03/04/2026)', j:['s364','tst101'],
+{id:'a5', n:'Anexo V', t:'Motocicleta', port:'Portaria MTE 2.021/2025 (vigente desde 03/04/2026)', j:['s364','tst101','adpf1337'],
  secoes:[
   {tit:'Item 2 — Campo de aplicação', txt:'2.1 Atividades que envolvam deslocamento de trabalhadores em motocicletas nas vias terrestres do Código de Trânsito Brasileiro. 2.2 Motocicleta: veículo automotor de duas rodas, com ou sem side-car, conduzido em posição montada ou sentada (motonetas). 2.3 Não se aplica a veículos que não necessitem de emplacamento ou que não exijam CNH.'},
   {tit:'Item 3.1 — Atividade perigosa', sel:'atv', cols:['Item','Descrição'], itens:[

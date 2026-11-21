@@ -1,9 +1,11 @@
 name: Monitor da legislação
 
-# Roda todo dia às 07:17 (Brasília) e também pelo botão "Run workflow" na aba Actions.
+# Roda todo dia às 07:17 e às 18:43 (Brasília) e também pelo botão "Run workflow" na aba Actions.
+# Duas execuções diárias porque os sites do governo às vezes recusam os servidores do GitHub por algumas horas.
 on:
   schedule:
     - cron: '17 10 * * *'
+    - cron: '43 21 * * *'
   workflow_dispatch:
     inputs:
       teste:
