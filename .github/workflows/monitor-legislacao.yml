@@ -5,6 +5,11 @@ on:
   schedule:
     - cron: '17 10 * * *'
   workflow_dispatch:
+    inputs:
+      teste:
+        description: 'Execução de teste: simula um documento novo, abre uma Issue de teste e chama o Claude (não grava alertas)'
+        type: boolean
+        default: false
 
 permissions:
   contents: write   # gravar dados/alertas.js e scripts/estado.json
@@ -21,11 +26,11 @@ jobs:
     env:
       TEM_CLAUDE: ${{ secrets.ANTHROPIC_API_KEY != '' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
-          node-version: '20'
+          node-version: '24'
 
       # Só instala o SDK do Claude se o segredo ANTHROPIC_API_KEY estiver cadastrado (análise opcional).
       - name: Instalar SDK do Claude
@@ -36,9 +41,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: node scripts/monitor.mjs
+        run: node scripts/monitor.mjs ${{ inputs.teste && '--teste' || '' }}
 
       - name: Gravar alertas e estado
+        if: ${{ !inputs.teste }}
         run: |
           git config user.name "monitor-legislacao[bot]"
           git config user.email "monitor-legislacao@users.noreply.github.com"
