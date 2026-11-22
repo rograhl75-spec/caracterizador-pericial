@@ -1,7 +1,7 @@
 /* ===== Alertas de alteração em fontes oficiais =====
    Arquivo gravado pelo robô (scripts/monitor.mjs, GitHub Actions). Pode ser editado à mão:
    depois de revisar um alerta, troque status:'pendente' por status:'revisado'. */
-const MONITOR = {"ultima":"2026-11-21"};
+const MONITOR = {"ultima":"2026-11-22"};
 const ALERTAS = [
  {
   "id": "in215-2026",
