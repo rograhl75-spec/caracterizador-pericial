@@ -673,3 +673,9 @@ button.gl:focus-visible{outline:2px solid var(--focus); outline-offset:2px}
 #glpop{position:absolute; z-index:60; background:var(--surface); color:var(--ink); border:1px solid var(--line); border-left:4px solid var(--gold-line); border-radius:8px; padding:10px 12px; box-shadow:0 8px 24px rgba(0,0,0,.18); font-size:.92rem; line-height:1.45}
 #glpop p{margin:4px 0 6px}
 @media print{ button.gl{text-decoration:none} #glpop{display:none} }
+/* ver também */
+.vtb{margin-top:18px; padding:14px 16px; border:1px solid var(--line); border-radius:10px; background:var(--surface-2)}
+.vtb h3{margin:0 0 8px}
+.vtg{margin-bottom:10px} .vtg p{margin:0 0 6px}
+.vtl{display:flex; flex-wrap:wrap; gap:6px}
+.vtl button{white-space:normal; text-align:left}
