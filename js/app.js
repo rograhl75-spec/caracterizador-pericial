@@ -167,7 +167,7 @@ function campos(row,i){
     case 'ate97': case 'quali': return cb(i,'d.cond','Condição ou atividade descrita no decreto',d.cond);
     case 'categoria': return cb(i,'d.cond','Atividade ou grupo profissional listado',d.cond)+fld(i,'d.cod','Código (ex.: 2.4.4)',d.cod,'text');
     case 'quimico': { const modos=[['qual','Qualitativo (Anexo 13/13-A)'],['quant','Quantitativo (Anexos 11/12)']]; if(a.linach) modos.push(['linach','Cancerígeno LINACH Grupo 1']);
-      return sel(i,'d.modo','Forma de avaliação',d.modo||a.modo,modos)+cb(i,'d.cond','Exposição nas operações/atividades descritas',d.cond)+((d.modo||a.modo)==='quant'?fld(i,'d.conc','Concentração (ppm ou mg/m³)',d.conc,'number','step="any"')+fld(i,'d.lt','LT (mesma unidade)',d.lt,'number','step="any"')+dicas('conc'):''); }
+      return sel(i,'d.modo','Forma de avaliação',d.modo||a.modo,modos)+cb(i,'d.cond','Exposição nas operações/atividades descritas',d.cond)+(row.epi&&a.linach&&(d.modo||a.modo)!=='linach'?'<p class="note warn dicas">Agente com cancerígeno do Grupo 1 da LINACH: a partir de 08/10/2014 o EPI não afasta a especialidade (Decreto 8.123/2013; IN 128/2022). Para aplicar essa regra, escolha "Cancerígeno LINACH Grupo 1" em Forma de avaliação.</p>':'')+(((d.modo||a.modo)==='quant'||((d.modo||a.modo)==='linach'&&a.modo==='quant'))?fld(i,'d.conc','Concentração (ppm ou mg/m³)',d.conc,'number','step="any"')+fld(i,'d.lt','LT (mesma unidade)',d.lt,'number','step="any"')+dicas('conc'):''); }
     case 'biologico': return cb(i,'d.saude97','Até 1997: contato com doentes, animais ou materiais infectocontagiantes',d.saude97)+sel(i,'d.alinea','A partir de 06/03/1997: alínea do 3.0.1',d.alinea||'',[['','Nenhuma'],['a','a) estabelecimentos de saúde'],['b','b) animais infectados / soros e vacinas'],['c','c) autópsia, anatomia, anátomo-histologia'],['d','d) exumação; resíduos de animais'],['e','e) galerias, fossas e tanques de esgoto'],['f','f) esvaziamento de biodigestores'],['g','g) coleta e industrialização do lixo']])+cb(i,'d.t383','Saúde em hospital: procedimentos com aerossol, urgência/UTI/pronto-socorro/centro cirúrgico ou ala infectocontagiosa (TNU, Tema 383)',d.t383);
   }
   return '';
@@ -502,7 +502,7 @@ function uCalc(){
   const L=num(u.lavg); if(L===null) return {err:'Informe o Lavg (q = 5).'};
   return {lavg:L, ne:L, nen:L+16.61*log10(te/480), dose:Math.pow(2,(L-85)/5)*te/480, doseTxt:brn0(Math.round(Math.pow(2,(L-85)/5)*te/480*1000)/10)+'%', te, tm:te};
 }
-function uSync(r){ if(!r||r.err||r.lavg===null) return; const row=simRow(); if(row.manual) return; row.d=row.d||{}; row.d.mr='lavg'; row.d.lavg=String(r1(r.lavg)); row.d.te=String(r.te); }
+function uSync(r){ if(!r||r.err||r.lavg===null) return; const row=simRow(); if(row.manual) return; row.d=row.d||{}; row.d.mr='lavg'; row.d.lavg=String(r1(r.ne!=null?r.ne:r.lavg)); row.d.te=String(r.te); } /* NE da jornada: o motor aplica a jornada Te ao valor recebido */
 function uRes(){
   const u=uState(), r=uCalc(); if(r.err) return '<p class="note">'+esc(r.err)+'</p>';
   if(r.lavg===null) return (r.over?'<div class="verdict v-c"><b>Nível acima de 115 dB(A)</b><p>Pela NHT-06 a dose não é calculada: registrar \"Situação de Emergência\" (NR-15, Anexo 1, itens 5 e 7).</p></div>':'<p class="note">Sem dose: leituras abaixo do limiar.</p>');
@@ -601,7 +601,7 @@ function iin(k,lab,def,attrs='step="any"'){ return '<label class="f" for="i-'+k+
 function isel(k,lab,def,opts){ const v=insv(k,def); return '<label class="f" for="i-'+k+'"><span>'+lab+'</span><select id="i-'+k+'" data-ins="'+k+'">'+opts.map(([a,b])=>'<option value="'+a+'"'+(String(v)===String(a)?' selected':'')+'>'+esc(b)+'</option>').join('')+'</select></label>'; }
 function icb(k,lab){ return '<label class="cb" for="i-'+k+'"><input id="i-'+k+'" type="checkbox" data-ins="'+k+'"'+(insv(k,false)?' checked':'')+'><span>'+lab+'</span></label>'; }
 function resultado(ok,grau,txt){
-  const pct=GRAU[grau]; const base=num(insv('base',''))||0;
+  const pct=GRAU[grau]; const base=num(insv('base',''),true)||0;
   const val= ok&&pct&&base ? ' · R$ '+(base*pct/100).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+' por mês' : '';
   return '<div class="verdict '+(ok===null?'v-i':ok?'v-e':'v-n')+'" aria-live="polite"><b>'+(ok===null?'Dados insuficientes':ok?'Enquadra no grau '+grau+(pct?' ('+pct+'%)':'')+' pelos dados informados':'Não enquadra pelos dados informados')+val+'</b><p>'+txt+'</p></div>';
 }
@@ -615,18 +615,18 @@ function calcIns(an){
       if(m1!=='nps'){
         const te=num(insv('te1',480)); let D=null, lavg=null, extra=''; if(te===null||te<=0) return modoSel+iin('te1','Jornada Te (min)',480,'step="1"')+resultado(null,'médio','Jornada Te inválida: informe a jornada em minutos (maior que zero).');
         if(m1==='dose'){ const dm=num(insv('dm','')), tm=num(insv('tm1',480)); if(dm!==null&&tm){ D=dm/100*te/tm; lavg=85+16.61*log10(dm/100*480/tm); extra='Dose projetada para a jornada = dose medida × Te/Tm.'; } }
-        else { const L=num(insv('lv','')); if(L!==null){ lavg=L; D=(te/480)*Math.pow(2,(L-85)/5); extra='Dose = (Te/480) × 2^((Lavg − 85)/5).'; } }
+        else { const L=num(insv('lv','')); if(L!==null){ lavg=L; D=(te/480)*Math.pow(2,(r1(L)-85)/5); extra='Dose = (Te/480) × 2^((Lavg − 85)/5).'; } }
         const nen = D!==null&&D>0 ? 85+16.61*log10(D) : null;
         const body=modoSel+(m1==='dose'?iin('dm','Dose medida (%)','','step="0.1"')+iin('tm1','Tempo de medição Tm (min)',480,'step="1"'):iin('lv','Lavg dB(A) · q = 5','','step="0.1"'))+iin('te1','Jornada Te (min)',480,'step="1"')+dicas('te', m1==='dose'?'dose':'lavg');
         return body+'<div class="kv"><div><span>Dose na jornada</span><b>'+(D===null?'—':(D*100).toFixed(1).replace('.',',')+'%')+'</b></div><div><span>Lavg</span><b>'+(lavg===null?'—':f1(lavg))+' dB(A)</b></div><div><span>NEN 8 h (q = 5)</span><b>'+(nen===null?'—':f1(nen))+' dB(A)</b></div></div>'+resultado(D===null?null:r1(D*100)>100,'médio','Dose acima de 100% ultrapassa o limite (item 6 do Anexo 1). Dose arredondada a 0,1% antes da comparação. '+extra);
       }
       const rows=insv('nps',[[88,240],[92,120],[80,120]]), modo=insv('rmode','tab');
-      let D=0, Te=0, max=0; const lin=rows.map((r,k)=>{ const L=num(r[0]), t=num(r[1]); if(L===null||t===null) return '<tr><td colspan="4">—</td></tr>'; Te+=t; max=Math.max(max,L); const T= L<85?Infinity:(modo==='tab'?tmaxQuadro(L):480/Math.pow(2,(L-85)/5)); const c=t/T; D+=c; return '<tr><td><input type="text" inputmode="decimal" step="0.1" aria-label="NPS da linha '+(k+1)+'" data-nps="'+k+'" data-col="0" value="'+r[0]+'"></td><td><input type="text" inputmode="decimal" step="1" aria-label="Tempo da linha '+(k+1)+'" data-nps="'+k+'" data-col="1" value="'+r[1]+'"></td><td class="mono">'+(T===Infinity?'—':Math.round(T))+'</td><td class="mono">'+(c*100).toFixed(1).replace('.',',')+'%</td></tr>'; }).join('');
+      let D=0, Te=0, max=0; const lin=rows.map((r,k)=>{ const L=num(r[0]), t=num(r[1]); if(L===null||t===null) return '<tr><td colspan="4">—</td></tr>'; Te+=t; max=Math.max(max,L); const T= r1(L)<85?Infinity:(modo==='tab'?tmaxQuadro(r1(L)):480/Math.pow(2,(L-85)/5)); const c=t/T; D+=c; return '<tr><td><input type="text" inputmode="decimal" step="0.1" aria-label="NPS da linha '+(k+1)+'" data-nps="'+k+'" data-col="0" value="'+r[0]+'"></td><td><input type="text" inputmode="decimal" step="1" aria-label="Tempo da linha '+(k+1)+'" data-nps="'+k+'" data-col="1" value="'+r[1]+'"></td><td class="mono">'+(T===Infinity?'—':Math.round(T))+'</td><td class="mono">'+(c*100).toFixed(1).replace('.',',')+'%</td></tr>'; }).join('');
       const lavg = D>0&&Te>0 ? 85+16.61*log10(D*480/Te) : null, nn = D>0 ? 85+16.61*log10(D) : null;
       return modoSel+isel('rmode','Tempo máximo permissível','tab',[['tab','Quadro do Anexo 1 (item 4)'],['form','Fórmula q = 5 (dosímetro)']])+'<p class="fine">'+(insv('rmode','tab')==='tab'?'Item 4: para nível intermediário, vale o tempo do nível imediatamente mais elevado do Quadro.':'Tempo máximo = 480 / 2^((NPS − 85)/5) min, como integra o dosímetro.')+'</p>'+
         '<div class="scrollx"><table class="pt calc"><thead><tr><th>NPS dB(A)</th><th>Tempo (min)</th><th>Tempo máximo (min)</th><th>Dose parcial</th></tr></thead><tbody>'+lin+'</tbody></table></div><div class="btns"><button class="ghost sm" data-nps-add="1">Adicionar nível</button><button class="ghost sm" data-nps-del="1">Remover último</button></div>'+
         '<div class="kv"><div><span>Dose</span><b>'+(D*100).toFixed(1).replace('.',',')+'%</b></div><div><span>Lavg ('+Te+' min)</span><b>'+(lavg===null?'—':f1(lavg))+' dB(A)</b></div><div><span>NEN 8 h (q = 5)</span><b>'+(nn===null?'—':f1(nn))+' dB(A)</b></div></div>'+
-        resultado(r1(D*100)>100||max>115,'médio',(max>115?'Item 5 do Anexo 1: não é permitida exposição acima de 115 dB(A) sem proteção adequada; há nível acima de 115 dB(A), o que ultrapassa o limite independentemente da dose e configura risco grave e iminente (item 7). ':'')+'Item 6 do Anexo 1: soma C/T acima da unidade. Níveis abaixo de 85 dB(A) não somam dose.'+(insv('rmode','tab')==='tab'?' Com o Quadro, o Lavg é estimado a partir da dose tabelada e pode diferir do Lavg integrado pelo dosímetro.':' A fórmula reproduz a integração do dosímetro; o Anexo 1 manda usar o Quadro (item 4), que pode dar dose maior para níveis intermediários.'))+
+        '<p class="fine">Esta calculadora aplica o Quadro do Anexo 1, a partir de 85 dB(A). O simulador da ficha do ruído, com leituras, integra a partir de 80 dB(A) (NHO-01 e NHT-06); por isso os resultados podem diferir.</p>'+resultado(r1(D*100)>100||max>115,'médio',(max>115?'Item 5 do Anexo 1: não é permitida exposição acima de 115 dB(A) sem proteção adequada; há nível acima de 115 dB(A), o que ultrapassa o limite independentemente da dose e configura risco grave e iminente (item 7). ':'')+'Item 6 do Anexo 1: soma C/T acima da unidade. Níveis abaixo de 85 dB(A) não somam dose.'+(insv('rmode','tab')==='tab'?' Com o Quadro, o Lavg é estimado a partir da dose tabelada e pode diferir do Lavg integrado pelo dosímetro.':' A fórmula reproduz a integração do dosímetro; o Anexo 1 manda usar o Quadro (item 4), que pode dar dose maior para níveis intermediários.'))+
         '<details><summary>Quadro do Anexo 1</summary><div class="q1grid">'+A1_QUADRO.map(([l,t])=>'<span><b>'+l+'</b> '+(t>=60?Math.floor(t/60)+' h'+(t%60?' '+t%60+' min':''):t+' min')+'</span>').join('')+'</div></details>';
     }
     case 'impacto': { const p=n('pico'), t=insv('pt','lin'), lt=t==='lin'?130:120, rg=t==='lin'?140:130;
@@ -673,7 +673,7 @@ function quim11(){
   if(hs!==null && hs>48 && hs<168 && !teto){ const fr=(48/hs)*((168-hs)/120); bs=' Jornada de '+brn(hs)+' h/semana (acima das 48 h do item 10): LT corrigido por Brief & Scala, FR = (48/h)·((168 − h)/120) = '+fr.toFixed(3).replace('.',',')+' → LT '+brn(+(lt*fr).toFixed(3))+'. Pressuposto da ferramenta: base semanal de 48 h e recuperação de 120 h, como no modelo semanal de Brief & Scala; a NR-15 não traz a fórmula.'; lt=+(lt*fr).toFixed(4); }
   const fd= lt<=1?3: lt<=10?2: lt<=100?1.5: lt<=1000?1.25:1.1, vmax=lt*fd; let ok, txt;
   if(teto){ ok=(mx??md)>lt; txt='Valor teto (item 9): nenhuma amostra pode superar o LT de '+brn(lt)+'.'; }
-  else { ok=(md!==null&&md>lt); txt='Item 8: média '+(md===null?'—':brn(md))+(ok?' > ':' ≤ ')+'LT '+brn(lt)+'. FD = '+brn(fd)+'; valor máximo = '+brn(+vmax.toFixed(3))+(mx!==null&&mx>vmax?' — amostra acima do valor máximo: risco grave e iminente (item 7).':'.'); }
+  else { ok=md===null?null:md>lt; txt=(md===null?'Informe a média das amostras para aplicar o item 8. ':'')+'Item 8: média '+(md===null?'—':brn(md))+(ok?' > ':' ≤ ')+'LT '+brn(lt)+'. FD = '+brn(fd)+'; valor máximo = '+brn(+vmax.toFixed(3))+(mx!==null&&mx>vmax?' — amostra acima do valor máximo: risco grave e iminente (item 7).':'.'); }
   const grave = !teto && mx!==null && mx>vmax;
   return h+resultado(ok,g,txt+bs)+(grave?'<div class="verdict v-c"><b>Risco grave e iminente (item 7)</b><p>Amostra de '+brn(mx)+' acima do valor máximo '+brn(+vmax.toFixed(3))+' (LT × FD). A situação exige ação imediata, independentemente da média.</p></div>':'')+'</div>';
 }
@@ -720,7 +720,7 @@ function pin(k,lab,attrs='step="any"'){ const id='p-'+k.replace(/[^a-z0-9]/gi,'-
 function psel(k,lab,opts,d){ const id='p-'+k.replace(/[^a-z0-9]/gi,'-'), v=pget(k,d); return '<label class="f" for="'+id+'"><span>'+lab+'</span><select id="'+id+'" data-per="'+k+'">'+opts.map(([a,b])=>'<option value="'+a+'"'+(String(v)===String(a)?' selected':'')+'>'+esc(b)+'</option>').join('')+'</select></label>'; }
 function selected(an,sel){ const sec=an.secoes.find(s=>s.sel===sel); if(!sec) return []; return sec.itens.filter(it=>pget(pk(an.id,sel,it[0]),false)); }
 function calcExplosivos(an){
-  const tp=pget('a1:exp:tp','q4'), kg=num(pget('a1:exp:kg','')), dist=num(pget('a1:exp:d','')), bar=pget('a1:exp:bar',false);
+  const tp=pget('a1:exp:tp','q4'), kg=num(pget('a1:exp:kg',''),true), dist=num(pget('a1:exp:d',''),true), bar=pget('a1:exp:bar',false);
   const q=EXPQ[tp]; let r=null, acima=false;
   if(kg!==null){ const row=q.t.find(([lim])=>kg<=lim); if(row) r=row[1]; else { r=q.t[q.t.length-1][1]; acima=true; } if(bar&&tp==='q4') r=r/2; }
   const dentro = r!==null && dist!==null && dist<=r;
@@ -729,7 +729,7 @@ function calcExplosivos(an){
   return {h, ok:dentro, txt: dentro?'Permanência na área de risco do depósito (item 3, raio de '+brn(r)+' m).':''};
 }
 function calcTransporte(){
-  const tp=pget('a2:tr:tp','liq'), q=num(pget('a2:tr:q','')), prop=pget('a2:tr:prop',false), e41=pget('a2:tr:41',false), e42=pget('a2:tr:42',false);
+  const tp=pget('a2:tr:tp','liq'), q=num(pget('a2:tr:q',''),true), prop=pget('a2:tr:prop',false), e41=pget('a2:tr:41',false), e42=pget('a2:tr:42',false);
   const lim= tp==='liq'?200:135, un= tp==='liq'?'litros':'kg';
   let h='<div class="pcalc">'+psel('a2:tr:tp','Produto transportado',[['liq','Inflamável líquido'],['gas','Inflamável gasoso liquefeito']],'liq')+pin('a2:tr:q','Quantidade total transportada ('+un+')')+pcb('p-a2-prop','a2:tr:prop','Somente tanques de consumo próprio, originais de fábrica ou suplementares certificados (16.6.1 e 16.6.1.1)')+(tp==='liq'?pcb('p-a2-41','a2:tr:41','Embalagens certificadas dentro dos limites do Quadro I (item 4.1)')+pcb('p-a2-42','a2:tr:42','Recipientes de até 5 L lacrados na fabricação (item 4.2)'):'')+'</div>';
   let ok=false, txt='';
@@ -765,7 +765,7 @@ function avaliaPeric(an){
   return {st:'E', b:'Enquadra na NR-16 pelos itens marcados (adicional de 30%)', p:why.join(' · ')+(fr==='int'?' Exposição intermitente: adicional integral (Súmula 364'+(an.id==='a4'?'; Anexo 4, item 3':'')+').':'')};
 }
 function renderPeric(){
-  const an=NR16.find(x=>x.id===S.a16)||NR16[0], sal=num(pget('sal',''));
+  const an=NR16.find(x=>x.id===S.a16)||NR16[0], sal=num(pget('sal',''),true);
   let h='<section class="intro"><div><p class="eyebrow">NR-16 · CLT, art. 193</p><h2>Periculosidade</h2><p class="muted">Adicional de 30% sobre o salário-base, sem gratificações, prêmios ou participação nos lucros (item 16.2). O empregado pode optar pela insalubridade; os adicionais não se acumulam (art. 193, §2º; IRR Tema 17). Marque, em cada anexo, os itens da norma constatados na inspeção.</p></div></section>';
   h+='<div class="anx anx16" role="tablist" aria-label="Anexos da NR-16">'+NR16.map(x=>'<button role="tab" aria-selected="'+(x===an)+'" data-a16="'+x.id+'" class="'+(x===an?'on':'')+'"><b>'+esc(x.n)+'</b><span>'+esc(x.t)+'</span></button>').join('')+'</div>';
   const r=avaliaPeric(an);
@@ -1573,10 +1573,10 @@ function notaCampo(el, txt){ const id='nt-'+el.id; let n=document.getElementById
 function conferirNumero(el){
   if(!el.id) return; const r=regraCampo(el); const v=String(el.value||'').trim();
   if(!v){ avisoCampo(el,''); return; }
-  const x=num(v.replace(/^R\$\s*/,''));
+  const milhar=!!(r&&/R\$|litros|\(kg\)|Distância|\(m\)$/i.test(rotuloCampo(el))), x=num(v.replace(/^R\$\s*/,''),milhar);
   if(x===null){ avisoCampo(el,'Use só números, com vírgula para decimais'+(r?' ('+r[4].replace('Ex.: ','ex.: ')+')':'')+'.'); return; }
-  if(/^\d{1,3}(\.\d{3})+$/.test(v)){ avisoCampo(el,''); notaCampo(el,'Entendido como '+x.toLocaleString('pt-BR')+(r&&r[3]?' '+r[3]:'')+' (ponto como separador de milhar).'); return; }
-  notaCampo(el,'');
+  if(/^\d{1,3}(\.\d{3})+$/.test(v)){ notaCampo(el,'Entendido como '+x.toLocaleString('pt-BR',{maximumFractionDigits:3})+(r&&r[3]?' '+r[3]:'')+(milhar?' (ponto como separador de milhar).':' (ponto como separador decimal).')); }
+  else notaCampo(el,'');
   if(r&&(x<r[1]||x>r[2])){ avisoCampo(el,'Valor fora do usual'+(r[3]?' para '+r[3]:'')+' (entre '+fmtNum(r[1])+' e '+fmtNum(r[2]).replace('1000000','1.000.000')+'). Confira a unidade e a digitação.'); return; }
   avisoCampo(el,'');
 }

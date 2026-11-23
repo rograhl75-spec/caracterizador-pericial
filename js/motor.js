@@ -5,12 +5,17 @@ const toIso = ms => new Date(ms).toISOString().slice(0,10);
 const addDays = (s,n) => toIso(toMs(s)+n*DAY);
 const daysIncl = (a,b) => Math.round((toMs(b)-toMs(a))/DAY)+1;
 const fmtBR = s => s ? s.slice(8,10)+'/'+s.slice(5,7)+'/'+s.slice(0,4) : '';
-/* número no formato brasileiro ou internacional: "85,3", "85.3", "1.500" (milhar), "1.518,00", "R$ 1.518,00" */
-const num = v => { if(v===''||v===null||v===undefined) return null; if(typeof v==='number') return isFinite(v)?v:null;
+/* número: vírgula ou ponto como decimal ("85,3", "85.3", "0.050").
+   Separador de milhar só quando milhar=true (campos de R$, kg, litros, metros): "1.500" → 1500, "1.518,00" → 1518, "1,500.00" → 1500.
+   Sem milhar=true, "1.500" é 1,5 (grandezas técnicas como dB, m/s², mg/m³ têm três casas decimais com frequência). */
+const num = (v, milhar) => { if(v===''||v===null||v===undefined) return null; if(typeof v==='number') return isFinite(v)?v:null;
   let t=String(v).trim().replace(/^R\$\s*/i,'').replace(/\s+/g,''); if(t==='') return null;
-  if(t.includes(',')) t=t.replace(/\./g,'').replace(',','.');
-  else if(/^-?\d{1,3}(\.\d{3})+$/.test(t)) t=t.replace(/\./g,'');
-  const x=+t; return isNaN(x) ? null : x; };
+  const ip=t.lastIndexOf('.'), ic=t.lastIndexOf(',');
+  if(ip>=0&&ic>=0) t = ip>ic ? t.replace(/,/g,'') : t.replace(/\./g,'').replace(',','.');
+  else if(ic>=0) t=t.replace(',','.');
+  else if(milhar&&/^-?[1-9]\d{0,2}(\.\d{3})+$/.test(t)) t=t.replace(/\./g,'');
+  if(!/^-?(\d+\.?\d*|\.\d+)(e[+-]?\d+)?$/i.test(t)) return null;
+  const x=+t; return isFinite(x) ? x : null; };
 const r1 = v => Math.round(v*10)/10; /* arredonda a 0,1 antes de comparar (NHO) */
 const log10 = Math.log10;
 const f1 = v => (Math.round(v*10)/10).toFixed(1).replace('.',',');
@@ -62,9 +67,10 @@ function ruidoDerive(d){
     /* limiar de integração de 80 dB(A): leituras abaixo contam no tempo, mas não somam energia */
     const E5=rows.reduce((s,[L,t])=>s+(L>=80?t*Math.pow(10,L/16.61):0),0), E3=rows.reduce((s,[L,t])=>s+(L>=80?t*Math.pow(10,L/10):0),0);
     if(E5<=0) return {lavg:null, ne3:null, te, info:'Todas as leituras abaixo do limiar de 80 dB(A).'};
-    const lavg=16.61*log10(E5/T);
-    const ne3=10*log10(E3/T);
-    return {lavg, ne3, te, info: rows.length+' leitura(s) em '+T+' min → Lavg (q=5) '+f1(lavg)+' dB(A); Leq/NE (q=3) '+f1(ne3)+' dB(A).'}; }
+    const Tden=Math.max(T,te); /* soma menor que a jornada: o restante é tratado como abaixo do limiar */
+    const lavg=16.61*log10(E5/Tden);
+    const ne3=10*log10(E3/Tden);
+    return {lavg, ne3, te, info: rows.length+(rows.length===1?' leitura':' leituras')+' em '+T+' min'+(T<te?' (restante da jornada de '+te+' min abaixo do limiar)':'')+' → Lavg (q=5) '+f1(lavg)+' dB(A); Leq/NE (q=3) '+f1(ne3)+' dB(A).'}; }
   return {lavg:num(d.lavg), ne3:num(d.ne3), te, info:''};
 }
 const brn0 = v => String(v).replace('.',',');
@@ -79,7 +85,7 @@ function avaliar(row, agent){
   const e = agent.engine;
   let cuts = [];
   if(e==='ruido'){ cuts=['1997-03-06','2003-11-19','2004-01-01']; if(row.d&&row.d.epiu) cuts.push('1998-12-03'); }
-  else if(e==='calor') cuts=['1997-03-06','2019-12-11'];
+  else if(e==='calor'){ cuts=['1997-03-06','2019-12-11']; if(num(d.av)!==null) cuts.push('2004-01-01'); }
   else if(e==='vibracao') cuts=['1997-03-06','2014-08-13'];
   else if(e==='categoria') cuts=['1995-04-29'];
   else cuts=['1997-03-06'];
@@ -122,7 +128,7 @@ function avaliar(row, agent){
             if(p.st==='E'){
               if(falt.length) p=R('E',p.txt+' EPI informado ('+ca+'sem comprovar: '+falt.join(', ')+'): não considerado eficaz (IN 128, art. 291).');
               else if(nrr===null) p=R('E',p.txt+' EPI informado sem atenuação: informe o NRRsf para avaliar a eficácia.');
-              else { const prot=r1(vP-nrr); p = prot<=lim ? R('N',p.txt+' Com EPI ('+ca+'NRRsf '+nrr+' dB): nível protegido '+f1(prot)+' ≤ '+lim+' dB(A): exposição neutralizada (Lei 8.213, art. 58, § 2º; IN 128, art. 291).') : R('E',p.txt+' Com EPI ('+ca+'NRRsf '+nrr+' dB): nível protegido '+f1(prot)+' > '+lim+' dB(A): EPI insuficiente.'); }
+              else { const prot=r1(vP-nrr); p = prot<=lim ? R('N',p.txt+' Com EPI ('+ca+'NRRsf '+nrr+' dB): nível protegido '+f1(prot)+' ≤ '+lim+' dB(A): exposição neutralizada (Lei 8.213, art. 58, § 2º; IN 128, art. 291). Atenção: o STF (Tema 555) fixou que, para ruído, a declaração de eficácia do EPI não descaracteriza o tempo especial; esta leitura técnica diverge da tese.') : R('E',p.txt+' Com EPI ('+ca+'NRRsf '+nrr+' dB): nível protegido '+f1(prot)+' > '+lim+' dB(A): EPI insuficiente.'); }
             }
             if(i.st==='E') i=R('E',i.txt+' EPI informado: a declaração de eficácia não descaracteriza o ruído (IN 128, art. 290, parágrafo único; STF, Tema 555).');
           }
@@ -273,7 +279,7 @@ function totais(caso){
   const esp={perito:[], inss:[]};
   for(const row of caso.rows){
     const ag=AGENTS.find(x=>x.id===row.agente); if(!ag) continue;
-    const r=avaliar(row,ag); const tempo=+(row.tempo||ag.tempo); const f=FATORES[tempo][caso.sexo||'H'];
+    const r=avaliar(row,ag); let tempo=+(row.tempo||ag.tempo); if(!FATORES[tempo]) tempo=+ag.tempo in FATORES?+ag.tempo:25; const f=FATORES[tempo][caso.sexo||'H'];
     for(const s of r.segs){
       t.segs++;
       if(s.perito.st!==s.inss.st) t.diverg++;
@@ -296,7 +302,7 @@ function totais(caso){
 
 /* anos/meses/dias no padrão 365/30 (aproximação usual de contagem) */
 function amd(dias){
-  const a=Math.floor(dias/365), r=dias-a*365, m=Math.floor(r/30), dd=r-m*30;
+  const a=Math.floor(dias/365), r=dias-a*365, m=Math.floor(r/30), dd=r-m*30; /* convenção usual 365/30: de 360 a 364 dias aparecem como "12 m" */
   return {a,m,d:dd};
 }
 
