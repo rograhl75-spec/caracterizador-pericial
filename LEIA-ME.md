@@ -51,7 +51,7 @@ Para atualizar, edite o arquivo no próprio GitHub (ícone de lápis) ou envie a
 - **Ver também:** no fim da ficha do agente e dos anexos da NR-15 e da NR-16, atalhos para os anexos, agentes e funções relacionados. As ligações vêm do campo `nr15` de cada agente (`dados/normas-base.js`) e dos campos `ag`, `nr15` e `nr16` de `dados/funcoes.js`.
 - **Impressão de teses e textos legais:** cada tese tem "Imprimir"; acima da lista, "Imprimir estas N teses" imprime o filtro atual. Nos textos legais navegáveis, "Imprimir este texto" imprime o documento (ou só os itens encontrados, se houver filtro). Usa o mesmo timbrado das fichas.
 - **Links diretos:** fichas de agentes, anexos da NR-15 e da NR-16 e funções têm "Copiar link". O endereço `#ir/<destino>` abre direto o conteúdo (ex.: `#ir/ag:calor`, `#ir/a15:3`, `#ir/a16:a2`, `#ir/funcao:soldador`); as funções usam o nome, não a posição na lista.
-- **Busca geral:** prioriza palavras que começam pelo termo digitado; só procura no meio das palavras se não houver resultado.
+- **Busca geral:** prioriza palavras que começam pelo termo digitado; só procura no meio das palavras se não houver resultado. Os botões de área (Aposentadoria especial, Funções, NR-15, NR-16, Teses, Textos legais, Biblioteca, Novidades) mostram quantos resultados há em cada uma e filtram a lista; filtrada, a lista mostra até 60 resultados por seção.
 
 ## Uso sem internet (app instalável)
 
