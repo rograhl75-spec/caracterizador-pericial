@@ -46,7 +46,7 @@ Para atualizar, edite o arquivo no próprio GitHub (ícone de lápis) ou envie a
 
 ## Casos, perfil e privacidade
 
-- **Vários casos:** em Aposentadoria especial → Análise de caso, a barra "Meus casos" cria, duplica, exclui, exporta e importa casos (arquivos `.json`). O formato antigo (um caso só) é migrado automaticamente.
+- **Vários casos:** em Aposentadoria especial → Simulação de enquadramento, a barra "Meus casos" cria, duplica, exclui, exporta e importa casos (arquivos `.json`). O formato antigo (um caso só) é migrado automaticamente.
 - **Perfil e dados:** nome, profissão, registro (CREA, CRM, OAB) e timbrado próprio (imagem A4) ou cabeçalho simples. Esses dados saem no cabeçalho e na assinatura dos relatórios. Ali também ficam o backup completo e o botão para apagar todos os dados.
 - **Privacidade:** tudo fica no navegador do usuário (localStorage); nada é enviado a servidor. No primeiro acesso aparece o aviso de aceite dos Termos de uso.
 
