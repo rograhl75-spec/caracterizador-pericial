@@ -827,6 +827,16 @@ function setHash(h){ if(GO_REPLACE){ GO_REPLACE=false; if(location.hash==='#'+h)
 function linkDireto(key){ const [k,v]=key.split(':'); if(k==='funcao'&&!isNaN(+v)&&FUNCOES[+v]) key='funcao:'+slugTx(FUNCOES[+v].f); return location.href.split('#')[0]+'#ir/'+key; }
 /* depois de abrir um link direto, rola até o conteúdo (no celular a ficha fica abaixo da lista) */
 function irAoConteudo(){ setTimeout(()=>{ const b=document.querySelector('main [data-golink], main .tese.alvo, main .txart.alvo'); const t=b&&(b.closest('.alvo')||b.closest('article,section')); if(!t||t.classList.contains('alvo')) return; const hd=document.querySelector('header.band'); const topo=hd&&getComputedStyle(hd).position==='sticky'?hd.getBoundingClientRect().bottom:0; window.scrollTo(0, Math.max(0, t.getBoundingClientRect().top+window.scrollY-topo-8)); },80); }
+/* confere se o destino de um link direto existe (link antigo ou digitado errado cai no Início) */
+function destinoValido(dest){ const i=dest.indexOf(':'); if(i<1) return false; const k=dest.slice(0,i), v=dest.slice(i+1); if(!v) return false;
+  if(k==='ag') return AGENTS.some(a=>a.id===v);
+  if(k==='a15') return NR15.some(x=>String(x.n)===v);
+  if(k==='a16') return NR16.some(x=>x.id===v);
+  if(k==='a11') return !!A11[+v]; if(k==='a13') return !!A13FULL[+v];
+  if(k==='funcao') return isNaN(+v)?FUNCOES.some(x=>slugTx(x.f)===v):!!FUNCOES[+v];
+  if(k==='tese') return !!TESES[v];
+  if(k==='txt'||k==='lib') return true;
+  return false; }
 function linkBtn(key){ return '<button class="ghost sm" data-golink="'+esc(key)+'" title="Copiar o endereço direto desta consulta">Copiar link</button>'; }
 document.addEventListener('click', ev=>{ const b=ev.target.closest('[data-golink]'); if(!b) return; copiar(linkDireto(b.dataset.golink),'Link copiado. Quem abrir vai direto a esta consulta.'); });
 function go(dest){
@@ -848,9 +858,9 @@ function render(){
   document.querySelectorAll('.tabs a').forEach(a=>a.setAttribute('aria-current', a.getAttribute('href')==='#'+S.tab?'page':'false'));
   const m=$('#main');
   m.innerHTML = ajudaHtml() + (S.tab==='inicio'?renderInicio(): S.tab==='busca'?renderBusca(): S.tab==='aposentadoria'?renderAposentadoria(): S.tab==='insalubridade'?renderInsal(): S.tab==='periculosidade'?renderPeric(): S.tab==='teses'?renderTeses(): S.tab==='perfil'?renderPerfil(): S.tab==='funcao'?renderFuncao(): renderBib());
-  registrarVisto();
+  registrarVisto(); marcarSiglas();
 }
-function route(){ let h=location.hash.slice(1); if(h.startsWith('ir/')){ const dest=decodeURIComponent(h.slice(3)); if(/^(ag|a11|a13|a15|a16|funcao|tese|txt|lib):./.test(dest)){ GO_REPLACE=true; go(dest); irAoConteudo(); return true; } h='inicio'; } const LEG={agentes:'aposentadoria/agentes',painel:'aposentadoria/resultado'}; if(LEG[h]){ h=LEG[h]; history.replaceState(null,'','#'+h); } const [h0,h1,h2,h3]=h.split('/');
+function route(){ let h=location.hash.slice(1); if(h.startsWith('ir/')){ const dest=decodeURIComponent(h.slice(3)); if(destinoValido(dest)){ GO_REPLACE=true; go(dest); irAoConteudo(); return true; } h='inicio'; } const LEG={agentes:'aposentadoria/agentes',painel:'aposentadoria/resultado'}; if(LEG[h]){ h=LEG[h]; history.replaceState(null,'','#'+h); } const [h0,h1,h2,h3]=h.split('/');
   if(SRCH){ if(SRCH.fromGo){ SRCH.fromGo=false; } else { if(SRCH.tq!==null&&S.tq===SRCH.tq) S.tq=''; if(SRCH.q!==null&&S.q===SRCH.q){ S.q=''; S.lib='todas'; } if(SRCH.q11!==null&&S.ins.q11===SRCH.q11){ S.ins.q11=''; } SRCH=null; } } S.tab = TABS.some(t=>t[0]===h0)?h0:(h0==='busca'?'busca':'inicio'); if(S.tab==='aposentadoria') S.ap = AP_SUB.some(x=>x[0]===h1)?h1:(S.ap||'agentes'); if(S.tab==='teses'&&h1&&TESES[h1]){ S.tf='todos'; S.tsit='todas'; S.tq=''; } S.alvo=(S.tab==='teses'&&h1&&TESES[h1])?'tese:'+h1:(S.tab==='biblioteca'&&h1==='textos'&&h3)?'txt:'+h2+'/'+decodeURIComponent(h3):''; if(S.tab==='biblioteca'){ S.libv=h1==='textos'?'textos':'quadros'; if(h2){ S.txd=h2; S.txq=''; } } render(); if(S.tab==='teses'&&h1&&TESES[h1]){ destacar('tese-'+h1); return true; } if(S.tab==='biblioteca'&&S.libv==='textos'&&h3){ destacar(txId(h2,decodeURIComponent(h3))); return true; } return false; }
 window.addEventListener('hashchange', ()=>{ if(!route()) window.scrollTo(0,0); });
 
@@ -1313,6 +1323,45 @@ document.addEventListener('click', ev=>{
   if(b.dataset.fsel!==undefined){ S.fsel=+b.dataset.fsel; render(); if(window.innerWidth<760){ const p=document.getElementById('ffun'); if(p) p.scrollIntoView({block:'start'}); } }
   else { const x=FUNCOES[+b.dataset.fcmp]; S.cmpAg=x.ag.filter(id=>AGENTS.some(a=>a.id===id&&a.id!=='categoria')).slice(0,3); location.hash='aposentadoria/comparar'; }
 });
+
+/* ---------- Siglas do glossário explicadas no texto ---------- */
+/* sigla no texto → termo do GLOSSARIO; só a primeira ocorrência de cada sigla por tela */
+const SIGLAS={LTCAT:'LTCAT',PPP:'PPP',PGR:'PGR',LINACH:'LINACH',NHO:'NHO',NEN:'NEN',Lavg:'Lavg',IBUTG:'IBUTG',VCI:'VCI e VMB',VMB:'VCI e VMB',VDVR:'VDVR',EPI:'EPI e EPC',EPC:'EPI e EPC',SEP:'SEP e SEC',IRR:'IRR',PEDILEF:'PEDILEF',GFIP:'Código de ocorrência (GFIP/eSocial)'};
+const RE_SIGLA=new RegExp('(^|[^\\wÀ-ÿ])('+Object.keys(SIGLAS).join('|')+')(?![\\wÀ-ÿ])');
+function glDef(sigla){ const t=SIGLAS[sigla]; const g=typeof GLOSSARIO!=='undefined'&&GLOSSARIO.find(x=>x[0]===t); return g?{t:g[0],d:g[1]}:null; }
+function marcarSiglas(){
+  if(typeof GLOSSARIO==='undefined') return;
+  const main=document.getElementById('main'); if(!main) return;
+  const vistas=new Set(), nodes=[];
+  const w=document.createTreeWalker(main, NodeFilter.SHOW_TEXT, {acceptNode:n=>{
+    const p=n.parentElement; if(!p||!RE_SIGLA.test(n.nodeValue)) return NodeFilter.FILTER_REJECT;
+    return p.closest('a,button,input,textarea,select,option,label,h1,h2,h3,h4,summary,svg,th,code,.txart,.lit,.lt,.ajuda,.gl,.pt.lib,.chip,.mono')?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT; }});
+  while(w.nextNode()) nodes.push(w.currentNode);
+  nodes.forEach(n=>{
+    let txt=n.nodeValue, frag=null, m, resto=txt;
+    const parts=[];
+    while((m=RE_SIGLA.exec(resto))){ const sig=m[2], ini=m.index+m[1].length; if(vistas.has(SIGLAS[sig])||!glDef(sig)){ parts.push(resto.slice(0,ini+sig.length)); resto=resto.slice(ini+sig.length); continue; }
+      vistas.add(SIGLAS[sig]); parts.push(resto.slice(0,ini)); parts.push({sig}); resto=resto.slice(ini+sig.length); }
+    if(!parts.some(x=>typeof x==='object')) return;
+    parts.push(resto); frag=document.createDocumentFragment();
+    parts.forEach(x=>{ if(typeof x==='string'){ if(x) frag.appendChild(document.createTextNode(x)); } else { const b=document.createElement('button'); b.type='button'; b.className='gl'; b.dataset.gl=x.sig; b.textContent=x.sig; b.title=glDef(x.sig).t+': '+glDef(x.sig).d; b.setAttribute('aria-label',x.sig+' — ver definição'); frag.appendChild(b); } });
+    n.parentNode.replaceChild(frag,n);
+  });
+}
+function fecharGl(){ const p=document.getElementById('glpop'); if(p) p.remove(); }
+document.addEventListener('click', ev=>{
+  const b=ev.target.closest('.gl'); if(ev.target.closest('#glpop')&&!ev.target.closest('[data-glver]')) return;
+  if(ev.target.closest('[data-glver]')){ fecharGl(); S.q=ev.target.closest('[data-glver]').dataset.glver; S.lib='glossario'; S.libv='quadros'; location.hash='biblioteca'; return; }
+  fecharGl(); if(!b) return;
+  const g=glDef(b.dataset.gl); if(!g) return;
+  const pop=document.createElement('div'); pop.id='glpop'; pop.setAttribute('role','dialog'); pop.setAttribute('aria-label','Definição de '+g.t);
+  pop.innerHTML='<b>'+esc(g.t)+'</b><p>'+esc(g.d)+'</p><button class="linkbtn" data-glver="'+esc(b.dataset.gl)+'">Ver no glossário</button>';
+  document.body.appendChild(pop);
+  const r=b.getBoundingClientRect(), pw=Math.min(340, window.innerWidth-24);
+  pop.style.width=pw+'px'; pop.style.left=Math.max(12, Math.min(window.innerWidth-pw-12, r.left+window.scrollX))+'px'; pop.style.top=(r.bottom+window.scrollY+6)+'px';
+});
+document.addEventListener('keydown', ev=>{ if(ev.key==='Escape') fecharGl(); });
+window.addEventListener('hashchange', fecharGl);
 
 /* ---------- Textos legais navegáveis ---------- */
 function docsTexto(){

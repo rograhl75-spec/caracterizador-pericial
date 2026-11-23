@@ -47,6 +47,7 @@ Para atualizar, edite o arquivo no próprio GitHub (ícone de lápis) ou envie a
 - **Novidades na base** (Início) e **Glossário** (Biblioteca), ambos pesquisáveis na busca geral.
 - **Textos legais navegáveis** (Biblioteca → Textos legais navegáveis): Lei 8.213/91 arts. 57 e 58, IN 128/2022 arts. 286 a 302, NR-01 (item 1.5, GRO/PGR, e Anexo I, definições), NR-15 itens 15.1 a 15.7 e itens gerais da NR-16, com índice, filtro, "Copiar citação" e "Copiar link" por artigo ou item (endereço `#biblioteca/textos/<documento>/<item>`, ex.: `#biblioteca/textos/in128/290`).
 - **Consultados recentemente** (Início): as 10 últimas fichas, anexos, funções, teses e textos legais abertos, guardados só no navegador (`caracterizador:recentes`), com botão Limpar.
+- **Siglas explicadas no texto:** a primeira ocorrência de cada sigla do glossário em cada tela (PPP, LTCAT, NEN, IBUTG, LINACH, EPI…) fica sublinhada e abre a definição ao clicar. O mapa sigla → termo é `SIGLAS`, em `js/app.js`; textos legais literais não são marcados.
 - **Links diretos:** fichas de agentes, anexos da NR-15 e da NR-16 e funções têm "Copiar link". O endereço `#ir/<destino>` abre direto o conteúdo (ex.: `#ir/ag:calor`, `#ir/a15:3`, `#ir/a16:a2`, `#ir/funcao:soldador`); as funções usam o nome, não a posição na lista.
 - **Busca geral:** prioriza palavras que começam pelo termo digitado; só procura no meio das palavras se não houver resultado.
 
