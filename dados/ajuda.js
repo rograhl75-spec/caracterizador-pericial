@@ -2,7 +2,7 @@
    AJUDA_TELA: chave = aba ou aba/sub-aba; cada item é uma dica curta. */
 const TUTORIAL = [
  {t:'Pesquise em tudo', d:'O campo no topo procura em agentes, substâncias da NR-15, atividades, anexos da NR-16, teses, glossário e biblioteca. Aceita sinônimos, como "toluol" ou "amianto". Atalho: tecla /.'},
- {t:'Escolha a área', d:'Aposentadoria especial, Insalubridade e Periculosidade têm legislação própria. Em cada ficha você vê a regra de cada período, a nota do especialista e o critério oficial lado a lado.'},
+ {t:'Escolha a área ou a função', d:'Em "Por função", veja o que investigar numa atividade (soldador, frentista, enfermagem…). Aposentadoria especial, Insalubridade e Periculosidade têm legislação própria. Em cada ficha você vê a regra de cada período, a nota do especialista e o critério oficial lado a lado.'},
  {t:'Consulte por data e por tese', d:'Em Aposentadoria especial → Regra na data, veja o que valia num dia específico. Em Teses, filtre pela situação (firmada, embargos, em julgamento) e copie a citação ou o link.'},
  {t:'Guarde e leve com você', d:'Favorite fichas, teses e anexos, com anotações. Instale o app no celular para consultar sem internet. Tudo fica salvo só no seu navegador.'}
 ];
@@ -11,6 +11,10 @@ const AJUDA_TELA = {
   'Use a pesquisa do topo ou escolha uma das três áreas.',
   '"Novidades na base" mostra o que mudou na legislação e na jurisprudência, com atalho para consultar.',
   '"Meus favoritos" aparece aqui quando você favorita algum conteúdo.'],
+ 'funcao':[
+  'Pesquise a função pelo nome ou por sinônimo e escolha na lista.',
+  'A ficha mostra agentes, anexos da NR-15 e da NR-16 e teses que costumam ser investigados: são pontos de partida, não conclusão.',
+  'Com dois ou mais agentes, use "Comparar estes agentes lado a lado".'],
  'aposentadoria/agentes':[
   'Escolha o agente na lista ou pela pesquisa. A ficha mostra os códigos dos decretos, a regra de cada período e as teses aplicáveis.',
   'Nota do especialista e critério do INSS aparecem lado a lado: quando divergem, a ficha explica o porquê.',
