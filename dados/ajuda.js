@@ -25,6 +25,7 @@ const AJUDA_TELA = {
  'aposentadoria/data':[
   'Informe uma data ou clique num marco da linha do tempo para ver, agente por agente, a norma e o critério daquele dia.',
   'Escolha um agente para ver a linha do tempo das regras dele; o trecho destacado é o que vale na data escolhida.',
+  '"Comparar com outra data" mostra lado a lado os marcos e as regras de cada agente em duas datas, com o selo "mudou" no que é diferente.',
   'Os "Marcos gerais" resumem regras que valem para todos os agentes: categoria profissional, EPI, formulário, conversão e cancerígenos.',
   'Clique no nome do agente para abrir a ficha completa.'],
  'aposentadoria/comparar':[

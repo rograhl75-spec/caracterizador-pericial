@@ -684,3 +684,11 @@ button.gl:focus-visible{outline:2px solid var(--focus); outline-offset:2px}
 #printroot header:has(> .trib), .sheet header:has(> .trib){display:flex; gap:8px; align-items:baseline; flex-wrap:wrap}
 .gfilt button .n{display:inline-block; min-width:1.6em; padding:0 5px; margin-left:2px; border-radius:999px; background:var(--surface-2); color:var(--muted); font-size:.8em; font-weight:700}
 .gfilt button.on .n{background:rgba(255,255,255,.22); color:inherit}
+
+/* comparar duas datas */
+.rdcmp td{vertical-align:top}
+.rdcmp td small{display:block; color:var(--muted)}
+.rdcmp .crit{display:block; margin-top:2px}
+.rdcmp hr{border:0; border-top:1px dashed var(--line); margin:6px 0}
+.rdcmp tr.muda td:first-child{box-shadow:inset 4px 0 0 var(--gold-line)}
+.mudou{display:inline-block; margin-left:6px; padding:1px 7px; border-radius:999px; font-size:.75rem; font-weight:700; background:var(--gold-line); color:#fff}
