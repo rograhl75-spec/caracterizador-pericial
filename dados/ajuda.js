@@ -3,8 +3,8 @@
 const TUTORIAL = [
  {t:'Pesquise em tudo', d:'O campo no topo procura em agentes, substâncias da NR-15, atividades, anexos da NR-16, teses, glossário e biblioteca. Aceita sinônimos, como "toluol" ou "amianto". Atalho: tecla /.'},
  {t:'Escolha a área ou a função', d:'Em "Por função", veja o que investigar numa atividade (soldador, frentista, enfermagem…). Aposentadoria especial, Insalubridade e Periculosidade têm legislação própria. Em cada ficha você vê a regra de cada período, a nota do especialista e o critério oficial lado a lado.'},
- {t:'Consulte por data e por tese', d:'Em Aposentadoria especial → Regra na data, veja o que valia num dia específico. Em Teses, filtre pela situação (firmada, embargos, em julgamento) e copie a citação ou o link.'},
- {t:'Guarde e leve com você', d:'Favorite fichas, teses e anexos, com anotações. Instale o app no celular para consultar sem internet. Tudo fica salvo só no seu navegador.'}
+ {t:'Consulte por data e por tese', d:'Em Aposentadoria especial → Regra na data, veja o que valia num dia específico. Em Teses, filtre pela situação (firmadas e vigentes ou em aberto) e copie a citação ou o link.'},
+ {t:'Guarde e leve com você', d:'Marque como favoritos fichas, teses e anexos, com anotações. Instale o app no celular para consultar sem internet. Tudo fica salvo só no seu navegador.'}
 ];
 const AJUDA_TELA = {
  'inicio':[
@@ -21,7 +21,7 @@ const AJUDA_TELA = {
   'Nota do especialista e critério do INSS aparecem lado a lado: quando divergem, a ficha explica o porquê.',
   'O simulador da ficha aplica a regra a valores que você informa, para entender o critério; não substitui a avaliação do caso.',
   'No fim da ficha, "Ver também" leva aos anexos da NR-15 e da NR-16 e às funções ligadas ao agente.',
-  'Use "Imprimir ficha" para guardar a consulta em PDF e "Copiar link" para enviar a ficha a um colega ou cliente.'],
+  'Use "Imprimir / PDF" para guardar a consulta em PDF e "Copiar link" para enviar a ficha a um colega ou cliente.'],
  'aposentadoria/data':[
   'Informe uma data ou clique num marco da linha do tempo para ver, agente por agente, a norma e o critério daquele dia.',
   'Escolha um agente para ver a linha do tempo das regras dele; o trecho destacado é o que vale na data escolhida.',
