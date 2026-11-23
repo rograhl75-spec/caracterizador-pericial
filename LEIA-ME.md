@@ -19,6 +19,7 @@ Site estático (HTML, CSS e JavaScript), sem servidor e sem banco de dados. Func
 | `dados/fontes.js` | Fontes oficiais: versão considerada no app, data da conferência e o que o robô vigia | Depois de revisar uma alteração |
 | `dados/novidades.js` | Novidades na base (o que mudou, quando e onde consultar), exibidas no Início | A cada atualização da base |
 | `dados/textos.js` | NR-01 (item 1.5 e Anexo I, do texto consolidado do MTE 2025-I-3) e itens gerais da NR-15 (15.1 a 15.7) para os textos legais navegáveis; a IN 128, a NR-16 e a Lei 8.213 vêm de `in128-artigos.js`, `nr16.js` e `biblioteca.js` | Atualizar quando a NR-01 ou a NR-15 mudar |
+| `dados/historico-nr.js` | Histórico de alterações das NR-01, NR-15 e NR-16 (cabeçalho e anotações dos textos consolidados do MTE) | Incluir cada nova portaria de alteração |
 | `dados/funcoes.js` | Consulta por função: agentes, anexos e teses a investigar em cada atividade (pontos de partida, não enquadramento) | Incluir ou ajustar funções |
 | `dados/ajuda.js` | Tutorial de boas-vindas e textos de "Como usar esta tela" de cada aba | Mudar ou incluir dicas |
 | `dados/glossario.js` | Glossário técnico e jurídico (aparece na Biblioteca e na busca) | Incluir ou ajustar termo |
@@ -51,6 +52,7 @@ Para atualizar, edite o arquivo no próprio GitHub (ícone de lápis) ou envie a
 - **Siglas explicadas no texto:** a primeira ocorrência de cada sigla do glossário em cada tela (PPP, LTCAT, NEN, IBUTG, LINACH, EPI…) fica sublinhada e abre a definição ao clicar. O mapa sigla → termo é `SIGLAS`, em `js/app.js`; textos legais literais não são marcados.
 - **Ver também:** no fim da ficha do agente e dos anexos da NR-15 e da NR-16, atalhos para os anexos, agentes e funções relacionados. As ligações vêm do campo `nr15` de cada agente (`dados/normas-base.js`) e dos campos `ag`, `nr15` e `nr16` de `dados/funcoes.js`.
 - **Impressão de teses e textos legais:** cada tese tem "Imprimir"; acima da lista, "Imprimir estas N teses" imprime o filtro atual. Nos textos legais navegáveis, "Imprimir este texto" imprime o documento (ou só os itens encontrados, se houver filtro). Usa o mesmo timbrado das fichas.
+- **Histórico das NRs** (Biblioteca): portarias do cabeçalho "Alterações/Atualizações" da NR-01, NR-15 e NR-16, com o que as anotações do texto consolidado do MTE indicam (anexo ou item incluído, alterado, revogado). Dados em `dados/historico-nr.js`, gerados dos PDFs oficiais por `scripts/gerar-historico-nr.py` (uso no cabeçalho do script); atualize quando o robô avisar de nova portaria.
 - **Links diretos:** fichas de agentes, anexos da NR-15 e da NR-16 e funções têm "Copiar link". O endereço `#ir/<destino>` abre direto o conteúdo (ex.: `#ir/ag:calor`, `#ir/a15:3`, `#ir/a16:a2`, `#ir/funcao:soldador`); as funções usam o nome, não a posição na lista.
 - **Busca geral:** prioriza palavras que começam pelo termo digitado; só procura no meio das palavras se não houver resultado. Os botões de área (Aposentadoria especial, Funções, NR-15, NR-16, Teses, Textos legais, Biblioteca, Novidades) mostram quantos resultados há em cada uma e filtram a lista; filtrada, a lista mostra até 60 resultados por seção.
 

@@ -55,6 +55,7 @@ const AJUDA_TELA = {
  'biblioteca':[
   'Quadros dos decretos, Anexo IV, LINACH, glossário e textos de apoio, todos pesquisáveis.',
   'Escolha um quadro no seletor ou pesquise em todos de uma vez.',
+  '"Histórico das NRs" lista as portarias que alteraram a NR-01, a NR-15 e a NR-16, com o anexo ou item que cada uma alterou, segundo o texto consolidado do MTE.',
   'Em "Textos legais navegáveis", leia a Lei 8.213 (arts. 57 e 58), a IN 128, a NR-01 (GRO/PGR e definições) e os itens gerais das NR-15 e NR-16; cada artigo tem link e citação para copiar.'],
  'perfil':[
   'Seus dados profissionais aparecem no cabeçalho e na assinatura das impressões.',

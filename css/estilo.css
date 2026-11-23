@@ -692,3 +692,6 @@ button.gl:focus-visible{outline:2px solid var(--focus); outline-offset:2px}
 .rdcmp hr{border:0; border-top:1px dashed var(--line); margin:6px 0}
 .rdcmp tr.muda td:first-child{box-shadow:inset 4px 0 0 var(--gold-line)}
 .mudou{display:inline-block; margin-left:6px; padding:1px 7px; border-radius:999px; font-size:.75rem; font-weight:700; background:var(--gold-line); color:#fff}
+/* histórico das NRs */
+.hist td{vertical-align:top} .hist td small{display:block; color:var(--muted)}
+.hist .linkbtn{font:inherit; padding:0}
