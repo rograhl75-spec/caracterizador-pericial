@@ -73,13 +73,16 @@ function renderAposentadoria(){
 function renderPainel(){
   const t=totais(S.caso), dif=t.perito.dias-t.inss.dias;
   const card=(lab,val,sub,cls='')=>'<div class="stat '+cls+'"><span class="lab">'+lab+'</span><span class="val">'+val+'</span><span class="sub">'+sub+'</span></div>';
-  let h='<section class="intro"><div><p class="eyebrow">Simulação carregada</p><h2>'+esc(S.caso.nome||'Caso sem nome')+'</h2><p class="muted">'+S.caso.rows.length+' período(s) · '+(S.caso.sexo==='M'?'mulher':'homem')+' · edite na aba <a href="#aposentadoria/caso">Análise de caso</a></p></div></section>';
+  let h='<section class="intro"><div><p class="eyebrow">Simulação carregada</p><h2>'+esc(S.caso.nome||'Caso sem nome')+'</h2><p class="muted">'+S.caso.rows.length+' período(s) · '+(S.caso.sexo==='M'?'mulher':'homem')+' · edite em <a href="#aposentadoria/caso">Simulação de enquadramento</a></p></div></section>';
   h+='<div class="stats">'+
     card('Tempo especial · nota do especialista', fmtDias(t.perito.dias), t.perito.dias.toLocaleString('pt-BR')+' dias', 'acc')+
     card('Tempo especial · INSS (IN 128/2022)', fmtDias(t.inss.dias), t.inss.dias.toLocaleString('pt-BR')+' dias')+
     card('Diferença entre os critérios', fmtDias(Math.abs(dif)), (dif>=0?'a favor da nota do especialista':'a favor do INSS')+' · '+t.diverg+' trecho(s) divergente(s)')+
     card('Acréscimo por conversão até 13/11/2019', fmtDias(t.perito.conv), 'especialista · INSS: '+fmtDias(t.inss.conv))+
   '</div>';
+  const sit=situacaoTempo(t), pend=[]; S.caso.rows.forEach((row,i)=>{ const ag=agById(row.agente); if(!ag) return; const r=avaliar(row,ag); if(r.erro&&!r.segs.length) pend.push([i,r.erro]); else r.segs.forEach(sg=>{ if(sg.perito.st==='I'||sg.inss.st==='I') pend.push([i,fmtBR(sg.ini)+' a '+fmtBR(sg.fim)+': '+(sg.perito.st==='I'?sg.perito.txt:sg.inss.txt)]); }); });
+  if(sit) h+='<section class="panel"><div class="ph"><h3>Tempo exigido</h3></div>'+(sit.misto?'<p class="small">Os períodos têm tempos exigidos diferentes ('+sit.tempos.join(', ')+' anos); a comparação com o tempo exigido depende da conversão entre eles, feita pelo profissional.</p>':'<p><b>'+sit.T+' anos</b> · nota do especialista: <b>'+sit.perito+'</b> · INSS: <b>'+sit.inss+'</b>.</p>')+(t.perito.sobrep||t.inss.sobrep?'<p class="small">'+fmtDias(Math.max(t.perito.sobrep,t.inss.sobrep))+' em períodos sobrepostos foram contados uma vez.</p>':'')+'<p class="fine">Compara só o tempo especial simulado; não considera carência, idade mínima, pontos nem regras de transição.</p>'+
+    (pend.length?'<h4>Trechos sem dados suficientes ('+pend.length+')</h4><ul class="sm-list">'+pend.slice(0,12).map(([i,tx])=>'<li><a href="#aposentadoria/caso" data-irper="'+i+'">Período '+String(i+1).padStart(2,'0')+'</a> · '+esc(tx)+'</li>').join('')+'</ul>':'')+'</section>';
   h+='<section class="panel"><div class="ph"><h3>Linha do tempo do caso</h3><div class="legend">'+['E','N','C','I'].map(s=>'<span><i class="sw st-'+s+'"></i>'+ST[s]+'</span>').join('')+'</div></div><div class="scrollx">'+timelineSVG()+'</div></section>';
   h+='<div class="grid2"><section class="panel"><div class="ph"><h3>Mapa de enquadramento</h3><p class="muted small">Como cada agente é caracterizado em cada fase da legislação. Toque no agente para abrir a ficha.</p></div><div class="scrollx">'+matriz()+'</div></section>';
   h+='<section class="panel"><div class="ph"><h3>Marcos legais</h3></div><ol class="marcos">'+MARCOS.map(m=>'<li><time>'+fmtBR(m.d)+'</time><div><b>'+esc(m.t)+'</b><span>'+esc(m.s)+'</span></div></li>').join('')+'</ol></section></div>';
@@ -87,7 +90,7 @@ function renderPainel(){
 }
 function timelineSVG(){
   const segs=[]; for(const row of S.caso.rows){ const ag=agById(row.agente); if(!ag) continue; const r=avaliar(row,ag); r.segs.forEach(s=>segs.push({...s, ag:ag.nome, row})); }
-  if(!segs.length) return '<p class="muted pad">Inclua períodos na aba Aposentadoria especial.</p>';
+  if(!segs.length) return '<p class="muted pad">Nenhum período ainda. Inclua períodos em <a href="#aposentadoria/caso">Simulação de enquadramento</a>.</p>';
   const y0=+segs.reduce((m,s)=>s.ini<m?s.ini:m,'9999').slice(0,4), y1=+segs.reduce((m,s)=>s.fim>m?s.fim:m,'0000').slice(0,4)+1;
   const W=1000, L=92, Rr=16, x=d=>{ const ms=toMs(d), a=Date.UTC(y0,0,1), b=Date.UTC(y1,0,1); return L+(ms-a)/(b-a)*(W-L-Rr); };
   const H=190, lanes=[['perito','Especialista',64],['inss','INSS',112]];
@@ -163,16 +166,26 @@ function resTable(row){
   return (rinfo?'<p class="rinfo">'+esc(rinfo)+'</p>':'')+'<div class="scrollx"><table class="rt"><thead><tr><th>Trecho</th><th>Dias</th><th>Base</th><th>Nota do especialista</th><th>INSS</th></tr></thead><tbody>'+
    r.segs.map(s=>'<tr'+(s.perito.st!==s.inss.st?' class="dv"':'')+'><td class="mono">'+fmtBR(s.ini)+'<br>'+fmtBR(s.fim)+'</td><td class="mono">'+s.dias.toLocaleString('pt-BR')+'</td><td>'+esc(s.base)+'</td><td>'+chip(s.perito.st)+'<small>'+esc(s.perito.txt)+'</small></td><td>'+chip(s.inss.st)+'<small>'+esc(s.inss.txt)+'</small></td></tr>').join('')+'</tbody></table></div>';
 }
+/* tempo exigido: compara o tempo especial simulado com 15, 20 ou 25 anos (só quando todos os períodos têm o mesmo tempo exigido) */
+function situacaoTempo(t){
+  const tempos=[...new Set(S.caso.rows.map(r=>{ const ag=agById(r.agente); return +(r.tempo||(ag&&ag.tempo)||25); }))];
+  if(!S.caso.rows.length) return null;
+  if(tempos.length!==1) return {misto:true, tempos};
+  const T=tempos[0], req=T*365, lin=k=>t[k].dias>=req?'atingido':'faltam '+fmtDias(req-t[k].dias);
+  return {T, perito:lin('perito'), inss:lin('inss')};
+}
 function totBar(){
-  const t=totais(S.caso);
-  return '<div class="totbar"><div><span>Nota do especialista</span><b>'+fmtDias(t.perito.dias)+'</b></div><div><span>INSS</span><b>'+fmtDias(t.inss.dias)+'</b></div><div><span>Conversão até 13/11/2019 (perito)</span><b>+ '+fmtDias(t.perito.conv)+'</b></div><div><span>Trechos divergentes</span><b>'+t.diverg+'</b></div></div>';
+  const t=totais(S.caso), sit=situacaoTempo(t);
+  const extra=(sit&&!sit.misto?'<p class="totnota"><b>Tempo exigido: '+sit.T+' anos</b> · especialista: '+sit.perito+' · INSS: '+sit.inss+'. Sem considerar carência, idade mínima e regras de transição.</p>':'')+
+    (t.perito.sobrep||t.inss.sobrep?'<p class="totnota">'+fmtDias(Math.max(t.perito.sobrep,t.inss.sobrep))+' em períodos sobrepostos foram contados uma vez.</p>':'');
+  return extra+'<div class="totbar"><div><span>Nota do especialista</span><b>'+fmtDias(t.perito.dias)+'</b></div><div><span>INSS</span><b>'+fmtDias(t.inss.dias)+'</b></div><div><span>Conversão até 13/11/2019 (perito)</span><b>+ '+fmtDias(t.perito.conv)+'</b></div><div><span>Trechos divergentes</span><b>'+t.diverg+'</b></div></div>';
 }
 function renderCaso(){
   const c=S.caso;
   return '<section class="intro"><div><p class="eyebrow">Simulação de enquadramento</p><h2>Aposentadoria especial por período</h2><p class="muted">Informe os períodos e os dados de exposição para ver como cada regra os trataria. Cada período é dividido nos marcos legais do agente e comparado com dois critérios: o do especialista (critério técnico da Grahl, com a fundamentação de cada ponto) e o do INSS (IN 128/2022). Fatores de conversão do art. 70 do Decreto 3.048/99, só até 13/11/2019.</p></div></section>'+
   '<div class="consulta-aviso" role="note"><b>Ferramenta de consulta.</b> A simulação aplica as regras aos dados digitados; não examina documentos, não verifica a habitualidade nem a qualidade da prova e não substitui o laudo, o parecer ou a decisão. O resultado é um ponto de partida para a análise do profissional.</div>'+
   '<details class="comopreencher"'+(S.caso.rows.length<=1?' open':'')+'><summary>Como preencher</summary><ol>'+
-   '<li><b>Um período por vínculo e agente.</b> Se o mesmo vínculo teve dois agentes (ex.: ruído e calor), crie dois períodos com as mesmas datas.</li>'+
+   '<li><b>Um período por vínculo e agente.</b> Se o mesmo vínculo teve dois agentes (ex.: ruído e calor), crie dois períodos com as mesmas datas: os dias sobrepostos contam uma vez no total.</li>'+
    '<li><b>Datas de início e fim</b> como no CNIS, no PPP ou na CTPS. O app divide o período nos marcos legais do agente.</li>'+
    '<li><b>Agente nocivo e dados da medição</b> como constam do PPP ou do LTCAT. Use vírgula para decimais (ex.: 85,3). Campos marcados como opcionais podem ficar vazios.</li>'+
    '<li><b>EPI</b>: marque só se o PPP informa EPI eficaz. Para ruído, o EPI não afasta o tempo especial (STF, Tema 555).</li>'+
@@ -180,7 +193,7 @@ function renderCaso(){
   casebar()+'<div class="casehead"><label class="f wide" for="c-nome"><span>Identificação do caso</span><input id="c-nome" type="text" data-c="nome" value="'+esc(c.nome)+'"></label>'+
   '<label class="f" for="c-sexo"><span>Segurado</span><select id="c-sexo" data-c="sexo"><option value="H"'+(c.sexo!=='M'?' selected':'')+'>Homem</option><option value="M"'+(c.sexo==='M'?' selected':'')+'>Mulher</option></select></label>'+
   '<div class="btns"><button data-act="add">Adicionar período</button><button class="ghost" data-act="clr">Limpar períodos</button><button class="ghost" data-act="copy">Copiar quadro-resumo</button><button class="printbtn" data-print="caso">Imprimir simulação</button></div></div>'+
-  '<div id="totbar">'+totBar()+'</div><div class="rows">'+c.rows.map(rowCard).join('')+'</div>'+
+  '<div id="totbar" aria-live="polite">'+totBar()+'</div><div class="rows">'+c.rows.map(rowCard).join('')+'</div>'+
   (c.rows.length?'':'<p class="empty">Nenhum período. Use <b>Adicionar período</b> ou crie um caso a partir do <button class="linkbtn" data-act="ex">exemplo</button>.</p>')+
   '<p class="fine">Os dois critérios aplicam a informação de EPI eficaz a partir de 03/12/1998, conforme o STJ (Tema 1090), salvo ruído e cancerígenos LINACH. Contagem em dias corridos; a conversão em anos, meses e dias usa 365/30 dias.</p>';
 }
@@ -858,6 +871,7 @@ function destinoValido(dest){ const i=dest.indexOf(':'); if(i<1) return false; c
   if(k==='hist') return typeof HISTORICO_NR!=='undefined'&&!!HISTORICO_NR[v];
   return false; }
 function linkBtn(key){ return '<button class="ghost sm" data-golink="'+esc(key)+'" title="Copiar o endereço direto desta consulta">Copiar link</button>'; }
+document.addEventListener('click', ev=>{ const b=ev.target.closest('[data-irper]'); if(!b) return; const i=b.dataset.irper; setTimeout(()=>{ const el=document.getElementById('r'+i+'-ini'); if(el){ const art=el.closest('article,section')||el; const hd=document.querySelector('header.band'); const topo=hd&&getComputedStyle(hd).position==='sticky'?hd.getBoundingClientRect().bottom:0; window.scrollTo(0, art.getBoundingClientRect().top+window.scrollY-topo-8); el.focus({preventScroll:true}); } },120); });
 document.addEventListener('click', ev=>{ const b=ev.target.closest('[data-golink]'); if(!b) return; copiar(linkDireto(b.dataset.golink),'Link copiado. Quem abrir vai direto a esta consulta.'); });
 function go(dest){
   const [k,v]=dest.split(':'); SRCH={tq:null,q:null,q11:null,q13:null,fromGo:true};
@@ -985,6 +999,7 @@ function reportCaso(){
   return '<h1>Simulação de enquadramento — aposentadoria especial</h1><p class="meta">Documento de consulta: aplica as regras aos dados informados e não substitui laudo, parecer ou decisão.</p><p class="meta"><b>Caso:</b> '+esc(c.nome||'—')+' · <b>Segurado:</b> '+(c.sexo==='M'?'mulher':'homem')+' · <b>Emitido em:</b> '+hoje()+'</p>'+
    '<table class="rep"><thead><tr><th>Período</th><th>Empresa / função</th><th>Agente</th><th>Base legal</th><th>Nota do especialista</th><th>INSS (IN 128/2022)</th></tr></thead><tbody>'+rows+'</tbody></table>'+
    '<table class="tot"><tr><th>Tempo especial — nota do especialista</th><td>'+fmtDias(t.perito.dias)+' ('+t.perito.dias.toLocaleString('pt-BR')+' dias)</td></tr><tr><th>Tempo especial — INSS</th><td>'+fmtDias(t.inss.dias)+' ('+t.inss.dias.toLocaleString('pt-BR')+' dias)</td></tr><tr><th>Acréscimo por conversão até 13/11/2019 (perito / INSS)</th><td>'+fmtDias(t.perito.conv)+' / '+fmtDias(t.inss.conv)+'</td></tr><tr><th>Trechos divergentes</th><td>'+t.diverg+'</td></tr></table>'+
+   (()=>{ const sit=situacaoTempo(t); return (sit&&!sit.misto?'<p class="meta"><b>Tempo exigido: '+sit.T+' anos</b> · especialista: '+sit.perito+' · INSS: '+sit.inss+' (sem considerar carência, idade mínima e regras de transição).</p>':'')+(t.perito.sobrep||t.inss.sobrep?'<p class="meta">'+fmtDias(Math.max(t.perito.sobrep,t.inss.sobrep))+' em períodos sobrepostos foram contados uma vez.</p>':''); })()+
    '<p class="nota">Nota do especialista: ruído pela NR-15 (q = 5), Lavg até 18/11/2003 e NEN a partir de 19/11/2003; calor pelo código 2.0.4 do Decreto 3.048/99; agentes biológicos pelo rol do código 3.0.1. Contagem em dias corridos; anos, meses e dias aproximados por 365/30. Conversão pelo art. 70 do Decreto 3.048/99, só até 13/11/2019 (EC 103/2019).</p>';
 }
 /* uma linha da tabela externa por bloco: o cabeçalho e o rodapé do timbrado se repetem sem sobrepor o conteúdo */
