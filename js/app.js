@@ -832,7 +832,7 @@ function go(dest){
 function render(){
   document.querySelectorAll('.tabs a').forEach(a=>a.setAttribute('aria-current', a.getAttribute('href')==='#'+S.tab?'page':'false'));
   const m=$('#main');
-  m.innerHTML = S.tab==='inicio'?renderInicio(): S.tab==='busca'?renderBusca(): S.tab==='aposentadoria'?renderAposentadoria(): S.tab==='insalubridade'?renderInsal(): S.tab==='periculosidade'?renderPeric(): S.tab==='teses'?renderTeses(): S.tab==='perfil'?renderPerfil(): renderBib();
+  m.innerHTML = ajudaHtml() + (S.tab==='inicio'?renderInicio(): S.tab==='busca'?renderBusca(): S.tab==='aposentadoria'?renderAposentadoria(): S.tab==='insalubridade'?renderInsal(): S.tab==='periculosidade'?renderPeric(): S.tab==='teses'?renderTeses(): S.tab==='perfil'?renderPerfil(): renderBib());
 }
 function route(){ let h=location.hash.slice(1); const LEG={agentes:'aposentadoria/agentes',painel:'aposentadoria/resultado'}; if(LEG[h]){ h=LEG[h]; history.replaceState(null,'','#'+h); } const [h0,h1]=h.split('/');
   if(SRCH){ if(SRCH.fromGo){ SRCH.fromGo=false; } else { if(SRCH.tq!==null&&S.tq===SRCH.tq) S.tq=''; if(SRCH.q!==null&&S.q===SRCH.q){ S.q=''; S.lib='todas'; } if(SRCH.q11!==null&&S.ins.q11===SRCH.q11){ S.ins.q11=''; } SRCH=null; } } S.tab = TABS.some(t=>t[0]===h0)?h0:(h0==='busca'?'busca':'inicio'); if(S.tab==='aposentadoria') S.ap = AP_SUB.some(x=>x[0]===h1)?h1:(S.ap||'agentes'); if(S.tab==='teses'&&h1&&TESES[h1]){ S.tf='todos'; S.tsit='todas'; S.tq=''; } render(); if(S.tab==='teses'&&h1&&TESES[h1]) destacar('tese-'+h1); }
@@ -1038,7 +1038,7 @@ function renderPerfil(){
   '</section><aside class="panel"><div class="ph"><h3>Meus dados</h3></div><p class="small">'+nCasos+(nCasos>1?' casos salvos':' caso salvo')+' neste navegador.</p>'+
    '<div class="btns col"><button class="ghost" data-cs="backup">Baixar backup completo</button><label class="ghost filebtn" for="pf-restore">Restaurar backup<input id="pf-restore" type="file" accept=".json,application/json" data-pfrestore="1"></label><button class="ghost danger" data-cs="wipe">Apagar todos os meus dados</button></div>'+
    '<p class="fine">O backup inclui todos os casos, o perfil (sem as imagens do timbrado) e os favoritos com anotações. Apagar remove casos, perfil e preferências deste navegador, sem possibilidade de recuperação.</p>'+
-   '<div class="ph"><h3>Usar sem internet</h3></div>'+instalarHtml()+'<div class="ph"><h3>Documentos</h3></div><ul class="blist"><li><a href="termos.html" target="_blank" rel="noopener">Termos de uso ↗</a></li><li><a href="privacidade.html" target="_blank" rel="noopener">Política de privacidade ↗</a></li></ul>'+
+   '<div class="ph"><h3>Usar sem internet</h3></div>'+instalarHtml()+'<div class="ph"><h3>Ajuda</h3></div><button class="ghost" data-tour="0">Ver o tutorial de boas-vindas</button>'+'<div class="ph"><h3>Documentos</h3></div><ul class="blist"><li><a href="termos.html" target="_blank" rel="noopener">Termos de uso ↗</a></li><li><a href="privacidade.html" target="_blank" rel="noopener">Política de privacidade ↗</a></li></ul>'+
    (p.aceite?'<p class="fine">Termos aceitos em '+dataBR(p.aceite.data)+' (versão '+esc(p.aceite.versao)+').</p>':'')+
   '</aside></div>';
 }
@@ -1085,7 +1085,7 @@ document.addEventListener('click', ev=>{
   else if(k==='exp') exportarCaso();
   else if(k==='imp'){ let f=document.getElementById('c-file'); if(!f){ f=document.createElement('input'); f.type='file'; f.id='c-file'; f.accept='.json,application/json'; f.hidden=true; document.body.appendChild(f); } f.click(); }
   else if(k==='backup') exportarTudo();
-  else if(k==='aceito'){ PERFIL.aceite={versao:TERMOS_VERSAO, data:agora()}; salvarPerfil(); const d=document.getElementById('termos'); if(d) d.remove(); }
+  else if(k==='aceito'){ PERFIL.aceite={versao:TERMOS_VERSAO, data:agora()}; salvarPerfil(); const d=document.getElementById('termos'); if(d) d.remove(); talvezTutorial(); }
   else if(k==='del'||k==='wipe'){
     if(!b.dataset.armed){ b.dataset.armed='1'; const orig=b.textContent; b.textContent= k==='del'?'Toque de novo para excluir':'Toque de novo para apagar tudo'; setTimeout(()=>{ if(b.isConnected){ delete b.dataset.armed; b.textContent=orig; } },3500); return; }
     if(k==='del') excluirCaso();
@@ -1184,6 +1184,32 @@ document.addEventListener('click', ev=>{
 });
 document.addEventListener('input', ev=>{ const t=ev.target; if(t.dataset.favnota&&FAV[t.dataset.favnota]){ FAV[t.dataset.favnota].nota=t.value; salvarFav(); } });
 
+/* ---------- ajuda: "Como usar esta tela" e tutorial de primeiro acesso ---------- */
+const TUTORIAL_VERSAO='2026-11';
+function ajudaChave(){ return S.tab==='aposentadoria' ? 'aposentadoria/'+(S.ap||'agentes') : S.tab; }
+function ajudaHtml(){
+  if(typeof AJUDA_TELA==='undefined') return '';
+  const l=AJUDA_TELA[ajudaChave()]; if(!l) return '';
+  return '<details class="ajuda"><summary>Como usar esta tela</summary><ul>'+l.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul><button class="linkbtn small" data-tour="0">Ver o tutorial de boas-vindas</button></details>';
+}
+function abrirTutorial(i){
+  if(typeof TUTORIAL==='undefined') return;
+  let d=document.getElementById('tutorial');
+  if(!d){ d=document.createElement('div'); d.id='tutorial'; d.setAttribute('role','dialog'); d.setAttribute('aria-modal','true'); d.setAttribute('aria-label','Tutorial de boas-vindas'); document.body.appendChild(d); }
+  const p=TUTORIAL[i], ult=i===TUTORIAL.length-1;
+  d.innerHTML='<div class="tut"><p class="eyebrow">Boas-vindas · passo '+(i+1)+' de '+TUTORIAL.length+'</p><h2>'+esc(p.t)+'</h2><p>'+esc(p.d)+'</p><div class="tutdots">'+TUTORIAL.map((_,k)=>'<span class="'+(k===i?'on':'')+'"></span>').join('')+'</div><div class="btns"><button class="ghost" data-tutfim="1">Pular</button>'+(i>0?'<button class="ghost" data-tutir="'+(i-1)+'">Anterior</button>':'')+'<button data-tut'+(ult?'fim':'ir')+'="'+(ult?'1':i+1)+'">'+(ult?'Começar a usar':'Próximo')+'</button></div></div>';
+  const bt=d.querySelector('[data-tutir="'+(i+1)+'"],[data-tutfim]:last-child'); if(bt) bt.focus();
+}
+function fecharTutorial(){ const d=document.getElementById('tutorial'); if(d) d.remove(); PERFIL.tour=TUTORIAL_VERSAO; salvarPerfil(); }
+document.addEventListener('click', ev=>{
+  const b=ev.target.closest('[data-tour],[data-tutir],[data-tutfim]'); if(!b) return;
+  if(b.dataset.tour!==undefined) abrirTutorial(0);
+  else if(b.dataset.tutir!==undefined) abrirTutorial(+b.dataset.tutir);
+  else fecharTutorial();
+});
+document.addEventListener('keydown', ev=>{ if(ev.key==='Escape'&&document.getElementById('tutorial')) fecharTutorial(); });
+function talvezTutorial(){ if(PERFIL.aceite&&PERFIL.tour!==TUTORIAL_VERSAO) abrirTutorial(0); }
+
 /* ---------- fontes oficiais e alertas do monitor ---------- */
 const brData = d => d ? d.split('-').reverse().join('/') : '—';
 const FONTES_OK = typeof FONTES!=='undefined' ? FONTES : [];
@@ -1211,6 +1237,7 @@ function renderAlertas(){
 renderAlertas();
 avisoTermos();
 faixaNovidades();
+talvezTutorial();
 
 /* ---------- uso sem internet (PWA) ---------- */
 let INSTALAR=null;
