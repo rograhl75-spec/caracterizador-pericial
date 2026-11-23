@@ -50,7 +50,8 @@ const AJUDA_TELA = {
   '"Copiar link" abre direto a tese; "Favoritar" guarda nos seus favoritos.'],
  'biblioteca':[
   'Quadros dos decretos, Anexo IV, LINACH, glossário e textos de apoio, todos pesquisáveis.',
-  'Escolha um quadro no seletor ou pesquise em todos de uma vez.'],
+  'Escolha um quadro no seletor ou pesquise em todos de uma vez.',
+  'Em "Textos legais navegáveis", leia a Lei 8.213 (arts. 57 e 58), a IN 128 e os itens gerais das NR-15 e NR-16; cada artigo tem link e citação para copiar.'],
  'perfil':[
   'Seus dados profissionais aparecem no cabeçalho e na assinatura das impressões.',
   'Faça backup de vez em quando: os dados ficam só neste navegador.',

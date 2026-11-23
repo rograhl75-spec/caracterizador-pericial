@@ -537,7 +537,7 @@ function renderAgentes(){
   if(exb.length) leg+='<details><summary>Manual de Aposentadoria Especial (INSS, 2018) — trechos</summary><p class="fine">Atenção: o Manual foi redigido sob a IN 77/2015, revogada pela IN 128/2022. Os artigos citados nos trechos são da IN 77; confira a correspondência na IN 128.</p>'+exb.map(b=>'<div class="lt"><div><p class="eyebrow">'+esc(b.h)+'</p><p>'+esc(b.t)+'</p></div></div>').join('')+'</details>';
   if(a.comp) f+='<h3>Decreto × IN × Manual do INSS</h3><div class="scrollx"><table class="pt cmp"><thead><tr>'+a.comp.cols.map(c=>'<th>'+c+'</th>').join('')+'</tr></thead><tbody>'+a.comp.rows.map(r=>'<tr>'+r.map((c,k)=>'<td'+(k===0?' class="mono"':'')+'>'+esc(c)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
   if(a.id==='vibracao') f+='<h3>Referências ISO para 06/03/1997 a 12/08/2014</h3><div class="isogrid">'+ISO_VIB.map(x=>'<div class="iso"><b>'+esc(x.rot)+'</b>'+(x.v!==null?'<span class="isov">'+String(x.v).replace('.',',')+' '+x.un+(x.vdv?' · VDV '+String(x.vdv).replace('.',',')+' m/s¹·⁷⁵':'')+'</span>':'<span class="isov">sem LT</span>')+'<p>'+esc(x.nota)+'</p></div>').join('')+'</div><p class="fine">A IN 128/2022 não diz qual edição ou qual valor da ISO usar. Na simulação de enquadramento, escolha a referência no campo "Referência ISO"; o padrão é o limite superior da zona de cautela da ISO 2631-1:1997.</p>';
-  if(a.art&&a.art.length) f+='<details class="lit"><summary>Texto literal da IN PRES/INSS 128/2022 — art. '+a.art.join(', ')+'</summary>'+a.art.map(n=>(IN128[n]||[]).map((p,k)=>'<p'+(k===0?' class="art0"':'')+'>'+esc(p)+'</p>').join('')).join('<hr>')+(a.art.includes('293')?'<p class="fine">Redação dada pela IN PRES/INSS 141/2022.</p>':'')+'</details>';
+  if(a.art&&a.art.length) f+='<details class="lit"><summary>Texto literal da IN PRES/INSS 128/2022 — art. '+a.art.join(', ')+'</summary>'+a.art.map(n=>(IN128[n]||[]).map((p,k)=>'<p'+(k===0?' class="art0"':'')+'>'+esc(p)+'</p>').join('')).join('<hr>')+(a.art.includes('293')?'<p class="fine">Redação dada pela IN PRES/INSS 141/2022.</p>':'')+'<p class="fine">Abrir no texto navegável: '+a.art.map(n=>'<a href="#biblioteca/textos/in128/'+n+'">art. '+n+'</a>').join(', ')+'</p></details>';
   f+='<h3>Texto das normas</h3>'+(leg||'<p class="muted">Sem texto cadastrado.</p>')+'<p class="fine">Textos transcritos das normas e do Manual do INSS. Confira sempre a redação oficial no Planalto.</p></article>';
   return '<div class="agwrap">'+list+f+'</div>';
 }
@@ -763,9 +763,12 @@ const LIBT = [
 function hl(s,q){ s=esc(s); if(!q) return s; const re=new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'); return s.replace(re,'<mark>$1</mark>'); }
 function cellHtml(v,q){ v=String(v||''); if(/^https?:\/\//.test(v)) return '<a href="'+esc(v)+'" target="_blank" rel="noopener">'+esc(v.replace(/^https?:\/\/(www\.)?/,'').slice(0,60))+'…</a>'; return hl(v,q); }
 function renderBib(){
+  const vis='<nav class="subtabs" aria-label="Biblioteca"><a href="#biblioteca"'+(S.libv!=='textos'?' class="on" aria-current="page"':'')+'>Quadros e tabelas</a><a href="#biblioteca/textos"'+(S.libv==='textos'?' class="on" aria-current="page"':'')+'>Textos legais navegáveis</a></nav>';
+  if(S.libv==='textos') return '<section class="intro"><div><p class="eyebrow">Biblioteca</p><h2>Textos legais navegáveis</h2><p class="muted">Lei 8.213/91 (arts. 57 e 58), IN 128/2022 (arts. 286 a 302) e os itens gerais da NR-15 e da NR-16, com link e citação para cada artigo ou item.</p></div></section>'+vis+renderTextos();
   const q=S.q.trim(), norm=s=>String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase(), nq=norm(q);
   const tabs = S.lib==='todas' ? LIBT : LIBT.filter(t=>t[0]===S.lib);
   let h='<section class="intro"><div><p class="eyebrow">Biblioteca</p><h2>Normas e quadros</h2><p class="muted">Conteúdo das planilhas originais (Agentes Nocivos e Legislação Previdenciária), agora pesquisável. A IN 77/2015 foi revogada pela IN 128/2022 e não consta aqui.</p></div></section>';
+  h+=vis;
   h+='<div class="libbar"><label class="f" for="lib-sel"><span>Quadro</span><select id="lib-sel" data-lib="1"><option value="todas"'+(S.lib==='todas'?' selected':'')+'>Todos os quadros</option>'+LIBT.map(t=>'<option value="'+t[0]+'"'+(S.lib===t[0]?' selected':'')+'>'+esc(t[1])+'</option>').join('')+'</select></label><label class="f grow" for="lib-q"><span>Pesquisar</span><input id="lib-q" type="search" value="'+esc(S.q)+'" placeholder="Ex.: soldagem, 1.0.19, caldeira, benzeno" data-q="1"></label></div>';
   let total=0;
   for(const [k,tit,heads] of tabs){
@@ -792,6 +795,7 @@ function buildIndex(){
   NR16.forEach(x=>x.secoes.forEach(sec=>{ (sec.itens||[]).forEach(it=>add('NR-16 — periculosidade',x.n+' ('+x.t+') — '+it[1],sec.tit+(it[2]?' · '+it[2]:''),'a16:'+x.id)); (sec.lista||[]).forEach(it=>add('NR-16 — periculosidade',x.n+' ('+x.t+') — '+sec.tit.split(' — ')[0]+' '+it[0],it[1],'a16:'+x.id)); if(sec.txt) add('NR-16 — periculosidade',x.n+' ('+x.t+') — '+sec.tit,sec.txt,'a16:'+x.id); })); NR16_GERAL.forEach(([k,t])=>add('NR-16 — periculosidade','Item '+k,t,'a16:a2'));
   Object.entries(TESES).forEach(([k,t])=>add('Teses e súmulas',t.trib+', '+t.num+' — '+t.titulo,t.tese,'tese:'+k));
   if(typeof FUNCOES!=='undefined') FUNCOES.forEach((x,i)=>add('Consulta por função',x.f,x.obs,'funcao:'+i,(x.sin||[]).join(' ')));
+  docsTexto().forEach(d=>d.itens.forEach(it=>add('Textos legais — '+d.curto,it.rot+' — '+d.tit.split(' — ')[0],it.pars.join(' '),'txt:'+d.id+'/'+it.id)));
   MARCOS.forEach(m=>add('Marcos legais',fmtBR(m.d)+' — '+m.t,m.s,'aposentadoria/resultado'));
   if(typeof NOVIDADES!=='undefined') NOVIDADES.forEach(n=>add('Novidades na base',n.titulo,n.resumo,n.ir||'inicio'));
   LIBT.forEach(([k,tit])=>(LIB[k]||[]).forEach(r=>{ const row=Array.isArray(r)?r:[r]; const txt=row.filter(Boolean).join(' · '); if(/^https?:/.test(txt)) return; add('Biblioteca — '+tit, row[0].length>90?row[0].slice(0,90)+'…':row[0], row.slice(1).join(' · '), 'lib:'+k, txt); }));
@@ -826,6 +830,7 @@ function go(dest){
   else if(k==='a16'){ S.a16=v; location.hash='periculosidade'; }
   else if(k==='funcao'){ S.fsel=+v; S.fq=''; location.hash='funcao'; }
   else if(k==='tese'){ S.tf='todos'; S.tsit='todas'; S.tq=''; location.hash='teses/'+v; }
+  else if(k==='txt'){ location.hash='biblioteca/textos/'+v; }
   else if(k==='lib'){ S.lib=v; S.q=S.gq||''; SRCH.q=S.q; location.hash='biblioteca'; }
   else location.hash=k;
   if(location.hash==='#'+S.tab){ route(); }
@@ -836,9 +841,9 @@ function render(){
   const m=$('#main');
   m.innerHTML = ajudaHtml() + (S.tab==='inicio'?renderInicio(): S.tab==='busca'?renderBusca(): S.tab==='aposentadoria'?renderAposentadoria(): S.tab==='insalubridade'?renderInsal(): S.tab==='periculosidade'?renderPeric(): S.tab==='teses'?renderTeses(): S.tab==='perfil'?renderPerfil(): S.tab==='funcao'?renderFuncao(): renderBib());
 }
-function route(){ let h=location.hash.slice(1); const LEG={agentes:'aposentadoria/agentes',painel:'aposentadoria/resultado'}; if(LEG[h]){ h=LEG[h]; history.replaceState(null,'','#'+h); } const [h0,h1]=h.split('/');
-  if(SRCH){ if(SRCH.fromGo){ SRCH.fromGo=false; } else { if(SRCH.tq!==null&&S.tq===SRCH.tq) S.tq=''; if(SRCH.q!==null&&S.q===SRCH.q){ S.q=''; S.lib='todas'; } if(SRCH.q11!==null&&S.ins.q11===SRCH.q11){ S.ins.q11=''; } SRCH=null; } } S.tab = TABS.some(t=>t[0]===h0)?h0:(h0==='busca'?'busca':'inicio'); if(S.tab==='aposentadoria') S.ap = AP_SUB.some(x=>x[0]===h1)?h1:(S.ap||'agentes'); if(S.tab==='teses'&&h1&&TESES[h1]){ S.tf='todos'; S.tsit='todas'; S.tq=''; } render(); if(S.tab==='teses'&&h1&&TESES[h1]) destacar('tese-'+h1); }
-window.addEventListener('hashchange', ()=>{ route(); window.scrollTo(0,0); });
+function route(){ let h=location.hash.slice(1); const LEG={agentes:'aposentadoria/agentes',painel:'aposentadoria/resultado'}; if(LEG[h]){ h=LEG[h]; history.replaceState(null,'','#'+h); } const [h0,h1,h2,h3]=h.split('/');
+  if(SRCH){ if(SRCH.fromGo){ SRCH.fromGo=false; } else { if(SRCH.tq!==null&&S.tq===SRCH.tq) S.tq=''; if(SRCH.q!==null&&S.q===SRCH.q){ S.q=''; S.lib='todas'; } if(SRCH.q11!==null&&S.ins.q11===SRCH.q11){ S.ins.q11=''; } SRCH=null; } } S.tab = TABS.some(t=>t[0]===h0)?h0:(h0==='busca'?'busca':'inicio'); if(S.tab==='aposentadoria') S.ap = AP_SUB.some(x=>x[0]===h1)?h1:(S.ap||'agentes'); if(S.tab==='teses'&&h1&&TESES[h1]){ S.tf='todos'; S.tsit='todas'; S.tq=''; } if(S.tab==='biblioteca'){ S.libv=h1==='textos'?'textos':'quadros'; if(h2){ S.txd=h2; S.txq=''; } } render(); if(S.tab==='teses'&&h1&&TESES[h1]){ destacar('tese-'+h1); return true; } if(S.tab==='biblioteca'&&S.libv==='textos'&&h3){ destacar(txId(h2,decodeURIComponent(h3))); return true; } return false; }
+window.addEventListener('hashchange', ()=>{ if(!route()) window.scrollTo(0,0); });
 
 function setPath(obj, path, val){ const ps=path.split('.'); let o=obj; for(let k=0;k<ps.length-1;k++){ o[ps[k]]=o[ps[k]]||{}; o=o[ps[k]]; } o[ps[ps.length-1]]=val; }
 function refreshCaso(i){ if(i==='s'){ const el=$('#res-s'); if(el) el.innerHTML=resTable(simRow()); return; } const el=$('#res-'+i); if(el) el.innerHTML=resTable(S.caso.rows[i]); const tb=$('#totbar'); if(tb) tb.innerHTML=totBar(); const r=S.caso.rows[i], art=document.querySelector('.row[data-i="'+i+'"] .rtt'); if(art) art.innerHTML='<b>'+esc(r.funcao||'Função')+'</b><span>'+esc(r.empresa||'Empresa')+'</span>'; }
@@ -1165,7 +1170,7 @@ let FAV={}; try{ FAV=JSON.parse(localStorage.getItem(STORE_FAV)||'{}')||{}; }cat
 function salvarFav(){ try{ localStorage.setItem(STORE_FAV, JSON.stringify(FAV)); }catch(e){ avisar('Não foi possível salvar os favoritos no navegador.'); } }
 function favBtn(key, titulo){ const on=!!FAV[key]; return '<button class="ghost sm fav'+(on?' on':'')+'" data-fav="'+esc(key)+'" data-favt="'+esc(titulo)+'" aria-pressed="'+on+'" title="'+(on?'Remover dos favoritos':'Guardar nos favoritos')+'">'+(on?'★ Favorito':'☆ Favoritar')+'</button>'; }
 function favLista(){ return Object.entries(FAV).map(([k,v])=>Object.assign({key:k},v)).sort((x,y)=>String(y.data||'').localeCompare(String(x.data||''))); }
-const FAV_TIPO = k => ({ag:'Agente', tese:'Tese', a15:'NR-15', a16:'NR-16', funcao:'Função'}[k.split(':')[0]]||'Item');
+const FAV_TIPO = k => ({ag:'Agente', tese:'Tese', a15:'NR-15', a16:'NR-16', funcao:'Função', txt:'Texto legal'}[k.split(':')[0]]||'Item');
 function favoritosInicio(){
   const l=favLista(); if(!l.length) return '';
   return '<section class="isec panel favs"><div class="ihead"><h2 class="ih">Meus favoritos</h2><p class="ilead">Atalhos para o que você mais consulta. As anotações ficam só neste navegador; edite-as em <a href="#perfil">Perfil e dados</a>.</p></div><ul class="favl">'+
@@ -1274,6 +1279,47 @@ document.addEventListener('click', ev=>{
   if(b.dataset.fsel!==undefined){ S.fsel=+b.dataset.fsel; render(); if(window.innerWidth<760){ const p=document.getElementById('ffun'); if(p) p.scrollIntoView({block:'start'}); } }
   else { const x=FUNCOES[+b.dataset.fcmp]; S.cmpAg=x.ag.filter(id=>AGENTS.some(a=>a.id===id&&a.id!=='categoria')).slice(0,3); location.hash='aposentadoria/comparar'; }
 });
+
+/* ---------- Textos legais navegáveis ---------- */
+function docsTexto(){
+  const D=[];
+  D.push({id:'lei8213', tit:'Lei 8.213/1991 — arts. 57 e 58', curto:'Lei 8.213/91', fonte:'https://www.planalto.gov.br/ccivil_03/leis/l8213cons.htm',
+    nota:'Redação vigente, com as alterações das Leis 9.032/95, 9.528/97 e 9.732/98. Para benefícios com requisitos cumpridos após 13/11/2019, veja também a EC 103/2019.',
+    itens:[18,19].map(i=>{ const pars=String(LIB.txt_resumo[i]||'').split('\n').filter(Boolean); const n=(pars[0].match(/^Art\. (\d+)/)||[])[1]; return {id:n, rot:'Art. '+n, pars, cit:'Lei 8.213/1991, art. '+n}; })});
+  D.push({id:'in128', tit:'IN PRES/INSS 128/2022 — arts. 286 a 302', curto:'IN 128/2022', fonte:'https://www.in.gov.br/en/web/dou/-/instrucao-normativa-pres/inss-n-128-de-28-de-marco-de-2022-389275446',
+    nota:'Texto literal conferido no DOU. Art. 293 na redação da IN 141/2022; arts. 287, 290, 291 e 292 na redação da IN 170/2024.',
+    itens:Object.keys(IN128).sort((x,y)=>x-y).map(n=>({id:n, rot:'Art. '+n, pars:IN128[n], cit:'IN PRES/INSS 128/2022, art. '+n+(n==='293'?' (redação da IN 141/2022)':['287','290','291','292'].includes(n)?' (redação da IN 170/2024)':'')}))});
+  if(typeof NR15_CORPO!=='undefined') D.push({id:'nr15', tit:'NR-15 — itens gerais (15.1 a 15.7)', curto:'NR-15', fonte:'https://www.gov.br/trabalho-e-emprego/pt-br/acesso-a-informacao/participacao-social/conselhos-e-orgaos-colegiados/comissao-tripartite-partitaria-permanente/normas-regulamentadora/normas-regulamentadoras-vigentes/norma-regulamentadora-no-15-nr-15',
+    nota:'Texto consolidado do MTE. Os anexos estão na aba Insalubridade.',
+    itens:NR15_CORPO.map(([k,t])=>({id:k, rot:'Item '+k, pars:[t], cit:'NR-15, item '+k}))});
+  D.push({id:'nr16', tit:'NR-16 — itens gerais', curto:'NR-16', fonte:'https://www.gov.br/trabalho-e-emprego/pt-br/acesso-a-informacao/participacao-social/conselhos-e-orgaos-colegiados/comissao-tripartite-partitaria-permanente/normas-regulamentadora/normas-regulamentadoras-vigentes/norma-regulamentadora-no-16-nr-16',
+    nota:'Texto consolidado do MTE. Os anexos estão na aba Periculosidade.',
+    itens:NR16_GERAL.map(([k,t])=>({id:k, rot:'Item '+k, pars:[t], cit:'NR-16, item '+k}))});
+  return D;
+}
+let DOCS_TX=null;
+const txId=(d,i)=>'tx-'+d+'-'+String(i).replace(/[^\w]/g,'_');
+const txLink=(d,i)=>location.href.split('#')[0]+'#biblioteca/textos/'+d+'/'+i;
+function txItem(d,i){ DOCS_TX=DOCS_TX||docsTexto(); const doc=DOCS_TX.find(x=>x.id===d); return doc&&doc.itens.find(x=>x.id===i); }
+function renderTextos(){
+  DOCS_TX=DOCS_TX||docsTexto();
+  const doc=DOCS_TX.find(x=>x.id===S.txd)||DOCS_TX[0];
+  const q=(S.txq||'').trim(), nq=normTxt(q);
+  const itens=nq?doc.itens.filter(it=>normTxt(it.rot+' '+it.pars.join(' ')).includes(nq)):doc.itens;
+  let h='<nav class="txdocs" aria-label="Documentos">'+DOCS_TX.map(x=>'<a class="txchip'+(x.id===doc.id?' on':'')+'" href="#biblioteca/textos/'+x.id+'"'+(x.id===doc.id?' aria-current="page"':'')+'>'+esc(x.curto)+'</a>').join('')+'</nav>';
+  h+='<section class="panel txdoc"><div class="ph"><h3>'+esc(doc.tit)+'</h3><p class="muted small">'+esc(doc.nota)+' <a href="'+esc(doc.fonte)+'" target="_blank" rel="noopener">Fonte oficial</a></p></div>';
+  h+='<label class="f" for="tx-q"><span>Procurar neste texto</span><input id="tx-q" type="search" value="'+esc(q)+'" placeholder="Ex.: permanente, EPI, laudo" data-txq="1"></label>';
+  h+='<div class="txidx" aria-label="Índice">'+doc.itens.map(it=>'<a href="#biblioteca/textos/'+doc.id+'/'+esc(it.id)+'">'+esc(it.rot.replace(/^(Art|Item)\. ?/,''))+'</a>').join('')+'</div>';
+  h+=itens.length?itens.map(it=>'<article class="txart" id="'+txId(doc.id,it.id)+'"><header><b>'+esc(it.rot)+'</b><div class="btns">'+favBtn('txt:'+doc.id+'/'+it.id,it.cit)+'<button class="ghost sm" data-txcite="'+doc.id+'|'+esc(it.id)+'">Copiar citação</button><button class="ghost sm" data-txlink="'+doc.id+'|'+esc(it.id)+'">Copiar link</button></div></header>'+it.pars.map(p=>'<p>'+hl(p,q)+'</p>').join('')+'</article>').join(''):'<p class="empty">Nada encontrado para "'+esc(q)+'" neste texto.</p>';
+  h+='<p class="fine">Reprodução para consulta. Antes de citar em peça ou parecer, confira a redação na fonte oficial.</p></section>';
+  return h;
+}
+document.addEventListener('click', ev=>{
+  const b=ev.target.closest('[data-txcite],[data-txlink]'); if(!b) return;
+  const [d,i]=(b.dataset.txcite||b.dataset.txlink).split('|'); const it=txItem(d,i); if(!it) return;
+  if(b.dataset.txcite) copiar(it.cit+':\n"'+it.pars.join('\n')+'"','Citação copiada.'); else copiar(txLink(d,i),'Link copiado.');
+});
+document.addEventListener('input', ev=>{ const t=ev.target; if(t.dataset&&t.dataset.txq){ S.txq=t.value; const pos=t.selectionStart; render(); const el=document.getElementById('tx-q'); if(el){ el.focus(); try{ el.setSelectionRange(pos,pos); }catch(e){} } } });
 
 /* ---------- Linha do tempo visual da legislação ---------- */
 const TL_INI=1960, TL_FIM=2028, TL_W=1000;

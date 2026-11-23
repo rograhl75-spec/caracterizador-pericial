@@ -650,3 +650,16 @@ svg.tlv{width:100%; min-width:720px; display:block; font-family:var(--f-body)}
 .tscroll{overflow-x:auto; max-width:100%; min-width:0}
 .tl-leg{list-style:none; margin:4px 0 0; padding:0; display:flex; flex-direction:column; gap:4px; font-size:.84rem}
 .tl-leg li{padding:4px 8px; border-left:3px solid var(--line)} .tl-leg li.on{border-left-color:var(--gold-line); background:var(--gold-soft)}
+
+/* textos legais navegáveis */
+.subtabs{display:flex; gap:6px; flex-wrap:wrap; margin:0 0 14px}
+.subtabs a{padding:7px 12px; border:1px solid var(--line); border-radius:999px; text-decoration:none; color:var(--ink); background:var(--surface)}
+.subtabs a.on{background:var(--band); color:#fff; border-color:var(--band)}
+.txdocs{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px} .txchip{padding:6px 11px; border:1px solid var(--line); border-radius:999px; text-decoration:none; color:var(--ink); background:var(--surface); font-weight:600}
+.txchip.on{background:var(--gold-soft); border-color:var(--gold-line); font-weight:700}
+.txidx{display:flex; flex-wrap:wrap; gap:4px; margin:10px 0 14px}
+.txidx a{font-family:var(--f-mono); font-size:12.5px; padding:3px 7px; border:1px solid var(--line); border-radius:4px; text-decoration:none; color:var(--ink); background:var(--surface-2)}
+.txart{border-top:1px solid var(--line); padding:12px 0; scroll-margin-top:130px; min-width:0}
+.txart header{display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:6px}
+.txart p{margin:0 0 8px; overflow-wrap:anywhere}
+@media (max-width:700px){ .txart,.tese,.novs,.alvo{scroll-margin-top:260px} }

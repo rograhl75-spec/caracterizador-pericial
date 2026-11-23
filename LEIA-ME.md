@@ -18,6 +18,7 @@ Site estático (HTML, CSS e JavaScript), sem servidor e sem banco de dados. Func
 | `dados/biblioteca.js` | Quadros dos decretos, LINACH e textos das planilhas | Raramente |
 | `dados/fontes.js` | Fontes oficiais: versão considerada no app, data da conferência e o que o robô vigia | Depois de revisar uma alteração |
 | `dados/novidades.js` | Novidades na base (o que mudou, quando e onde consultar), exibidas no Início | A cada atualização da base |
+| `dados/textos.js` | Itens gerais da NR-15 (15.1 a 15.7) para os textos legais navegáveis; a IN 128, a NR-16 e a Lei 8.213 vêm de `in128-artigos.js`, `nr16.js` e `biblioteca.js` | Atualizar quando a NR-15 mudar |
 | `dados/funcoes.js` | Consulta por função: agentes, anexos e teses a investigar em cada atividade (pontos de partida, não enquadramento) | Incluir ou ajustar funções |
 | `dados/ajuda.js` | Tutorial de boas-vindas e textos de "Como usar esta tela" de cada aba | Mudar ou incluir dicas |
 | `dados/glossario.js` | Glossário técnico e jurídico (aparece na Biblioteca e na busca) | Incluir ou ajustar termo |
@@ -44,6 +45,7 @@ Para atualizar, edite o arquivo no próprio GitHub (ícone de lápis) ou envie a
 - **Regra na data** (Aposentadoria especial): escolha uma data e veja, agente por agente, a norma e o critério do período, com os marcos gerais (categoria profissional, EPI, formulário, conversão, cancerígenos).
 - **Teses:** etiqueta de situação (firmada, embargos pendentes, em julgamento, em revisão), filtro por situação, "Copiar citação" e "Copiar link" (endereço `#teses/<código>`). A situação de cada tese fica em `SITUACAO_TESE`, em `dados/normas-base.js`.
 - **Novidades na base** (Início) e **Glossário** (Biblioteca), ambos pesquisáveis na busca geral.
+- **Textos legais navegáveis** (Biblioteca → Textos legais navegáveis): Lei 8.213/91 arts. 57 e 58, IN 128/2022 arts. 286 a 302, NR-15 itens 15.1 a 15.7 e itens gerais da NR-16, com índice, filtro, "Copiar citação" e "Copiar link" por artigo ou item (endereço `#biblioteca/textos/<documento>/<item>`, ex.: `#biblioteca/textos/in128/290`).
 - **Busca geral:** prioriza palavras que começam pelo termo digitado; só procura no meio das palavras se não houver resultado.
 
 ## Uso sem internet (app instalável)
