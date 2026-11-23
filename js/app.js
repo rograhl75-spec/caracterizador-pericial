@@ -474,7 +474,7 @@ function uCalc(){
   const L=num(u.lavg); if(L===null) return {err:'Informe o Lavg (q = 5).'};
   return {lavg:L, ne:L, nen:L+16.61*log10(te/480), dose:Math.pow(2,(L-85)/5)*te/480, doseTxt:brn0(Math.round(Math.pow(2,(L-85)/5)*te/480*1000)/10)+'%', te, tm:te};
 }
-function uSync(r){ if(!r||r.err||r.lavg===null) return; const row=simRow(); row.d=row.d||{}; row.d.mr='lavg'; row.d.lavg=String(r1(r.lavg)); row.d.te=String(r.te); }
+function uSync(r){ if(!r||r.err||r.lavg===null) return; const row=simRow(); if(row.manual) return; row.d=row.d||{}; row.d.mr='lavg'; row.d.lavg=String(r1(r.lavg)); row.d.te=String(r.te); }
 function uRes(){
   const u=uState(), r=uCalc(); if(r.err) return '<p class="note">'+esc(r.err)+'</p>';
   if(r.lavg===null) return (r.over?'<div class="verdict v-c"><b>Nível acima de 115 dB(A)</b><p>Pela NHT-06 a dose não é calculada: registrar \"Situação de Emergência\" (NR-15, Anexo 1, itens 5 e 7).</p></div>':'<p class="note">Sem dose: leituras abaixo do limiar.</p>');
@@ -511,7 +511,7 @@ function uHtml(){
 function rsSimular(a){
   const r=uCalc(); uSync(r);
   return '<p class="lead">Informe o período analisado e quando foi feita a medição: o período define o limite e a data da medição define o método, o que cobre também o laudo extemporâneo. A ferramenta mostra Lavg, NE e NEN. Depois, enquadre o período com datas e EPI.</p>'+uHtml()+
-   simHtml(a).replace('<h3>Simular enquadramento</h3>','<h3>2. Enquadrar um período</h3>')+
+   simHtml(a).replace('<h3>Simular enquadramento</h3>','<h3>2. Enquadrar um período</h3>').replace('<p class="muted small">','<p class="fine rslink">'+(simRow().manual?'Você editou a medição abaixo; ela não acompanha mais o cálculo do quadro 1. <button class="linkbtn" data-relink="1">Voltar a usar o Lavg do quadro 1</button>':'Lavg e jornada abaixo vêm do cálculo do quadro 1. Se você editar, eles deixam de acompanhar o quadro 1.')+'</p><p class="muted small">')+
    '<details class="cmpdet"><summary>Comparar com outros critérios (q = 3, NHT-06 × NR-15, fórmula)</summary>'+cmpHtml()+'</details>';
 }
 function rsDocumentar(){
@@ -915,6 +915,7 @@ document.addEventListener('input', ev=>{
   if(t.dataset.cmpsel){ cmpState()[t.dataset.cmpsel]=t.value; render(); return; }
   if(t.id==='gq'){ S.gq=t.value; if(S.gq.trim().length>=2){ if(S.tab!=='busca'){ S.tab='busca'; history.replaceState(null,'','#busca'); } render(); } else if(S.tab==='busca') render(); return; }
   if(t.dataset.r!==undefined){ const isSim=t.dataset.r==='s', i=isSim?'s':+t.dataset.r, f=t.dataset.f, row=isSim?simRow():S.caso.rows[i];
+    if(isSim&&S.ag==='ruido'&&/^d\.(mr|lavg|te|ne3|dose5|dose3|tm)$/.test(f)) row.manual=true;
     if(f==='d.mr'||f==='d.regime'||f==='d.epiu'){ if(f==='d.epiu'){ row.d=row.d||{}; row.d.epiu=t.checked; if(!isSim) save(); const id=t.id; render(); refocus(id); return; } row.d=row.d||{}; setPath(row,f,t.value); if(!isSim) save(); const id=t.id; render(); refocus(id); return; }
     let v = t.type==='checkbox'?t.checked:t.value;
     if(f==='agente'){ row.agente=v; row.d={}; row.tempo=agById(v).tempo; save(); render(); const s=$('#r'+i+'-agente'); if(s) s.focus(); return; }
@@ -924,7 +925,8 @@ document.addEventListener('input', ev=>{
   if(t.dataset.ins!==undefined){ const k=t.dataset.ins; S.ins[k]= t.type==='checkbox'?t.checked:t.value;
     if(k==='q2sel' && t.value) S.ins.m=t.value.split('|')[0];
     if(k==='un'){ /* troca de unidade mantém a substância */ }
-    const id=t.id; render(); if(t.type!=='radio'&&t.type!=='checkbox') refocus(id); return; }
+    if(k==='m'&&t.type==='text') S.ins.q2sel=''; /* M digitado à mão: o select do Quadro 2 volta a "Escolher" */
+    const id=t.id; render(); refocus(id); return; }
   if(t.dataset.nps!==undefined){ const rows=insv('nps',[[88,240],[92,120],[80,120]]).map(r=>r.slice()); rows[+t.dataset.nps][+t.dataset.col]=t.value; S.ins.nps=rows; const id=t.getAttribute('aria-label'), cp=CARET; render(); const el=document.querySelector('[aria-label="'+id+'"]'); if(el){ el.focus(); try{ const L=el.value.length, p=(cp===null||cp>L)?L:cp; el.setSelectionRange(p,p); }catch(e){} } return; }
   if(t.dataset.per!==undefined){ S.per[t.dataset.per]= t.type==='checkbox'?t.checked:t.value; const id=t.id; render(); refocus(id); return; }
   if(t.dataset.st){ S[t.dataset.st]=t.value; const id=t.id; render(); refocus(id); return; }
@@ -939,19 +941,22 @@ document.addEventListener('click', ev=>{
   if(b.dataset.go){ go(b.dataset.go); window.scrollTo(0,0); return; }
   if(b.dataset.gq){ const g=$('#gq'); g.value=b.dataset.gq; S.gq=b.dataset.gq; render(); return; }
   if(b.dataset.ag){ S.ag=b.dataset.ag; if(!(S.tab==='aposentadoria'&&S.ap==='agentes')){ S.ap='agentes'; location.hash='aposentadoria/agentes'; } else { render(); } if(b.tagName==='BUTTON'){ const f=$('.ficha'); if(f&&window.innerWidth<860) f.scrollIntoView({behavior:'smooth'}); } return; }
-  if(b.dataset.a11!==undefined){ S.ins.sub=+b.dataset.a11; delete S.ins.un; render(); const sc=$('.subcalc'); if(sc) sc.scrollIntoView({behavior:'smooth',block:'nearest'}); return; }
+  if(b.dataset.a11!==undefined){ S.ins.sub=+b.dataset.a11; delete S.ins.un; render(); const sc=$('.subcalc'); if(sc){ sc.scrollIntoView({behavior:'smooth',block:'nearest'}); const f=sc.querySelector('input,select,button'); if(f) f.focus({preventScroll:true}); } return; }
   if(b.dataset.a11clr){ delete S.ins.sub; delete S.ins.un; render(); return; }
   if(b.dataset.npsr!==undefined||b.dataset.npsx!==undefined){ const k=b.dataset.npsr??b.dataset.npsx, row=k==='s'?simRow():S.caso.rows[+k]; row.d=row.d||{}; const o=row.d.nps||(row.d.nps={}); const n=Object.keys(o).length; if(b.dataset.npsr!==undefined){ o[Math.max(n,1)]={0:'',1:''}; if(!n) o[0]={0:'',1:''}; } else if(n>1) delete o[n-1]; if(k!=='s') save(); render(); return; }
-  if(b.dataset.simuse){ const r=JSON.parse(JSON.stringify(simRow())); r.empresa=''; r.funcao='Simulação — '+agById(r.agente).nome; S.caso.rows.push(r); save(); b.textContent='Incluído no caso'; b.disabled=true; const box=b.closest('.simbox'); if(box&&!box.querySelector('.goto-caso')){ const a=document.createElement('a'); a.className='goto-caso'; a.href='#aposentadoria/caso'; a.textContent='Período incluído. Ver na simulação →'; box.querySelector('.fhead').after(a); } setTimeout(()=>{ if(b.isConnected){ b.textContent='Incluir na análise de caso'; b.disabled=false; } },2000); return; }
+  if(b.dataset.simuse){ const r=JSON.parse(JSON.stringify(simRow())); r.empresa=''; r.funcao='Simulação — '+agById(r.agente).nome; S.caso.rows.push(r); save(); b.textContent='Incluído no caso'; b.disabled=true; const box=b.closest('.simbox'); if(box&&!box.querySelector('.goto-caso')){ const a=document.createElement('a'); a.className='goto-caso'; a.href='#aposentadoria/caso'; a.textContent='Período incluído. Ver na simulação →'; box.querySelector('.fhead').after(a); } setTimeout(()=>{ if(b.isConnected){ b.textContent='Incluir na simulação'; b.disabled=false; } },2000); return; }
   if(b.dataset.caq!==undefined){ const ca=(b.closest('.epibox')?.querySelector('[data-f="d.ca"]')?.value||'').trim(); try{ if(ca&&navigator.clipboard) navigator.clipboard.writeText(ca); }catch(e){} window.open('http://caepi.mte.gov.br/internet/ConsultaCAInternet.aspx','_blank','noopener'); if(ca){ b.textContent='CA '+ca+' copiado · abrir consulta ↗'; } return; }
   if(b.dataset.rstep){ S.rstep=b.dataset.rstep; render(); const r=$('.rs'); if(r) r.scrollIntoView({block:'start'}); return; }
   if(b.dataset.rckclr){ S.rck={}; render(); return; }
-  if(b.dataset.useg){ uState()[b.dataset.useg]=b.dataset.v; render(); return; }
+  if(b.dataset.relink){ const row=simRow(); row.manual=false; uSync(uCalc()); render(); const f=document.getElementById('rs-d-lavg'); if(f) f.focus(); return; }
+  if(b.dataset.useg){ uState()[b.dataset.useg]=b.dataset.v; render(); const f=document.querySelector('[data-useg="'+b.dataset.useg+'"][data-v="'+b.dataset.v+'"]'); if(f) f.focus(); return; }
   if(b.dataset.ursr){ S.u=null; S.li=null; render(); return; }
   if(b.dataset.lirst){ S.li=null; render(); return; }
   if(b.dataset.cmprst){ S.cmp=null; render(); return; }
   if(b.dataset.simrst){ delete S.sim[S.ag]; render(); return; }
-  if(b.dataset.del!==undefined){ S.caso.rows.splice(+b.dataset.del,1); save(); render(); return; }
+  if(b.dataset.del!==undefined){ const i=+b.dataset.del, rem=S.caso.rows.splice(i,1)[0]; save(); render(); DESFAZER={i,row:rem};
+    avisar('Período '+String(i+1).padStart(2,'0')+' removido.', {acao:'Desfazer', fn:()=>{ if(!DESFAZER) return; S.caso.rows.splice(Math.min(DESFAZER.i,S.caso.rows.length),0,DESFAZER.row); const k=DESFAZER.i; DESFAZER=null; save(); render(); const el=document.getElementById('r'+k+'-empresa'); if(el) el.focus(); }});
+    const prox=document.getElementById('r'+Math.min(i,S.caso.rows.length-1)+'-empresa')||document.querySelector('[data-act="add"]'); if(prox) prox.focus(); return; }
   if(b.dataset.act==='add'){ const last=S.caso.rows[S.caso.rows.length-1]; const hj=new Date().toISOString().slice(0,10); let ini= last&&last.fim?addDays(last.fim,1):'2000-01-01'; if(ini>hj) ini=hj; let fim=addDays(ini,364); if(fim>hj) fim=hj; S.caso.rows.push({empresa:'',funcao:'',ini, fim, agente:'ruido', tempo:25, epi:false, d:{te:480}}); save(); render(); const r=document.querySelectorAll('.row'); if(r.length) r[r.length-1].scrollIntoView({behavior:'smooth',block:'start'}); return; }
   if(b.dataset.act==='ex'){ novoCaso(JSON.parse(JSON.stringify(EXEMPLO))); return; }
   if(b.dataset.act==='clr'){ if(b.dataset.armed){ S.caso.rows=[]; save(); render(); } else { b.dataset.armed='1'; b.textContent='Toque de novo para limpar'; setTimeout(()=>{ if(b.isConnected){ delete b.dataset.armed; b.textContent='Limpar períodos'; } },3000); } return; }
@@ -1044,7 +1049,11 @@ document.addEventListener('click', ev=>{
 document.addEventListener('keydown', ev=>{ if(ev.key==='Escape'){ const p=$('#preview'); if(p&&!p.hidden) p.hidden=true; } });
 
 /* ---------- casos: abrir, novo, duplicar, excluir, exportar, importar ---------- */
-function avisar(msg){ let t=document.getElementById('toast'); if(!t){ t=document.createElement('div'); t.id='toast'; t.setAttribute('role','status'); document.body.appendChild(t); } t.textContent=msg; t.classList.add('on'); clearTimeout(avisar._t); avisar._t=setTimeout(()=>t.classList.remove('on'),4200); }
+let DESFAZER=null;
+/* aviso curto no rodapé; com {acao, fn} mostra um botão (ex.: Desfazer) por 8 s */
+function avisar(msg, op){ let t=document.getElementById('toast'); if(!t){ t=document.createElement('div'); t.id='toast'; t.setAttribute('role','status'); document.body.appendChild(t); }
+  t.textContent=msg; if(op&&op.acao){ const b=document.createElement('button'); b.type='button'; b.className='toastbtn'; b.textContent=op.acao; b.onclick=()=>{ t.classList.remove('on'); op.fn(); }; t.appendChild(document.createTextNode(' ')); t.appendChild(b); }
+  t.classList.add('on'); clearTimeout(avisar._t); avisar._t=setTimeout(()=>t.classList.remove('on'), op&&op.acao?8000:4200); }
 const dataBR = iso => { const d=iso?new Date(iso):null; return d&&!isNaN(d)?d.toLocaleDateString('pt-BR'):''; };
 function casebar(){
   const l=casosOrdenados();
@@ -1189,6 +1198,7 @@ function renderRegraData(){
    '<div class="libbar rdbar"><label class="f" for="rd-data"><span>'+(d2?'Primeira data':'Data')+'</span><input id="rd-data" type="date" data-rd="1" value="'+d+'" min="1960-01-01" max="2100-12-31"></label><div class="btns">'+atalhos('data-rdset')+'</div></div>'+
    (d2?'<div class="libbar rdbar"><label class="f" for="rd-data2"><span>Segunda data</span><input id="rd-data2" type="date" data-rd2="1" value="'+d2+'" min="1960-01-01" max="2100-12-31"></label><div class="btns">'+atalhos('data-rdset2')+'<button class="ghost sm" data-rdcmp="0">Voltar a uma data</button></div></div>'
       :'<p><button class="ghost sm" data-rdcmp="1">Comparar com outra data</button></p>');
+  h+='<div id="rdres">';
   if(!d2){
     h+=linhaTempoHtml(d)+'<section class="panel"><div class="ph"><h3>Marcos gerais em '+brData(d)+'</h3></div><dl class="dl16 small">'+marcosNaData(d).map(([k,t])=>'<dt>'+esc(k)+'</dt><dd>'+esc(t)+'</dd>').join('')+'</dl></section>';
     grupos.forEach(g=>{
@@ -1196,7 +1206,7 @@ function renderRegraData(){
        AGENTS.filter(a=>a.grupo===g).map(a=>{ const r=regraNaData(a,d); return '<tr><td><a href="#aposentadoria/agentes" data-ag="'+a.id+'">'+esc(a.nome)+'</a></td>'+(r.length?'<td>'+r.map(p=>esc(p[1])+'<small>'+esc(p[0])+'</small>').join('')+'</td><td>'+r.map(p=>esc(p[2])).join('<br>')+'</td>':'<td colspan="2" class="muted">Sem regra própria registrada para esta data; veja a ficha.</td>')+'</tr>'; }).join('')+
        '</tbody></table></div></section>';
     });
-    return h+'<p class="fine">Datas-limite conforme as fichas dos agentes. Situações de transição e divergências entre o critério do INSS e o técnico estão detalhadas em cada ficha.</p>';
+    return h+'<p class="fine">Datas-limite conforme as fichas dos agentes. Situações de transição e divergências entre o critério do INSS e o técnico estão detalhadas em cada ficha.</p></div>';
   }
   /* comparação entre duas datas */
   const m1=marcosNaData(d), m2=marcosNaData(d2), chaves=[...new Set([...m1,...m2].map(x=>x[0]))];
@@ -1210,16 +1220,19 @@ function renderRegraData(){
   h+='<section class="panel"><div class="ph"><h3>Agentes: '+nMuda+' de '+AGENTS.length+' com regra diferente</h3><label class="cb" for="rd-so"><input id="rd-so" type="checkbox" data-rdso="1"'+(so?' checked':'')+'><span>Mostrar só os agentes cuja regra muda</span></label></div><div class="tscroll"><table class="rt rdcmp"><thead><tr><th>Agente</th><th>'+brData(d)+'</th><th>'+brData(d2)+'</th></tr></thead><tbody>'+
      linhas.filter(x=>!so||x.muda).map(x=>'<tr class="'+(x.muda?'muda':'')+'"><td><a href="#aposentadoria/agentes" data-ag="'+x.a.id+'">'+esc(x.a.nome)+'</a>'+(x.muda?'<span class="mudou">mudou</span>':'')+'</td><td>'+celR(x.r1)+'</td><td>'+celR(x.r2)+'</td></tr>').join('')+
      (so&&!nMuda?'<tr><td colspan="3" class="muted">Nenhum agente muda de regra entre essas datas.</td></tr>':'')+'</tbody></table></div></section>';
-  return h+'<p class="fine">Comparação das regras registradas nas fichas. "Mudou" indica norma, período ou critério diferente; veja a ficha para os detalhes de transição.</p>';
+  return h+'<p class="fine">Comparação das regras registradas nas fichas. "Mudou" indica norma, período ou critério diferente; veja a ficha para os detalhes de transição.</p></div>';
 }
-document.addEventListener('change', ev=>{ const t=ev.target; if(t.dataset.rd&&t.value){ S.dt=t.value; render(); const el=document.getElementById('rd-data'); if(el) el.focus(); } });
-document.addEventListener('click', ev=>{ const b=ev.target.closest('[data-rdset]'); if(b){ S.dt=b.dataset.rdset; render(); } });
+/* a data pode ser digitada: atualiza só o corpo da tela (o campo não é recriado, então a digitação não salta de segmento) */
+function rdAtualizar(){ const box=document.getElementById('rdres'); if(!box){ render(); return; } const tmp=document.createElement('div'); tmp.innerHTML=renderRegraData(); const novo=tmp.querySelector('#rdres'), h2=tmp.querySelector('.intro h2'); box.replaceWith(novo); const h=document.querySelector('main .intro h2'); if(h&&h2) h.textContent=h2.textContent; marcarSiglas(); }
+const dataValida = v => /^\d{4}-\d\d-\d\d$/.test(v||'') && v>='1900-01-01' && v<='2100-12-31';
+document.addEventListener('change', ev=>{ const t=ev.target; if(t.dataset.rd&&dataValida(t.value)){ S.dt=t.value; rdAtualizar(); } });
+document.addEventListener('click', ev=>{ const b=ev.target.closest('[data-rdset]'); if(b){ S.dt=b.dataset.rdset; const el=document.getElementById('rd-data'); if(el) el.value=S.dt; rdAtualizar(); } });
 document.addEventListener('click', ev=>{ const b=ev.target.closest('[data-rdset2],[data-rdcmp]'); if(!b) return;
-  if(b.dataset.rdset2) S.dt2=b.dataset.rdset2;
+  if(b.dataset.rdset2){ S.dt2=b.dataset.rdset2; const el=document.getElementById('rd-data2'); if(el) el.value=S.dt2; rdAtualizar(); return; }
   else if(b.dataset.rdcmp==='1'){ const d=S.dt||new Date().toISOString().slice(0,10); S.dt2=d<'2003-11-19'?new Date().toISOString().slice(0,10):'1996-12-31'; }
   else S.dt2='';
   render(); const el=document.getElementById(S.dt2?'rd-data2':'rd-data'); if(el) el.focus(); });
-document.addEventListener('change', ev=>{ const t=ev.target; if(t.dataset.rd2&&t.value){ S.dt2=t.value; render(); const el=document.getElementById('rd-data2'); if(el) el.focus(); } if(t.dataset.rdso){ S.rdSo=t.checked; render(); const el=document.getElementById('rd-so'); if(el) el.focus(); } });
+document.addEventListener('change', ev=>{ const t=ev.target; if(t.dataset.rd2&&dataValida(t.value)){ S.dt2=t.value; rdAtualizar(); } if(t.dataset.rdso){ S.rdSo=t.checked; render(); const el=document.getElementById('rd-so'); if(el) el.focus(); } });
 
 /* ---------- Novidades da base ---------- */
 const NOV_OK = typeof NOVIDADES!=='undefined' ? NOVIDADES.slice().sort((x,y)=>y.data.localeCompare(x.data)) : [];
@@ -1352,7 +1365,7 @@ function renderComparar(){
    linhas.map(([rot,f])=>'<tr><th scope="row">'+rot+'</th>'+ags.map(a=>'<td>'+f(a)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
   return h+'<p class="fine">Comparação de normas e critérios, para consulta. Cada agente segue sua própria regra; a presença de mais de um agente não soma tempos nem muda o critério de cada um.</p>';
 }
-document.addEventListener('change', ev=>{ const t=ev.target; if(t.dataset.cmpag!==undefined){ const s=(S.cmpAg||CMP_PADRAO).slice(0,3); while(s.length<3) s.push(''); s[+t.dataset.cmpag]=t.value; S.cmpAg=s; render(); } });
+document.addEventListener('change', ev=>{ const t=ev.target; if(t.dataset.cmpag!==undefined){ const s=(S.cmpAg||CMP_PADRAO).slice(0,3); while(s.length<3) s.push(''); s[+t.dataset.cmpag]=t.value; S.cmpAg=s; const id=t.id; render(); const el=document.getElementById(id); if(el) el.focus(); } });
 
 /* ---------- Consulta por função ou atividade ---------- */
 function renderFuncao(){
@@ -1511,6 +1524,7 @@ function conferirNumero(el){
 function conferirDatas(el){
   const m=el.id&&el.id.match(/^(.*)-(ini|fim)$/); if(!m) return;
   const ini=document.getElementById(m[1]+'-ini'), fim=document.getElementById(m[1]+'-fim'); if(!ini||!fim) return;
+  if(/^0/.test(ini.value)||/^0/.test(fim.value)) return; /* ano ainda sendo digitado (0001, 0019…): espera */
   const hoje=new Date().toISOString().slice(0,10);
   avisoCampo(ini, ini.value&&ini.value<'1960-08-26'?'Antes de 26/08/1960 (Lei 3.807/60) não havia aposentadoria especial; a base não traz regras para esse período.':ini.value&&ini.value>hoje?'Data no futuro: confira o ano.':'');
   avisoCampo(fim, fim.value&&ini.value&&fim.value<ini.value?'O fim ('+brData(fim.value)+') é anterior ao início ('+brData(ini.value)+'). Inverta as datas.':fim.value&&fim.value>hoje?'Data no futuro: a simulação considera o período informado, mas confira o ano.':'');

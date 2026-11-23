@@ -702,3 +702,6 @@ input[aria-invalid="true"]{border-color:var(--n, #b42318)!important; box-shadow:
 .comopreencher summary{cursor:pointer; font-weight:700}
 .comopreencher ol{margin:8px 0 2px; padding-left:20px} .comopreencher li{margin:4px 0}
 .totnota{margin:0 0 8px; font-size:.9rem}
+#toast.on{pointer-events:auto}
+.toastbtn{margin-left:10px; background:transparent; color:var(--gold-line); border:1px solid currentColor; border-radius:6px; padding:3px 10px; font:inherit; font-weight:700; cursor:pointer}
+.rslink{margin:4px 0 8px}
