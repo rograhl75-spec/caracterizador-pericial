@@ -803,6 +803,9 @@ function buildIndex(){
 }
 function snippet(s,terms){ const n=normTxt(s); let i=-1; for(const t of terms){ i=n.indexOf(t); if(i>=0) break; } if(i<0||s.length<180) return s; const a=Math.max(0,i-60); return (a?'…':'')+s.slice(a,a+180)+'…'; }
 function hlTerms(s,terms){ let h=esc(s); terms.forEach(t=>{ if(t.length<2) return; const src=esc(s); /* destaque sem acento */ const re=new RegExp('('+t.split('').map(c=>({a:'[aáàâã]',e:'[eéê]',i:'[ií]',o:'[oóôõ]',u:'[uúü]',c:'[cç]'}[c]||c.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'))).join('')+')','gi'); h=h.replace(re,'<mark>$1</mark>'); }); return h; }
+const AREAS_BUSCA=[['prev','Aposentadoria especial'],['funcao','Funções'],['nr15','NR-15'],['nr16','NR-16'],['teses','Teses'],['textos','Textos legais'],['bib','Biblioteca'],['nov','Novidades']];
+function areaBusca(sec){ return /^Aposentadoria|^Marcos/.test(sec)?'prev': /^Consulta por função/.test(sec)?'funcao': /^NR-15/.test(sec)?'nr15': /^NR-16/.test(sec)?'nr16': /^Teses/.test(sec)?'teses': /^Textos legais/.test(sec)?'textos': /^Biblioteca/.test(sec)?'bib':'nov'; }
+document.addEventListener('click', ev=>{ const b=ev.target.closest('[data-gf]'); if(!b) return; S.gf=b.dataset.gf; render(); const f=document.querySelector('.gfilt [data-gf="'+S.gf+'"]'); if(f) f.focus(); });
 function renderBusca(){
   const q=(S.gq||'').trim(); const terms=normTxt(q).split(/\s+/).filter(Boolean);
   let h='<section class="intro"><div><p class="eyebrow">Pesquisa geral</p><h2>'+(q.length>=2?'Resultados para "'+esc(q)+'"':'Pesquise em todas as abas')+'</h2><p class="muted">Agentes nocivos, Anexos 11, 13 e 14 da NR-15, NR-16, teses, marcos legais e a biblioteca de decretos. Use mais de uma palavra para refinar.</p></div></section>';
@@ -813,10 +816,15 @@ function renderBusca(){
   let hits=IDX.filter(e=>inicio.every(re=>re.test(e.n)));
   if(!hits.length) hits=IDX.filter(e=>terms.every(t=>e.n.includes(t)));
   if(!hits.length) return h+'<p class="empty">Nada encontrado. Tente um sinônimo (ex.: "toluol", "amianto") ou uma palavra só.</p>';
+  const contagem={}; hits.forEach(e=>{ const a=areaBusca(e.sec); contagem[a]=(contagem[a]||0)+1; });
+  const gf=contagem[S.gf]?S.gf:'todas'; const total=hits.length;
+  if(gf!=='todas') hits=hits.filter(e=>areaBusca(e.sec)===gf);
+  h+='<div class="filt gfilt" role="group" aria-label="Filtrar por área">'+[['todas','Tudo',total]].concat(AREAS_BUSCA.filter(([k])=>contagem[k]).map(([k,t])=>[k,t,contagem[k]])).map(([k,t,n])=>'<button data-gf="'+k+'" class="'+(gf===k?'on':'')+'" aria-pressed="'+(gf===k)+'">'+t+' <span class="n">'+n+'</span></button>').join('')+'</div>';
   const groups={}; hits.forEach(e=>(groups[e.sec]=groups[e.sec]||[]).push(e));
   h+='<p class="muted small">'+hits.length+' resultado(s) em '+Object.keys(groups).length+' seção(ões).</p><div class="sres">';
+  const lim=gf==='todas'?12:60;
   for(const [sec,list] of Object.entries(groups)){
-    h+='<section class="panel"><div class="ph"><h3>'+esc(sec)+'</h3><p class="muted small">'+list.length+' resultado(s)</p></div><ul class="hits">'+list.slice(0,12).map(e=>'<li><button class="hit" data-go="'+esc(e.go)+'"><b>'+hlTerms(e.t,terms)+'</b><span>'+hlTerms(snippet(e.s,terms),terms)+'</span></button></li>').join('')+'</ul>'+(list.length>12?'<p class="fine">Mais '+(list.length-12)+' resultado(s): refine a pesquisa'+(list[0].go.startsWith('lib:')?' ou abra a biblioteca':'')+'.</p>':'')+'</section>';
+    h+='<section class="panel"><div class="ph"><h3>'+esc(sec)+'</h3><p class="muted small">'+list.length+' resultado(s)</p></div><ul class="hits">'+list.slice(0,lim).map(e=>'<li><button class="hit" data-go="'+esc(e.go)+'"><b>'+hlTerms(e.t,terms)+'</b><span>'+hlTerms(snippet(e.s,terms),terms)+'</span></button></li>').join('')+'</ul>'+(list.length>lim?'<p class="fine">Mais '+(list.length-lim)+' resultado(s): '+(gf==='todas'?'filtre pela área acima ou refine a pesquisa':'refine a pesquisa')+(list[0].go.startsWith('lib:')?' ou abra a biblioteca':'')+'.</p>':'')+'</section>';
   }
   return h+'</div>';
 }
