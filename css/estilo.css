@@ -587,3 +587,13 @@ button.linkbtn{background:none; border:none; padding:0; color:var(--ink); text-d
 .nov.nova{border-left-color:var(--e)}
 .nov .chip{align-self:flex-start}
 .novs,.tese,.alvo{scroll-margin-top:130px}
+
+/* favoritos */
+button.fav.on{border-color:var(--gold-line); color:var(--gold); background:var(--gold-soft)}
+.fhead .btns{flex-wrap:wrap; justify-content:flex-end}
+.favl{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px}
+.favl li{display:flex; flex-wrap:wrap; gap:6px 10px; align-items:baseline}
+.favl li .small{flex-basis:100%; color:var(--muted)}
+.favl.edit li{flex-direction:column; align-items:stretch; border-bottom:1px solid var(--line); padding-bottom:10px}
+.favh{display:flex; flex-wrap:wrap; gap:8px; align-items:center}
+.favh .linkbtn{flex:1; text-align:left}
