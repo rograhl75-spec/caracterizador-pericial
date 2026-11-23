@@ -663,3 +663,7 @@ svg.tlv{width:100%; min-width:720px; display:block; font-family:var(--f-body)}
 .txart header{display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:6px}
 .txart p{margin:0 0 8px; overflow-wrap:anywhere}
 @media (max-width:700px){ .txart,.tese,.novs,.alvo{scroll-margin-top:260px} }
+/* consultados recentemente */
+.recl{list-style:none; margin:0; padding:0; display:flex; flex-wrap:wrap; gap:8px}
+.recl .linkbtn{display:inline-flex; align-items:baseline; gap:6px; text-align:left; padding:6px 10px; border:1px solid var(--line); border-radius:8px; background:var(--surface); max-width:100%; overflow-wrap:anywhere}
+.recs .ilead .linkbtn{font-size:inherit}

@@ -50,7 +50,7 @@ function renderInicio(){
    '<section class="isec"><div class="ihead"><h2 class="ih">Escolha a área</h2><p class="ilead">Cada área segue a sua própria legislação. A NR-15 só entra no previdenciário quando a norma do período remete a ela.</p></div>'+
    '<div class="acards">'+area('a-prev','Previdenciário · Decreto 3.048/99, Anexo IV','Aposentadoria especial','Agentes nocivos em cinco passos: critério por período, levantamento em campo, metodologia, simulação e PPP. Inclui a simulação de enquadramento por período.',[['aposentadoria/agentes','Consultar um agente'],['aposentadoria/caso','Simular períodos']])+
    area('a-ins','Trabalhista · NR-15','Insalubridade','Limites e graus dos anexos da NR-15, calculadoras de ruído, calor e vibração, Quadro 1 do Anexo 11 e as listas integrais dos Anexos 13 e 14.',[['insalubridade','Abrir a NR-15']])+
-   area('a-per','Trabalhista · NR-16','Periculosidade','Todos os anexos com itens, quadros e áreas de risco, hipóteses de exclusão e frequência da exposição (Súmula 364).',[['periculosidade','Abrir a NR-16']])+'</div></section>'+favoritosInicio()+novidadesHtml()+
+   area('a-per','Trabalhista · NR-16','Periculosidade','Todos os anexos com itens, quadros e áreas de risco, hipóteses de exclusão e frequência da exposição (Súmula 364).',[['periculosidade','Abrir a NR-16']])+'</div></section>'+favoritosInicio()+recentesInicio()+novidadesHtml()+
    '<section class="forwho"><h2 class="ih">Para quem</h2><div class="fw-grid"><div><b>Atuação</b><ul class="chips"><li>Perito judicial</li><li>Assistente técnico</li><li>Laudos extrajudiciais</li><li>Pareceres técnicos</li></ul></div><div><b>Profissão</b><ul class="chips"><li>Engenheiro de segurança do trabalho</li><li>Médico do trabalho</li><li>Técnico de segurança do trabalho</li><li>Enfermeiro do trabalho</li></ul></div></div></section>'+
    '<section class="isec"><h2 class="ih">Como usar</h2><ol class="steps"><li><b>Pesquise</b><span>Digite no campo do topo um agente, substância, atividade ou tese, inclusive por sinônimo (toluol, amianto, H2S).</span></li><li><b>Escolha a área</b><span>Aposentadoria especial, insalubridade ou periculosidade: cada uma com a sua legislação e os seus critérios por período.</span></li><li><b>Siga os passos</b><span>Critério, levantamento em campo, metodologia e simulação com os seus dados, com a nota do especialista ao lado do critério oficial.</span></li><li><b>Imprima</b><span>Gere o relatório, a ficha ou a consulta no papel timbrado, em PDF ou papel.</span></li></ol></section>'+
    '<div class="grid2"><section class="isec panel"><h2 class="ih">Base normativa</h2><ul class="blist"><li>Lei 8.213/91 e Decreto 3.048/99 (Anexo IV), com Decretos 53.831/64, 83.080/79, 2.172/97, 4.882/03, 8.123/13 e 10.410/20</li><li>IN PRES/INSS 128/2022 e alterações posteriores, até a IN 212/2026</li><li>Manual de Aposentadoria Especial do INSS (2018)</li><li>NR-15 e NR-16 atualizadas, com a Portaria MTE 2.021/2025</li><li>NHO da Fundacentro (01, 06, 09, 10 e demais) e ISO 2631/5349</li><li>LINACH (Portaria Interministerial 9/2014)</li><li>Teses do STF, STJ, TNU e súmulas e OJs do TST</li></ul><p class="fine">Datas de conferência de cada fonte na tabela abaixo. Confira sempre a redação oficial antes de citar.</p></section>'+
@@ -848,9 +848,10 @@ function render(){
   document.querySelectorAll('.tabs a').forEach(a=>a.setAttribute('aria-current', a.getAttribute('href')==='#'+S.tab?'page':'false'));
   const m=$('#main');
   m.innerHTML = ajudaHtml() + (S.tab==='inicio'?renderInicio(): S.tab==='busca'?renderBusca(): S.tab==='aposentadoria'?renderAposentadoria(): S.tab==='insalubridade'?renderInsal(): S.tab==='periculosidade'?renderPeric(): S.tab==='teses'?renderTeses(): S.tab==='perfil'?renderPerfil(): S.tab==='funcao'?renderFuncao(): renderBib());
+  registrarVisto();
 }
 function route(){ let h=location.hash.slice(1); if(h.startsWith('ir/')){ const dest=decodeURIComponent(h.slice(3)); if(/^(ag|a11|a13|a15|a16|funcao|tese|txt|lib):./.test(dest)){ GO_REPLACE=true; go(dest); irAoConteudo(); return true; } h='inicio'; } const LEG={agentes:'aposentadoria/agentes',painel:'aposentadoria/resultado'}; if(LEG[h]){ h=LEG[h]; history.replaceState(null,'','#'+h); } const [h0,h1,h2,h3]=h.split('/');
-  if(SRCH){ if(SRCH.fromGo){ SRCH.fromGo=false; } else { if(SRCH.tq!==null&&S.tq===SRCH.tq) S.tq=''; if(SRCH.q!==null&&S.q===SRCH.q){ S.q=''; S.lib='todas'; } if(SRCH.q11!==null&&S.ins.q11===SRCH.q11){ S.ins.q11=''; } SRCH=null; } } S.tab = TABS.some(t=>t[0]===h0)?h0:(h0==='busca'?'busca':'inicio'); if(S.tab==='aposentadoria') S.ap = AP_SUB.some(x=>x[0]===h1)?h1:(S.ap||'agentes'); if(S.tab==='teses'&&h1&&TESES[h1]){ S.tf='todos'; S.tsit='todas'; S.tq=''; } if(S.tab==='biblioteca'){ S.libv=h1==='textos'?'textos':'quadros'; if(h2){ S.txd=h2; S.txq=''; } } render(); if(S.tab==='teses'&&h1&&TESES[h1]){ destacar('tese-'+h1); return true; } if(S.tab==='biblioteca'&&S.libv==='textos'&&h3){ destacar(txId(h2,decodeURIComponent(h3))); return true; } return false; }
+  if(SRCH){ if(SRCH.fromGo){ SRCH.fromGo=false; } else { if(SRCH.tq!==null&&S.tq===SRCH.tq) S.tq=''; if(SRCH.q!==null&&S.q===SRCH.q){ S.q=''; S.lib='todas'; } if(SRCH.q11!==null&&S.ins.q11===SRCH.q11){ S.ins.q11=''; } SRCH=null; } } S.tab = TABS.some(t=>t[0]===h0)?h0:(h0==='busca'?'busca':'inicio'); if(S.tab==='aposentadoria') S.ap = AP_SUB.some(x=>x[0]===h1)?h1:(S.ap||'agentes'); if(S.tab==='teses'&&h1&&TESES[h1]){ S.tf='todos'; S.tsit='todas'; S.tq=''; } S.alvo=(S.tab==='teses'&&h1&&TESES[h1])?'tese:'+h1:(S.tab==='biblioteca'&&h1==='textos'&&h3)?'txt:'+h2+'/'+decodeURIComponent(h3):''; if(S.tab==='biblioteca'){ S.libv=h1==='textos'?'textos':'quadros'; if(h2){ S.txd=h2; S.txq=''; } } render(); if(S.tab==='teses'&&h1&&TESES[h1]){ destacar('tese-'+h1); return true; } if(S.tab==='biblioteca'&&S.libv==='textos'&&h3){ destacar(txId(h2,decodeURIComponent(h3))); return true; } return false; }
 window.addEventListener('hashchange', ()=>{ if(!route()) window.scrollTo(0,0); });
 
 function setPath(obj, path, val){ const ps=path.split('.'); let o=obj; for(let k=0;k<ps.length-1;k++){ o[ps[k]]=o[ps[k]]||{}; o=o[ps[k]]; } o[ps[ps.length-1]]=val; }
@@ -1104,7 +1105,7 @@ document.addEventListener('click', ev=>{
   else if(k==='del'||k==='wipe'){
     if(!b.dataset.armed){ b.dataset.armed='1'; const orig=b.textContent; b.textContent= k==='del'?'Toque de novo para excluir':'Toque de novo para apagar tudo'; setTimeout(()=>{ if(b.isConnected){ delete b.dataset.armed; b.textContent=orig; } },3500); return; }
     if(k==='del') excluirCaso();
-    else { try{ [STORE,STORE_PERFIL,'caracterizador:v1','caracterizador:favoritos','caracterizador:novidades-vistas'].forEach(x=>localStorage.removeItem(x)); }catch(e){} location.reload(); }
+    else { try{ [STORE,STORE_PERFIL,'caracterizador:v1','caracterizador:favoritos','caracterizador:novidades-vistas','caracterizador:recentes'].forEach(x=>localStorage.removeItem(x)); }catch(e){} location.reload(); }
   }
 });
 
@@ -1173,6 +1174,31 @@ function novidadesHtml(){
 }
 
 /* ---------- favoritos e anotações pessoais (ficam só no navegador) ---------- */
+/* ---------- Consultados recentemente (só neste navegador) ---------- */
+const STORE_REC='caracterizador:recentes', REC_MAX=10;
+let REC=[]; try{ REC=JSON.parse(localStorage.getItem(STORE_REC)||'[]'); if(!Array.isArray(REC)) REC=[]; }catch(e){ REC=[]; }
+function chaveAtual(){
+  if(S.tab==='aposentadoria'&&S.ap==='agentes') return 'ag:'+S.ag;
+  if(S.tab==='insalubridade') return 'a15:'+S.a15;
+  if(S.tab==='periculosidade') return 'a16:'+S.a16;
+  if(S.tab==='funcao'&&S.fsel!=null&&FUNCOES[S.fsel]) return 'funcao:'+S.fsel;
+  if((S.tab==='teses'||(S.tab==='biblioteca'&&S.libv==='textos'))&&S.alvo) return S.alvo;
+  return '';
+}
+function registrarVisto(){
+  const key=chaveAtual(); if(!key) return;
+  const b=[...document.querySelectorAll('#main [data-fav]')].find(x=>x.dataset.fav===key); if(!b) return;
+  if(REC[0]&&REC[0].key===key) return;
+  REC=[{key, titulo:b.dataset.favt}].concat(REC.filter(r=>r.key!==key)).slice(0,REC_MAX);
+  try{ localStorage.setItem(STORE_REC, JSON.stringify(REC)); }catch(e){}
+}
+function recentesInicio(){
+  if(!REC.length) return '';
+  return '<section class="isec panel recs"><div class="ihead"><h2 class="ih">Consultados recentemente</h2><p class="ilead">As últimas fichas, anexos, teses e textos que você abriu neste navegador. <button class="linkbtn" data-reclimpar="1">Limpar</button></p></div><ul class="recl">'+
+   REC.map(r=>'<li><button class="linkbtn" data-go="'+esc(r.key)+'"><span class="chip st-I">'+FAV_TIPO(r.key)+'</span> '+esc(String(r.titulo).replace(/^Função: /,'').replace(/ — ficha do agente$/,'').replace(/^NR-1[56], /,''))+'</button></li>').join('')+'</ul></section>';
+}
+document.addEventListener('click', ev=>{ if(ev.target.closest('[data-reclimpar]')){ REC=[]; try{ localStorage.removeItem(STORE_REC); }catch(e){} render(); } });
+
 const STORE_FAV='caracterizador:favoritos';
 let FAV={}; try{ FAV=JSON.parse(localStorage.getItem(STORE_FAV)||'{}')||{}; }catch(e){ FAV={}; }
 function salvarFav(){ try{ localStorage.setItem(STORE_FAV, JSON.stringify(FAV)); }catch(e){ avisar('Não foi possível salvar os favoritos no navegador.'); } }
