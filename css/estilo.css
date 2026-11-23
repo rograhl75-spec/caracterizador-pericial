@@ -564,3 +564,19 @@ button.linkbtn{background:none; border:none; padding:0; color:var(--ink); text-d
 .phead b{font:800 12pt/1.2 var(--f-disp)}
 .assin{margin:14mm 0 0 auto; width:80mm; text-align:center; font-size:10pt; line-height:1.4}
 .assin .linha{border-top:1px solid #111; margin-bottom:2mm}
+
+/* ===== consulta: situação das teses, novidades, regra na data ===== */
+.tese .sit{margin-left:auto; font:600 .72rem/1 var(--f-body); padding:4px 8px; border-radius:999px; white-space:nowrap}
+.sit-firmada{background:var(--e-bg); color:var(--e)}
+.sit-embargos,.sit-revisao{background:var(--c-bg); color:var(--c)}
+.sit-julgamento{background:var(--i-bg); color:var(--i)}
+.tese .btns{margin-top:4px}
+.alvo{outline:3px solid var(--gold-line); outline-offset:4px; transition:outline-color .6s}
+.novl{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:12px}
+.nov{display:flex; flex-direction:column; gap:3px; border-left:3px solid var(--gold-line); padding-left:12px}
+.nov .small{color:var(--muted)}
+.nov .linkbtn{align-self:flex-start; margin-top:2px}
+.novs details{border:none; padding:0; margin-top:10px} .novs summary{cursor:pointer; font-weight:600}
+.rdg td small{display:block; color:var(--muted); font-size:.78rem; margin-bottom:6px}
+.rdg td{min-width:140px}
+.tese header .ano{margin-left:0}

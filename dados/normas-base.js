@@ -218,13 +218,13 @@ const TESES = {
    tese:'É possível reconhecer como especial, por penosidade, a atividade de motorista ou cobrador de ônibus e de motorista de caminhão após a Lei 9.032/95, desde que perícia técnica individualizada comprove exposição habitual e permanente a condições concretas de desgaste à saúde (julgado em 07/05/2026; embargos de declaração pendentes).'},
  stj1291:{trib:'STJ',num:'Tema 1291',ref:'REsp 2.163.429 e 2.163.998',ano:2025,area:'prev',titulo:'Contribuinte individual não cooperado',
    tese:'O contribuinte individual não cooperado tem direito ao reconhecimento de atividade especial após a Lei 9.032/95, se comprovar a exposição a agentes nocivos; não se exige formulário emitido por empresa. O STF negou repercussão geral à questão por ser infraconstitucional (Tema 1447, RE 1.588.024, decisão de 14/03/2026, trânsito em 22/05/2026).'},
- stj1475:{trib:'STJ',num:'Tema 1475',ref:'REsp 2.267.903',ano:2026,area:'prev',titulo:'Eletricidade após 1997 (em julgamento)',
+ stj1475:{trib:'STJ',num:'Tema 1475',ref:'REsp 2.267.903',ano:2026,area:'prev',titulo:'Eletricidade após 1997',
    tese:'O STJ vai decidir se a periculosidade da eletricidade, depois que o Decreto 2.172/1997 a retirou dos regulamentos, ainda permite reconhecer tempo especial (relevância reconhecida, DJEN de 15/10/2026). Processos suspensos em todo o país, inclusive nos JEFs; o Tema 159 da TNU está em revisão e o Tema 534 do STJ, em reexame. Sem data de julgamento. No laudo, descreva tensão, habitualidade, permanência e tipo de exposição, e registre que o enquadramento depende deste tema.'},
- stf1470:{trib:'STF',num:'Tema 1470',ref:'RE 1.605.997',ano:2026,area:'prev',titulo:'Agentes comunitários de saúde e de endemias (em julgamento)',
+ stf1470:{trib:'STF',num:'Tema 1470',ref:'RE 1.605.997',ano:2026,area:'prev',titulo:'Agentes comunitários de saúde e de endemias',
    tese:'O STF vai definir se a aposentadoria especial de agentes comunitários de saúde e de combate às endemias (art. 198, §10, da CF, EC 120/2022) vale de imediato ou depende de lei complementar. Repercussão geral reconhecida em 06/08/2026; relator Min. Zanin; sem data de julgamento. A TNU (Tema 347) exige comprovar a exposição.'},
- tnu397:{trib:'TNU',num:'Tema 397',ref:'PEDILEF 0517155-11.2020.4.05.8300',ano:2026,area:'prev',titulo:'Ácido sulfúrico como cancerígeno (em julgamento)',
+ tnu397:{trib:'TNU',num:'Tema 397',ref:'PEDILEF 0517155-11.2020.4.05.8300',ano:2026,area:'prev',titulo:'Ácido sulfúrico como cancerígeno',
    tese:'A TNU vai decidir se o ácido sulfúrico é agente reconhecidamente cancerígeno para fins do art. 68, §4º, do Decreto 3.048/99 (avaliação qualitativa; EPI irrelevante). Afetado em 06/08/2026, sem tese. No laudo, registre a forma física: névoa de ácidos inorgânicos fortes (IARC Grupo 1) é diferente de contato com solução.'},
- tnu399:{trib:'TNU',num:'Tema 399',ref:'PEDILEF 5031713-65.2024.4.04.7000',ano:2026,area:'prev',titulo:'Poeira de madeira (em julgamento)',
+ tnu399:{trib:'TNU',num:'Tema 399',ref:'PEDILEF 5031713-65.2024.4.04.7000',ano:2026,area:'prev',titulo:'Poeira de madeira',
    tese:'A TNU vai decidir se a poeira de madeira é agente nocivo apto à especialidade e quais requisitos se exigem para apurá-la. Afetado em 30/09/2026, sem tese. No laudo, registre espécie da madeira, atividade, concentração e controles.'},
  tnu170:{trib:'TNU',num:'Tema 170',ref:'PEDILEF 5006019-50.2013.4.04.7204',ano:2018,area:'prev',titulo:'Cancerígenos (LINACH)',
    tese:'O art. 68, §4º, do Decreto 3.048/99 (Decreto 8.123/13) aplica-se a períodos anteriores. Para qualquer período, dispensa avaliação quantitativa, e o EPI não descaracteriza.'},
@@ -260,12 +260,17 @@ const TESES = {
  tst82:{trib:'TST',num:'Tema 82 (IRR)',ref:'RRAg 0020213-03.2023.5.04.0772',ano:2025,area:'trab',titulo:'Motorista que acompanha o abastecimento',tese:'Não tem direito ao adicional de periculosidade o motorista que apenas acompanha o abastecimento feito por terceiro, sem contato direto com o combustível (Pleno, 24/03/2025).'},
  tst87:{trib:'TST',num:'Tema 87 (IRR)',ref:'RRAg 1000840-29.2018.5.02.0471',ano:2025,area:'trab',titulo:'Troca de cilindro de GLP de empilhadeira',tese:'É devido o adicional de periculosidade ao trabalhador que abastece empilhadeiras trocando cilindros de GLP, ainda que a operação dure tempo extremamente reduzido (Pleno, 24/03/2025).'},
  tst101:{trib:'TST',num:'Tema 101 (IRR)',ref:'IncJulgRREmbRep 0000229-71.2024.5.21.0013',ano:2026,area:'trab',titulo:'Motociclistas',tese:'O art. 193, §4º, da CLT é autoaplicável: o adicional é devido a todos que trabalham com motocicleta em vias públicas. A exceção precisa estar prevista em norma do MTE e ser comprovada por laudo de médico do trabalho ou engenheiro de segurança (art. 195 da CLT; item 16.3 da NR-16); não retroage nem autoriza devolver valores já pagos; a prova cabe a quem alega a exceção. Sem modulação (Pleno, 17/04/2026; acórdão publicado em 05/2026). Pendentes: embargos de declaração da CNI no TST e a ADPF 1.337 no STF.'},
- adpf1337:{trib:'STF',num:'ADPF 1.337',ref:'—',ano:2026,area:'trab',titulo:'Motociclistas: Tema 101 e Anexo V (em julgamento)',
+ adpf1337:{trib:'STF',num:'ADPF 1.337',ref:'—',ano:2026,area:'trab',titulo:'Motociclistas: Tema 101 e Anexo V',
    tese:'A ABIR questiona no STF a tese do Tema 101 do TST e a Portaria MTE 2.021/2025 (Anexo V da NR-16); relator Min. André Mendonça. Sem liminar: o Tema 101 e o Anexo V seguem eficazes. Informações, AGU e PGR já se manifestaram; concluso ao relator desde 13/11/2026.'},
- tst209:{trib:'TST',num:'Tema 209 (IRR)',ref:'—',ano:2025,area:'trab',titulo:'Hospital, função não assistencial (em julgamento)',
+ tst209:{trib:'TST',num:'Tema 209 (IRR)',ref:'—',ano:2025,area:'trab',titulo:'Hospital, função não assistencial',
    tese:'O TST vai decidir se quem trabalha em hospital em função não assistencial tem direito ao adicional de insalubridade por exposição habitual e intermitente a agentes infectocontagiosos. Afetado em 30/06/2025, com suspensão dos processos; sem julgamento até 21/11/2026.'},
  irr17:{trib:'TST',num:'IRR Tema 17',ref:'IRR 239-55.2011.5.02.0319 (SBDI-1)',ano:2019,area:'trab',titulo:'Cumulação de adicionais',tese:'O art. 193, §2º, da CLT foi recepcionado pela Constituição e veda a cumulação dos adicionais de insalubridade e periculosidade, ainda que os fatos geradores sejam distintos e autônomos.'}
 };
+/* situação de cada tese: firmada (padrão), embargos (pendentes), julgamento (tema afetado, sem tese), revisao (tese sob reexame) */
+const SITUACAO_TESE = {stf1209:'embargos', stf6309:'embargos', tst101:'embargos', stj1307:'embargos',
+  stj1475:'julgamento', stf1470:'julgamento', tnu397:'julgamento', tnu399:'julgamento', adpf1337:'julgamento', tst209:'julgamento',
+  stj534:'revisao'};
+Object.keys(TESES).forEach(k=>{ TESES[k].sit = SITUACAO_TESE[k] || 'firmada'; });
 
 /* ===== NR-15 ===== */
 const NR15 = [

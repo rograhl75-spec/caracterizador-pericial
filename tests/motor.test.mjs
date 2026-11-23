@@ -91,3 +91,21 @@ test('base de dados: Anexo 11 com graus válidos e Quadro 1 do Anexo 3 decrescen
 test('base de dados: toda fonte tem versão e data de conferência', () => {
   X.FONTES.forEach(f => { assert.ok(f.versao, f.id); assert.match(f.conferido, /^\d{4}-\d{2}-\d{2}$/, f.id); });
 });
+
+test('regra na data: faixas de vigência lidas corretamente', () => {
+  assert.deepEqual([...X.faixa('até 05/03/1997')], [null, '1997-03-05']);
+  assert.deepEqual([...X.faixa('a partir de 19/11/2003')], ['2003-11-19', null]);
+  assert.deepEqual([...X.faixa('06/03/1997 a 18/11/2003')], ['1997-03-06', '2003-11-18']);
+});
+
+test('regra na data: uma regra por data (duas para cancerígenos LINACH a partir de 17/10/2013)', () => {
+  const datas = ['1990-06-30', '1995-04-28', '1995-04-29', '1997-03-05', '1997-03-06', '2003-11-19', '2013-06-30', '2014-08-13', '2016-06-30', '2019-12-11', '2021-06-30', '2026-11-23'];
+  const problemas = [];
+  X.AGENTS.forEach(a => datas.forEach(d => { const n = X.regraNaData(a, d).length, esperado = a.linach && d >= '2013-10-17' ? 2 : 1; if (n !== esperado) problemas.push(a.id + ' em ' + d + ': ' + n); }));
+  assert.deepEqual(problemas, []);
+});
+
+test('regra na data: ruído usa 80, 90 e 85 dB(A) nos três períodos', () => {
+  const r = d => X.regraNaData(X.agente('ruido'), d)[0][2];
+  assert.match(r('1996-01-01'), /80/); assert.match(r('2000-01-01'), /90/); assert.match(r('2010-01-01'), /85/);
+});

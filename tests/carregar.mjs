@@ -8,7 +8,7 @@ const RAIZ = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ARQUIVOS = ['dados/biblioteca.js', 'dados/normas-base.js', 'dados/nr15-anexo11.js', 'dados/nr15-anexo13.js',
   'dados/in128-artigos.js', 'dados/atualizacoes.js', 'dados/nr16.js', 'dados/fontes.js', 'js/motor.js'];
 const NOMES = ['LIB', 'AGENTS', 'TESES', 'MARCOS', 'NR15', 'A14', 'Q1_2019', 'Q1_ORIG', 'A11', 'A13FULL', 'Q2_2019', 'IN128',
-  'A1_QUADRO', 'NR16', 'NR16_GERAL', 'FONTES', 'FATORES', 'avaliar', 'totais', 'diasConv', 'amd'];
+  'A1_QUADRO', 'NR16', 'NR16_GERAL', 'FONTES', 'FATORES', 'avaliar', 'totais', 'diasConv', 'amd', 'faixa', 'regraNaData'];
 
 export function carregar() {
   const ctx = { console };
