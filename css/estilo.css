@@ -581,3 +581,4 @@ button.linkbtn{background:none; border:none; padding:0; color:var(--ink); text-d
 .rdg td{min-width:140px}
 .tese header .ano{margin-left:0}
 .consulta-aviso{background:var(--i-bg); color:var(--ink); border-left:4px solid var(--i); border-radius:6px; padding:10px 14px; font-size:.88rem; margin-bottom:14px}
+.offline{font-weight:600}

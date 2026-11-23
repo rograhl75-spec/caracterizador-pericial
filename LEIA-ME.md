@@ -44,6 +44,10 @@ Para atualizar, edite o arquivo no próprio GitHub (ícone de lápis) ou envie a
 - **Novidades na base** (Início) e **Glossário** (Biblioteca), ambos pesquisáveis na busca geral.
 - **Busca geral:** prioriza palavras que começam pelo termo digitado; só procura no meio das palavras se não houver resultado.
 
+## Uso sem internet (app instalável)
+
+O `sw.js` (service worker) e o `manifest.webmanifest` permitem instalar o app no celular ou no computador e abri-lo sem conexão. Com internet, ele sempre busca a versão mais nova; sem internet, usa a última cópia salva. **Ao criar um arquivo novo no site, inclua-o na lista `ARQUIVOS` do `sw.js` e mude `VERSAO`.** Funciona só na versão publicada (https), não abrindo o `index.html` direto do computador.
+
 ## Casos, perfil e privacidade
 
 - **Vários casos:** em Aposentadoria especial → Simulação de enquadramento, a barra "Meus casos" cria, duplica, exclui, exporta e importa casos (arquivos `.json`). O formato antigo (um caso só) é migrado automaticamente.

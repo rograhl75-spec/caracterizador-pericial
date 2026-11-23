@@ -1036,7 +1036,7 @@ function renderPerfil(){
   '</section><aside class="panel"><div class="ph"><h3>Meus dados</h3></div><p class="small">'+nCasos+(nCasos>1?' casos salvos':' caso salvo')+' neste navegador.</p>'+
    '<div class="btns col"><button class="ghost" data-cs="backup">Baixar backup completo</button><label class="ghost filebtn" for="pf-restore">Restaurar backup<input id="pf-restore" type="file" accept=".json,application/json" data-pfrestore="1"></label><button class="ghost danger" data-cs="wipe">Apagar todos os meus dados</button></div>'+
    '<p class="fine">O backup inclui todos os casos e o perfil (sem as imagens do timbrado). Apagar remove casos, perfil e preferências deste navegador, sem possibilidade de recuperação.</p>'+
-   '<div class="ph"><h3>Documentos</h3></div><ul class="blist"><li><a href="termos.html" target="_blank" rel="noopener">Termos de uso ↗</a></li><li><a href="privacidade.html" target="_blank" rel="noopener">Política de privacidade ↗</a></li></ul>'+
+   '<div class="ph"><h3>Usar sem internet</h3></div>'+instalarHtml()+'<div class="ph"><h3>Documentos</h3></div><ul class="blist"><li><a href="termos.html" target="_blank" rel="noopener">Termos de uso ↗</a></li><li><a href="privacidade.html" target="_blank" rel="noopener">Política de privacidade ↗</a></li></ul>'+
    (p.aceite?'<p class="fine">Termos aceitos em '+dataBR(p.aceite.data)+' (versão '+esc(p.aceite.versao)+').</p>':'')+
   '</aside></div>';
 }
@@ -1164,6 +1164,26 @@ function renderAlertas(){
 })();
 renderAlertas();
 avisoTermos();
+
+/* ---------- uso sem internet (PWA) ---------- */
+let INSTALAR=null;
+const PODE_OFFLINE = 'serviceWorker' in navigator && /^https?:$/.test(location.protocol);
+if(PODE_OFFLINE){
+  window.addEventListener('load', ()=>{ navigator.serviceWorker.register('sw.js').then(r=>{ (r.active?Promise.resolve():new Promise(ok=>{ const w=r.installing||r.waiting; if(!w) return ok(); w.addEventListener('statechange',()=>{ if(w.state==='activated') ok(); }); })).then(()=>{ OFFLINE_PRONTO=true; statusRede(); }); }).catch(()=>{}); });
+}
+let OFFLINE_PRONTO=false;
+function statusRede(){ const el=document.getElementById('offline'); if(!el) return; if(!navigator.onLine){ el.hidden=false; el.textContent='Sem conexão: usando a cópia salva no dispositivo.'; } else if(OFFLINE_PRONTO){ el.hidden=false; el.textContent='Disponível sem internet.'; } else el.hidden=true; }
+window.addEventListener('online', ()=>{ statusRede(); avisar('Conexão restabelecida.'); });
+window.addEventListener('offline', ()=>{ statusRede(); avisar('Sem conexão: o app continua funcionando com a cópia salva.'); });
+window.addEventListener('beforeinstallprompt', ev=>{ ev.preventDefault(); INSTALAR=ev; if(S.tab==='perfil') render(); });
+window.addEventListener('appinstalled', ()=>{ INSTALAR=null; avisar('Caracterizador Pericial instalado.'); if(S.tab==='perfil') render(); });
+function instalarHtml(){
+  const ios=/iphone|ipad|ipod/i.test(navigator.userAgent), standalone=window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches;
+  if(standalone) return '<p class="small">O app já está instalado neste dispositivo e abre sem internet.</p>';
+  return '<p class="small">Instale o Caracterizador Pericial no celular ou no computador para abrir com um toque e consultar mesmo sem internet (em perícias, audiências e locais sem sinal).</p>'+
+   (INSTALAR?'<button data-cs="instalar">Instalar no dispositivo</button>':ios?'<p class="fine">No iPhone ou iPad: toque em Compartilhar e depois em "Adicionar à Tela de Início".</p>':'<p class="fine">Se o botão não aparecer, use o menu do navegador: "Instalar app" ou "Adicionar à tela inicial".'+(PODE_OFFLINE?'':' A instalação só funciona na versão publicada do site.')+'</p>');
+}
+document.addEventListener('click', ev=>{ const b=ev.target.closest('[data-cs="instalar"]'); if(b&&INSTALAR){ INSTALAR.prompt(); INSTALAR.userChoice.finally(()=>{ INSTALAR=null; render(); }); } });
 
 document.getElementById('logo').src=BRAND.logo;
 document.getElementById('tabs').innerHTML = TABS.map(([k,t])=>'<a href="#'+k+'">'+t+'</a>').join('');
