@@ -21,7 +21,7 @@ const STORE='caracterizador:v2', STORE_PERFIL='caracterizador:perfil';
 let DB={ativo:null, casos:{}};
 const novoId=()=>'c'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 const agora=()=>new Date().toISOString();
-function limpaCaso(c){ c=c||{}; c.nome=c.nome||'Caso sem nome'; c.sexo=c.sexo==='M'?'M':'H'; c.rows=(Array.isArray(c.rows)?c.rows:[]).filter(r=>r&&AGENTS.some(a=>a.id===r.agente)); return c; }
+function limpaCaso(c){ c=c||{}; c.nome=c.nome||'Caso sem nome'; c.sexo=c.sexo==='M'?'M':'H'; c.rows=(Array.isArray(c.rows)?c.rows:[]).filter(r=>r&&AGENTS.some(a=>a.id===r.agente)); Object.keys(c).forEach(k=>{ if(/^\d+$/.test(k)) delete c[k]; }); /* chaves numéricas gravadas por engano pela tabela de NPS (versões anteriores) */ return c; }
 try{
   const raw=localStorage.getItem(STORE);
   if(raw){ const o=JSON.parse(raw); if(o&&o.casos&&typeof o.casos==='object') DB=o; }
@@ -551,17 +551,19 @@ function renderAgentes(){
 /* ---------- INSALUBRIDADE ---------- */
 const GRAU = {máximo:40, médio:20, mínimo:10};
 function insv(k,def){ const v=S.ins[k]; return v===undefined?def:v; }
-function iin(k,lab,def,attrs='step="any"'){ return '<label class="f" for="i-'+k+'"><span>'+lab+'</span><input id="i-'+k+'" type="text" inputmode="decimal" data-ins="'+k+'" value="'+esc(insv(k,def))+'" '+attrs+'></label>'; }
+/* valores de exemplo das calculadoras: aparecem no campo e entram no cálculo (antes apareciam, mas o cálculo os ignorava) */
+const INS_PADRAO={te1:480, tm1:480, pico:132, ib:29.5, m:300, ar:1.2, qz:10};
+function iin(k,lab,def,attrs='step="any"'){ return '<label class="f" for="i-'+k+'"><span>'+lab+'</span><input id="i-'+k+'" type="text" inputmode="decimal" data-ins="'+k+'" value="'+esc(insv(k,INS_PADRAO[k]??def))+'" '+attrs+'></label>'; }
 function isel(k,lab,def,opts){ const v=insv(k,def); return '<label class="f" for="i-'+k+'"><span>'+lab+'</span><select id="i-'+k+'" data-ins="'+k+'">'+opts.map(([a,b])=>'<option value="'+a+'"'+(String(v)===String(a)?' selected':'')+'>'+esc(b)+'</option>').join('')+'</select></label>'; }
 function icb(k,lab){ return '<label class="cb" for="i-'+k+'"><input id="i-'+k+'" type="checkbox" data-ins="'+k+'"'+(insv(k,false)?' checked':'')+'><span>'+lab+'</span></label>'; }
 function resultado(ok,grau,txt){
-  const pct=GRAU[grau]; const base=+(insv('base','')||0);
+  const pct=GRAU[grau]; const base=num(insv('base',''))||0;
   const val= ok&&pct&&base ? ' · R$ '+(base*pct/100).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+' por mês' : '';
   return '<div class="verdict '+(ok===null?'v-i':ok?'v-e':'v-n')+'"><b>'+(ok===null?'Faltam dados':ok?'Insalubre — grau '+grau+(pct?' ('+pct+'%)':''):'Não caracteriza insalubridade')+val+'</b><p>'+txt+'</p></div>';
 }
 function tmaxQuadro(L){ if(L<85) return Infinity; for(const [n,t] of A1_QUADRO){ if(n>=L) return t; } return 7; }
 function calcIns(an){
-  const n=v=>num(insv(v,''));
+  const n=v=>num(insv(v,INS_PADRAO[v]??''));
   switch(an.calc){
     case 'ruido': {
       const m1=insv('m1','nps');
@@ -575,7 +577,7 @@ function calcIns(an){
         return body+'<div class="kv"><div><span>Dose na jornada</span><b>'+(D===null?'—':(D*100).toFixed(1).replace('.',',')+'%')+'</b></div><div><span>Lavg</span><b>'+(lavg===null?'—':f1(lavg))+' dB(A)</b></div><div><span>NEN 8 h (q = 5)</span><b>'+(nen===null?'—':f1(nen))+' dB(A)</b></div></div>'+resultado(D===null?null:r1(D*100)>100,'médio','Dose acima de 100% caracteriza (item 6 do Anexo 1). Dose arredondada a 0,1% antes da comparação. '+extra);
       }
       const rows=insv('nps',[[88,240],[92,120],[80,120]]), modo=insv('rmode','tab');
-      let D=0, Te=0, max=0; const lin=rows.map((r,k)=>{ const L=num(r[0]), t=num(r[1]); if(L===null||t===null) return '<tr><td colspan="4">—</td></tr>'; Te+=t; max=Math.max(max,L); const T= L<85?Infinity:(modo==='tab'?tmaxQuadro(L):480/Math.pow(2,(L-85)/5)); const c=t/T; D+=c; return '<tr><td><input type="text" inputmode="decimal" step="0.1" aria-label="NPS da linha '+(k+1)+'" data-nps="'+k+'" data-c="0" value="'+r[0]+'"></td><td><input type="text" inputmode="decimal" step="1" aria-label="Tempo da linha '+(k+1)+'" data-nps="'+k+'" data-c="1" value="'+r[1]+'"></td><td class="mono">'+(T===Infinity?'—':Math.round(T))+'</td><td class="mono">'+(c*100).toFixed(1).replace('.',',')+'%</td></tr>'; }).join('');
+      let D=0, Te=0, max=0; const lin=rows.map((r,k)=>{ const L=num(r[0]), t=num(r[1]); if(L===null||t===null) return '<tr><td colspan="4">—</td></tr>'; Te+=t; max=Math.max(max,L); const T= L<85?Infinity:(modo==='tab'?tmaxQuadro(L):480/Math.pow(2,(L-85)/5)); const c=t/T; D+=c; return '<tr><td><input type="text" inputmode="decimal" step="0.1" aria-label="NPS da linha '+(k+1)+'" data-nps="'+k+'" data-col="0" value="'+r[0]+'"></td><td><input type="text" inputmode="decimal" step="1" aria-label="Tempo da linha '+(k+1)+'" data-nps="'+k+'" data-col="1" value="'+r[1]+'"></td><td class="mono">'+(T===Infinity?'—':Math.round(T))+'</td><td class="mono">'+(c*100).toFixed(1).replace('.',',')+'%</td></tr>'; }).join('');
       const lavg = D>0&&Te>0 ? 85+16.61*log10(D*480/Te) : null, nn = D>0 ? 85+16.61*log10(D) : null;
       return modoSel+isel('rmode','Tempo máximo permissível','tab',[['tab','Quadro do Anexo 1 (item 4)'],['form','Fórmula q = 5 (dosímetro)']])+'<p class="fine">'+(insv('rmode','tab')==='tab'?'Item 4: para nível intermediário, vale o tempo do nível imediatamente mais elevado do Quadro.':'Tempo máximo = 480 / 2^((NPS − 85)/5) min, como integra o dosímetro.')+'</p>'+
         '<div class="scrollx"><table class="pt calc"><thead><tr><th>NPS dB(A)</th><th>Tempo (min)</th><th>Tempo máximo (min)</th><th>Dose parcial</th></tr></thead><tbody>'+lin+'</tbody></table></div><div class="btns"><button class="ghost sm" data-nps-add="1">Adicionar nível</button><button class="ghost sm" data-nps-del="1">Remover último</button></div>'+
@@ -608,7 +610,7 @@ function calcIns(an){
 function normTxt(s){ return String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase(); }
 function a11Match(s,q){ if(!q) return true; const nq=normTxt(q); return [s.n,...(s.vide||[]),...(s.al||[])].some(x=>normTxt(x).includes(nq)); }
 function quim11(){
-  const n=v=>num(insv(v,'')); const q=insv('q11',''); const sel=insv('sub',null); const s= sel===null?null:A11[+sel];
+  const n=v=>num(insv(v,INS_PADRAO[v]??'')); const q=insv('q11',''); const sel=insv('sub',null); const s= sel===null?null:A11[+sel];
   const un=insv('un', s&&s.ppm===null?'mg':'ppm');
   let lt = s ? (un==='ppm'?s.ppm:s.mg) : n('lt'); const teto = s ? s.teto : insv('teto',false); const g = s ? (s.g||'médio') : insv('gq','médio');
   const md=n('md'), mx=n('mx'), hs=n('hs');
@@ -709,8 +711,9 @@ function avaliaPeric(an){
   else if(an.id==='a3'){ base=cond.length>0&&atv.length>0; cond.forEach(x=>why.push('Item 2, alínea '+x[0]+') '+x[1])); atv.forEach(x=>why.push('Item 3: '+x[1])); if(!base) falta=!cond.length?'Falta atender a uma das condições do item 2 (quem é profissional de segurança).':'Marque a atividade do item 3.'; }
   else if(an.id==='a4'){ const abc=atv.filter(x=>x[0]!=='d'), d=atv.some(x=>x[0]==='d'); base=abc.length>0||(d&&sep.length>0); atv.forEach(x=>why.push('Item 1, alínea '+x[0]+') '+x[2])); sep.forEach(x=>why.push('Quadro I, atividade '+x[0])); if(!base) falta= d?'Para o SEP (alínea d), marque a atividade e a área do Quadro I.':'Marque a hipótese do item 1.'; }
   else { base=atv.length>0; atv.forEach(x=>why.push((an.id==='ar'?'Atividade ':'Item ')+x[0]+': '+x[1])); if(!base) falta='Marque a atividade ou operação do anexo.'; }
-  const fr=pget('fr','perm'); const frOk = fr==='perm'||fr==='int';
+  const fr=pget(an.id+':fr',''); const frOk = fr==='perm'||fr==='int';
   if(!base) return {st:'I', b:'Faltam elementos para caracterizar', p:falta};
+  if(!fr&&!exc.length) return {st:'I', b:'Faltam elementos para caracterizar', p:'Informe a frequência da exposição (permanente, intermitente, eventual ou por tempo extremamente reduzido).'};
   if(exc.length) return {st:'N', b:'Periculosidade não caracterizada', p:'Hipótese de exclusão: '+exc.map(x=>x[0]+' — '+x[1]).join('; ')+'.'};
   if(!frOk) return {st:'N', b:'Periculosidade não caracterizada', p:'Contato eventual ou habitual por tempo extremamente reduzido (Súmula 364'+(an.id==='a4'?'; Anexo 4, item 3':'')+').'};
   return {st:'E', b:'Periculosidade caracterizada — adicional de 30%', p:why.join(' · ')+(fr==='int'?' Exposição intermitente: adicional integral (Súmula 364'+(an.id==='a4'?'; Anexo 4, item 3':'')+').':'')};
@@ -722,7 +725,7 @@ function renderPeric(){
   const r=avaliaPeric(an);
   h+='<div class="grid2 one"><section class="panel" id="pperic"><div class="ph"><div class="fhead"><p class="eyebrow">'+esc(an.n)+' · '+esc(an.port)+'</p><span class="btns">'+favBtn('a16:'+an.id,'NR-16, '+an.n+' — '+an.t)+linkBtn('a16:'+an.id)+'<button class="printbtn" data-print="peric">Imprimir ou salvar PDF</button></span></div><h3>'+esc(an.t)+'</h3></div>'+
    an.secoes.map(sec=>secHtml(an,sec)).join('')+
-   '<section class="sec16"><h4>Frequência da exposição (Súmula 364'+(an.id==='a4'?' e item 3 do Anexo 4':'')+')</h4><fieldset class="fr"><legend class="sr">Frequência</legend>'+[['perm','Permanente'],['int','Intermitente'],['ev','Eventual (fortuito)'],['red','Habitual por tempo extremamente reduzido']].map(([k,t])=>'<label class="cb" for="fr-'+k+'"><input type="radio" name="fr" id="fr-'+k+'" data-per="fr" value="'+k+'"'+(pget('fr','perm')===k?' checked':'')+'><span>'+t+'</span></label>').join('')+'</fieldset></section>'+
+   '<section class="sec16"><h4>Frequência da exposição (Súmula 364'+(an.id==='a4'?' e item 3 do Anexo 4':'')+')</h4><fieldset class="fr"><legend class="sr">Frequência</legend>'+[['perm','Permanente'],['int','Intermitente'],['ev','Eventual (fortuito)'],['red','Habitual por tempo extremamente reduzido']].map(([k,t])=>'<label class="cb" for="fr-'+k+'"><input type="radio" name="fr-'+an.id+'" id="fr-'+k+'" data-per="'+an.id+':fr" value="'+k+'"'+(pget(an.id+':fr','')===k?' checked':'')+'><span>'+t+'</span></label>').join('')+'</fieldset></section>'+
    '<div class="pcalc">'+pin('sal','Salário-base (R$) — opcional','step="0.01"')+'</div>'+
    '<div class="verdict '+(r.st==='E'?'v-e':r.st==='N'?'v-n':'v-i')+'"><b>'+esc(r.b)+(r.st==='E'&&sal?' · R$ '+(sal*0.3).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+' por mês':'')+'</b><p>'+esc(r.p)+'</p></div>'+
    '<div class="btns"><button class="ghost sm" data-perclr="'+an.id+'">Limpar marcações deste anexo</button></div></section>'+
@@ -908,7 +911,7 @@ document.addEventListener('input', ev=>{
     if(k==='q2sel' && t.value) S.ins.m=t.value.split('|')[0];
     if(k==='un'){ /* troca de unidade mantém a substância */ }
     const id=t.id; render(); if(t.type!=='radio'&&t.type!=='checkbox') refocus(id); return; }
-  if(t.dataset.nps!==undefined){ const rows=insv('nps',[[88,240],[92,120],[80,120]]).map(r=>r.slice()); rows[+t.dataset.nps][+t.dataset.c]=t.value; S.ins.nps=rows; const id=t.getAttribute('aria-label'), cp=CARET; render(); const el=document.querySelector('[aria-label="'+id+'"]'); if(el){ el.focus(); try{ const L=el.value.length, p=(cp===null||cp>L)?L:cp; el.setSelectionRange(p,p); }catch(e){} } return; }
+  if(t.dataset.nps!==undefined){ const rows=insv('nps',[[88,240],[92,120],[80,120]]).map(r=>r.slice()); rows[+t.dataset.nps][+t.dataset.col]=t.value; S.ins.nps=rows; const id=t.getAttribute('aria-label'), cp=CARET; render(); const el=document.querySelector('[aria-label="'+id+'"]'); if(el){ el.focus(); try{ const L=el.value.length, p=(cp===null||cp>L)?L:cp; el.setSelectionRange(p,p); }catch(e){} } return; }
   if(t.dataset.per!==undefined){ S.per[t.dataset.per]= t.type==='checkbox'?t.checked:t.value; const id=t.id; render(); refocus(id); return; }
   if(t.dataset.st){ S[t.dataset.st]=t.value; const id=t.id; render(); refocus(id); return; }
   if(t.dataset.q){ S.q=t.value; render(); refocus('lib-q'); return; }
