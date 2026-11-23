@@ -1,7 +1,7 @@
 /* Service worker do Caracterizador Pericial: permite abrir o app sem internet.
    Estratégia: rede primeiro (sempre a versão mais nova quando há conexão) e cópia local como reserva.
    Ao incluir um arquivo novo no site, acrescente-o em ARQUIVOS e mude VERSAO. */
-const VERSAO = 'v7';
+const VERSAO = 'v8';
 const CACHE = 'caracterizador-' + VERSAO;
 const ARQUIVOS = [
   './', 'index.html', 'termos.html', 'privacidade.html', 'manifest.webmanifest', 'css/estilo.css',

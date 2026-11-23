@@ -764,7 +764,7 @@ function hl(s,q){ s=esc(s); if(!q) return s; const re=new RegExp('('+q.replace(/
 function cellHtml(v,q){ v=String(v||''); if(/^https?:\/\//.test(v)) return '<a href="'+esc(v)+'" target="_blank" rel="noopener">'+esc(v.replace(/^https?:\/\/(www\.)?/,'').slice(0,60))+'…</a>'; return hl(v,q); }
 function renderBib(){
   const vis='<nav class="subtabs" aria-label="Biblioteca"><a href="#biblioteca"'+(S.libv!=='textos'?' class="on" aria-current="page"':'')+'>Quadros e tabelas</a><a href="#biblioteca/textos"'+(S.libv==='textos'?' class="on" aria-current="page"':'')+'>Textos legais navegáveis</a></nav>';
-  if(S.libv==='textos') return '<section class="intro"><div><p class="eyebrow">Biblioteca</p><h2>Textos legais navegáveis</h2><p class="muted">Lei 8.213/91 (arts. 57 e 58), IN 128/2022 (arts. 286 a 302) e os itens gerais da NR-15 e da NR-16, com link e citação para cada artigo ou item.</p></div></section>'+vis+renderTextos();
+  if(S.libv==='textos') return '<section class="intro"><div><p class="eyebrow">Biblioteca</p><h2>Textos legais navegáveis</h2><p class="muted">Lei 8.213/91 (arts. 57 e 58), IN 128/2022 (arts. 286 a 302), NR-01 (item 1.5 e Anexo I) e os itens gerais da NR-15 e da NR-16, com link e citação para cada artigo ou item.</p></div></section>'+vis+renderTextos();
   const q=S.q.trim(), norm=s=>String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase(), nq=norm(q);
   const tabs = S.lib==='todas' ? LIBT : LIBT.filter(t=>t[0]===S.lib);
   let h='<section class="intro"><div><p class="eyebrow">Biblioteca</p><h2>Normas e quadros</h2><p class="muted">Conteúdo das planilhas originais (Agentes Nocivos e Legislação Previdenciária), agora pesquisável. A IN 77/2015 foi revogada pela IN 128/2022 e não consta aqui.</p></div></section>';
@@ -1282,17 +1282,26 @@ document.addEventListener('click', ev=>{
 
 /* ---------- Textos legais navegáveis ---------- */
 function docsTexto(){
+  const fonteUrl=id=>((typeof FONTES!=='undefined'&&FONTES.find(x=>x.id===id))||{}).url||'#';
   const D=[];
-  D.push({id:'lei8213', tit:'Lei 8.213/1991 — arts. 57 e 58', curto:'Lei 8.213/91', fonte:'https://www.planalto.gov.br/ccivil_03/leis/l8213cons.htm',
+  D.push({id:'lei8213', tit:'Lei 8.213/1991 — arts. 57 e 58', curto:'Lei 8.213/91', fonte:fonteUrl('lei8213'),
     nota:'Redação vigente, com as alterações das Leis 9.032/95, 9.528/97 e 9.732/98. Para benefícios com requisitos cumpridos após 13/11/2019, veja também a EC 103/2019.',
     itens:[18,19].map(i=>{ const pars=String(LIB.txt_resumo[i]||'').split('\n').filter(Boolean); const n=(pars[0].match(/^Art\. (\d+)/)||[])[1]; return {id:n, rot:'Art. '+n, pars, cit:'Lei 8.213/1991, art. '+n}; })});
-  D.push({id:'in128', tit:'IN PRES/INSS 128/2022 — arts. 286 a 302', curto:'IN 128/2022', fonte:'https://www.in.gov.br/en/web/dou/-/instrucao-normativa-pres/inss-n-128-de-28-de-marco-de-2022-389275446',
+  D.push({id:'in128', tit:'IN PRES/INSS 128/2022 — arts. 286 a 302', curto:'IN 128/2022', fonte:fonteUrl('in128'),
     nota:'Texto literal conferido no DOU. Art. 293 na redação da IN 141/2022; arts. 287, 290, 291 e 292 na redação da IN 170/2024.',
     itens:Object.keys(IN128).sort((x,y)=>x-y).map(n=>({id:n, rot:'Art. '+n, pars:IN128[n], cit:'IN PRES/INSS 128/2022, art. '+n+(n==='293'?' (redação da IN 141/2022)':['287','290','291','292'].includes(n)?' (redação da IN 170/2024)':'')}))});
-  if(typeof NR15_CORPO!=='undefined') D.push({id:'nr15', tit:'NR-15 — itens gerais (15.1 a 15.7)', curto:'NR-15', fonte:'https://www.gov.br/trabalho-e-emprego/pt-br/acesso-a-informacao/participacao-social/conselhos-e-orgaos-colegiados/comissao-tripartite-partitaria-permanente/normas-regulamentadora/normas-regulamentadoras-vigentes/norma-regulamentadora-no-15-nr-15',
+  const slug=t=>t.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+  const NR01_URL=fonteUrl('nr01');
+  if(typeof NR01_GRO!=='undefined') D.push({id:'nr01', tit:'NR-01 — item 1.5: gerenciamento de riscos ocupacionais (GRO/PGR)', curto:'NR-01 (GRO)', fonte:NR01_URL,
+    nota:'Redação da Portaria MTE 1.419/2024, em vigor desde 26/05/2026 (Portaria MTE 765/2025). O PGR serve à prevenção; a caracterização de insalubridade e periculosidade segue a NR-15 e a NR-16 (item 1.5.2).',
+    itens:NR01_GRO.map(([k,t])=>({id:k, rot:'Item '+k, pars:t.split('\n'), cit:'NR-01, item '+k+' (redação da Portaria MTE 1.419/2024)'}))});
+  if(typeof NR01_TERMOS!=='undefined') D.push({id:'nr01def', tit:'NR-01 — Anexo I: termos e definições', curto:'NR-01 (definições)', fonte:NR01_URL,
+    nota:'Redação vigente. Algumas anotações do texto do MTE ainda indicam "vigência em 26 de maio de 2025", data original da Portaria 1.419/2024, depois adiada pela Portaria 765/2025.',
+    itens:NR01_TERMOS.map(([k,t])=>({id:slug(k), rot:k, pars:t.split('\n'), cit:'NR-01, Anexo I — '+k}))});
+  if(typeof NR15_CORPO!=='undefined') D.push({id:'nr15', tit:'NR-15 — itens gerais (15.1 a 15.7)', curto:'NR-15', fonte:fonteUrl('nr15'),
     nota:'Texto consolidado do MTE. Os anexos estão na aba Insalubridade.',
     itens:NR15_CORPO.map(([k,t])=>({id:k, rot:'Item '+k, pars:[t], cit:'NR-15, item '+k}))});
-  D.push({id:'nr16', tit:'NR-16 — itens gerais', curto:'NR-16', fonte:'https://www.gov.br/trabalho-e-emprego/pt-br/acesso-a-informacao/participacao-social/conselhos-e-orgaos-colegiados/comissao-tripartite-partitaria-permanente/normas-regulamentadora/normas-regulamentadoras-vigentes/norma-regulamentadora-no-16-nr-16',
+  D.push({id:'nr16', tit:'NR-16 — itens gerais', curto:'NR-16', fonte:fonteUrl('nr16'),
     nota:'Texto consolidado do MTE. Os anexos estão na aba Periculosidade.',
     itens:NR16_GERAL.map(([k,t])=>({id:k, rot:'Item '+k, pars:[t], cit:'NR-16, item '+k}))});
   return D;
@@ -1309,7 +1318,7 @@ function renderTextos(){
   let h='<nav class="txdocs" aria-label="Documentos">'+DOCS_TX.map(x=>'<a class="txchip'+(x.id===doc.id?' on':'')+'" href="#biblioteca/textos/'+x.id+'"'+(x.id===doc.id?' aria-current="page"':'')+'>'+esc(x.curto)+'</a>').join('')+'</nav>';
   h+='<section class="panel txdoc"><div class="ph"><h3>'+esc(doc.tit)+'</h3><p class="muted small">'+esc(doc.nota)+' <a href="'+esc(doc.fonte)+'" target="_blank" rel="noopener">Fonte oficial</a></p></div>';
   h+='<label class="f" for="tx-q"><span>Procurar neste texto</span><input id="tx-q" type="search" value="'+esc(q)+'" placeholder="Ex.: permanente, EPI, laudo" data-txq="1"></label>';
-  h+='<div class="txidx" aria-label="Índice">'+doc.itens.map(it=>'<a href="#biblioteca/textos/'+doc.id+'/'+esc(it.id)+'">'+esc(it.rot.replace(/^(Art|Item)\. ?/,''))+'</a>').join('')+'</div>';
+  h+='<div class="txidx" aria-label="Índice">'+doc.itens.map(it=>'<a href="#biblioteca/textos/'+doc.id+'/'+esc(it.id)+'">'+esc(it.rot.replace(/^(Art\.|Item) ?/,''))+'</a>').join('')+'</div>';
   h+=itens.length?itens.map(it=>'<article class="txart" id="'+txId(doc.id,it.id)+'"><header><b>'+esc(it.rot)+'</b><div class="btns">'+favBtn('txt:'+doc.id+'/'+it.id,it.cit)+'<button class="ghost sm" data-txcite="'+doc.id+'|'+esc(it.id)+'">Copiar citação</button><button class="ghost sm" data-txlink="'+doc.id+'|'+esc(it.id)+'">Copiar link</button></div></header>'+it.pars.map(p=>'<p>'+hl(p,q)+'</p>').join('')+'</article>').join(''):'<p class="empty">Nada encontrado para "'+esc(q)+'" neste texto.</p>';
   h+='<p class="fine">Reprodução para consulta. Antes de citar em peça ou parecer, confira a redação na fonte oficial.</p></section>';
   return h;
