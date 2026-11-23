@@ -743,3 +743,7 @@ input[aria-invalid="true"]{border-color:var(--n, #b42318)!important; box-shadow:
 .dicas b{color:var(--ink)}
 .campo-nota{display:block; margin-top:4px; color:var(--i); font-size:.8rem; line-height:1.35}
 .salvo{color:var(--e); font-weight:700; font-size:.85rem}
+/* linha do tempo do Resultado: fundamento do trecho */
+.tlinfo{margin:8px 0 0; padding:10px 12px; border-left:4px solid var(--gold-line); background:var(--surface-2); border-radius:6px; font-size:.9rem}
+rect.seg{cursor:pointer} rect.seg:focus{outline:none; stroke:var(--focus); stroke-width:3} rect.seg.sel{stroke:var(--ink); stroke-width:2}
+.note.warn{border-left-color:var(--n); color:var(--n)}

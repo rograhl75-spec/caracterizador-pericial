@@ -88,6 +88,11 @@ function renderPainel(){
   h+='<section class="panel"><div class="ph"><h3>Marcos legais</h3></div><ol class="marcos">'+MARCOS.map(m=>'<li><time>'+fmtBR(m.d)+'</time><div><b>'+esc(m.t)+'</b><span>'+esc(m.s)+'</span></div></li>').join('')+'</ol></section></div>';
   return h;
 }
+let TL_INFO=[];
+function mostrarTl(el){ const box=document.getElementById('tlinfo'); if(!box) return; document.querySelectorAll('rect.seg.sel').forEach(r=>r.classList.remove('sel')); el.classList.add('sel'); box.textContent=TL_INFO[+el.dataset.tlinfo]||''; }
+document.addEventListener('click', ev=>{ const r=ev.target.closest&&ev.target.closest('[data-tlinfo]'); if(r) mostrarTl(r); });
+document.addEventListener('keydown', ev=>{ if((ev.key==='Enter'||ev.key===' ')&&ev.target.dataset&&ev.target.dataset.tlinfo!==undefined){ ev.preventDefault(); mostrarTl(ev.target); } });
+document.addEventListener('focusin', ev=>{ if(ev.target.dataset&&ev.target.dataset.tlinfo!==undefined) mostrarTl(ev.target); });
 function timelineSVG(){
   const segs=[]; for(const row of S.caso.rows){ const ag=agById(row.agente); if(!ag) continue; const r=avaliar(row,ag); r.segs.forEach(s=>segs.push({...s, ag:ag.nome, row})); }
   if(!segs.length) return '<p class="muted pad">Nenhum período ainda. Inclua períodos em <a href="#aposentadoria/caso">Simulação de enquadramento</a>.</p>';
@@ -99,10 +104,11 @@ function timelineSVG(){
   for(let y=y0;y<=y1;y++){ const xx=x(y+'-01-01'); if((y-y0)%step===0){ g+='<line class="grid" x1="'+xx+'" x2="'+xx+'" y1="44" y2="140"/><text class="tick" x="'+xx+'" y="160" text-anchor="middle">'+y+'</text>'; } }
   const mk=[['1997-03-05','05/03/1997'],['2003-11-18','18/11/2003'],['2019-11-13','EC 103']];
   mk.forEach(([d,l],k)=>{ const xx=x(d); if(xx<L||xx>W-Rr) return; g+='<line class="marco" x1="'+xx+'" x2="'+xx+'" y1="30" y2="140"/><text class="mlab" x="'+xx+'" y="'+(22)+'" text-anchor="middle">'+l+'</text>'; });
+  TL_INFO=[];
   lanes.forEach(([k,lab,yy])=>{ g+='<text class="lane" x="0" y="'+(yy+15)+'">'+lab+'</text>';
-    segs.forEach(s=>{ const a=x(s.ini), b=x(addDays(s.fim,1)); g+='<rect class="seg st-'+s[k].st+'" x="'+a.toFixed(1)+'" y="'+yy+'" width="'+Math.max(1.5,b-a-1).toFixed(1)+'" height="24" rx="3"><title>'+esc(s.ag+' · '+fmtBR(s.ini)+' a '+fmtBR(s.fim)+' · '+ST[s[k].st]+' — '+s[k].txt)+'</title></rect>'; }); });
-  g+='<text class="tick" x="'+L+'" y="180">Passe o cursor ou toque nos trechos para ver o fundamento.</text></svg>';
-  return g;
+    segs.forEach(s=>{ const a=x(s.ini), b=x(addDays(s.fim,1)), txt=lab+' · '+s.ag+' · '+fmtBR(s.ini)+' a '+fmtBR(s.fim)+' · '+ST[s[k].st]+' — '+s[k].txt; TL_INFO.push(txt); g+='<rect class="seg st-'+s[k].st+'" x="'+a.toFixed(1)+'" y="'+yy+'" width="'+Math.max(1.5,b-a-1).toFixed(1)+'" height="24" rx="3" tabindex="0" role="button" data-tlinfo="'+(TL_INFO.length-1)+'" aria-label="'+esc(txt)+'"><title>'+esc(txt)+'</title></rect>'; }); });
+  g+='<text class="tick" x="'+L+'" y="180">Toque, clique ou use Tab nos trechos para ver o fundamento abaixo.</text></svg>';
+  return g+'</div><div id="tlinfo" class="tlinfo" aria-live="polite">Toque ou clique num trecho para ver o fundamento.</div><div>';
 }
 function mxCell(a,m){ if(m!=='X'||!MXX[a.id]) return '<span class="mxc mx-'+MX[m][1]+'">'+MX[m][0]+'</span>'; const k=Object.keys(MXX).filter(id=>agById(id)).indexOf(a.id)+1; return '<span class="mxc mx-x" title="'+esc(MXX[a.id].nota)+'">'+esc(MXX[a.id].rot)+' <sup>'+k+'</sup></span>'; }
 function matriz(){
@@ -241,7 +247,13 @@ const LI_MET = {
 };
 const LI_DEF={te:'480', met:'nht06q', s:[{n:'Operação da prensa',l:'92; 93; 92',t:'150'},{n:'Abastecimento',l:'87; 88,5; 88',t:'180'},{n:'Inspeção',l:'84; 83; 84',t:'90'},{n:'Refeitório e pausas',l:'72; 74; 73',t:'60'},{n:'',l:'',t:''},{n:'',l:'',t:''}]};
 function liState(){ if(!S.li) S.li=JSON.parse(JSON.stringify(LI_DEF)); if(!LI_MET[S.li.met]) S.li.met='nht06q'; return S.li; }
-function liParse(str){ return String(str||'').split(/[;\s\/]+/).map(x=>num(x)).filter(x=>x!==null); }
+/* leituras separadas por espaço, ponto e vírgula ou barra; "92,93,92" (vírgula entre leituras inteiras) também vale */
+function liTokens(str){ return String(str||'').trim().split(/[;\s\/]+/).filter(Boolean).flatMap(t=>/^\d{2,3}(,\d{2,3}){2,}$/.test(t)?t.split(','):[t]); }
+function liParse(str){ return liTokens(str).map(x=>num(x)).filter(x=>x!==null); }
+function liInfo(el){ const tk=liTokens(el.value), ok=tk.filter(x=>num(x)!==null), ruim=tk.filter(x=>num(x)===null);
+  if(!tk.length){ notaCampo(el,''); avisoCampo(el,''); return; }
+  avisoCampo(el, ruim.length?'Ignorado: '+ruim.map(x=>'"'+x+'"').join(', ')+'. Separe as leituras por espaço ou ponto e vírgula (ex.: 92; 93,5; 91).':'');
+  notaCampo(el, ok.length+' leitura'+(ok.length>1?'s':'')+' reconhecida'+(ok.length>1?'s':'')+': '+ok.map(x=>String(num(x)).replace('.',',')).join(' · ')); }
 const nextUp=(tab,L)=>{ for(const [n,t] of tab){ if(n>=L) return t; } return tab.at(-1)[1]; };
 function liMean(ls,met){ const m=ls.reduce((a,b)=>a+b,0)/ls.length; return isNht(met) ? Math.round(m) : r1(m); }
 function isNht(k){ return k==='nht06'||k==='nht06a'||k==='nht06q'; }
@@ -288,7 +300,7 @@ function liRes(){
      kv('NE (jornada de '+r.base+' min)', r.ne===null?'—':f1(r.ne)+' dB(A)')+
      kv('NEN (8 h, q = 5)', r.nen===null?'—':f1(r.nen)+' dB(A)', r.nen===null?'':(r1(r.nen)>85?'acima de 85 dB(A)':'até 85 dB(A)'))+'</div>';
   if(r.T<r.te) h+='<p class="note">As situações somam '+r.T+' min, menos que a jornada de '+r.te+' min: o restante foi tratado como abaixo do limiar. Se não for, inclua a situação que falta.</p>';
-  if(r.T>r.te) h+='<p class="note">As situações somam '+r.T+' min, mais que a jornada informada ('+r.te+' min): o cálculo usou '+r.T+' min como jornada.</p>';
+  if(r.T>r.te) h+='<p class="note warn">As situações somam '+r.T+' min, mais que a jornada informada ('+r.te+' min): o cálculo usou '+r.T+' min como jornada. Confira os tempos ou a jornada.</p>';
   h+='<p class="small">Dose pelos outros métodos: '+r.outros.map(([k,d])=>LI_MET[k].rot+': <b>'+(d===null?'não calculada':isNht(k)?brn0(d):brn0(Math.round(d*1000)/10)+'%')+'</b>').join(' · ')+'.</p>'+
    '<p class="fine">Método: '+LI_MET[c.met].rot+' — '+LI_MET[c.met].desc+'. Lavg = 85 + 16,61 · log(D · 480 / T); NE = 85 + 16,61 · log(D · 480 / Te); NEN = 85 + 16,61 · log(D), calculados com a dose sem arredondamento. Até 18/11/2003 compare o Lavg da jornada (80 ou 90 dB(A)); a partir de 19/11/2003, o NEN (85 dB(A)).</p>';
   return h;
@@ -501,6 +513,9 @@ function uRes(){
    '<div class="scrollx"><table class="pt uper"><thead><tr><th>Período</th><th>Compara</th><th>Resultado</th></tr></thead><tbody>'+
    U_PER.map(([k,t,g,lim])=>{ const v=g==='NEN'?r.nen:r.ne; return '<tr class="'+(u.per==='todos'?'':k===u.per?'sel':'dim')+'"><td class="mono">'+t+'</td><td>'+g+' '+f1(v)+' × '+lim+' dB(A)</td><td>'+ver(v,+lim)+'</td></tr>'; }).join('')+'</tbody></table></div>'+uExtNote(u)+
    '<p class="fine">Nota do especialista (q = 5). O quadro \"Enquadrar um período\", abaixo, já recebeu este Lavg e esta jornada: informe as datas e o EPI.</p>';
+  const teU=num(u.te);
+  if(r.li&&teU&&r.li.T>teU) h+='<p class="note warn">As situações somam '+r.li.T+' min, mais que a jornada Te de '+teU+' min. Confira os tempos de cada situação ou a jornada.</p>';
+  if(r.li&&teU&&r.li.T<teU) h+='<p class="note">As situações somam '+r.li.T+' min, menos que a jornada Te de '+teU+' min: o restante foi tratado como abaixo do limiar.</p>';
   if(r.li) h+='<details><summary>Ver o cálculo por situação acústica</summary>'+liResFrom(r.li)+'</details>';
   return h;
 }
@@ -1572,16 +1587,20 @@ function conferirDatas(el){
   avisoCampo(ini, ini.value&&ini.value<'1960-08-26'?'Antes de 26/08/1960 (Lei 3.807/60) não havia aposentadoria especial; a base não traz regras para esse período.':ini.value&&ini.value>hoje?'Data no futuro: confira o ano.':'');
   avisoCampo(fim, fim.value&&ini.value&&fim.value<ini.value?'O fim ('+brData(fim.value)+') é anterior ao início ('+brData(ini.value)+'). Inverta as datas.':fim.value&&fim.value>hoje?'Data no futuro: a simulação considera o período informado, mas confira o ano.':'');
 }
+/* navegador em outro idioma mostra a data como mm/dd/aaaa: confirma a leitura em dia/mês/ano */
+const LOCAL_BR=(()=>{ try{ return /^pt/i.test(Intl.DateTimeFormat().resolvedOptions().locale||navigator.language||''); }catch(e){ return true; } })();
+function notaData(el){ if(LOCAL_BR) return; notaCampo(el, dataValida(el.value)?'Lida como '+brData(el.value)+' (dia/mês/ano).':''); }
 function prepararCampos(root, emEdicao){
   (root||document).querySelectorAll('input[inputmode="decimal"]').forEach(el=>{
     const r=regraCampo(el); if(r&&!el.placeholder) el.placeholder=r[4];
     /* só troca ponto por vírgula em valor carregado (exemplo, caso salvo), nunca no campo que a pessoa está digitando */
     if(document.activeElement!==el&&el.id!==emEdicao&&/^-?\d+\.\d{1,2}$/.test(el.value)&&!/^\d{1,3}\.\d{3}$/.test(el.value)) el.value=el.value.replace('.',',');
     conferirNumero(el); });
-  (root||document).querySelectorAll('input[type="date"]').forEach(el=>{ if(!el.min) el.min='1900-01-01'; if(!el.max) el.max='2100-12-31'; if(/-ini$/.test(el.id)) conferirDatas(el); });
+  (root||document).querySelectorAll('input[type="date"]').forEach(el=>{ if(!el.min) el.min='1900-01-01'; if(!el.max) el.max='2100-12-31'; if(/-ini$/.test(el.id)) conferirDatas(el); notaData(el); });
+  (root||document).querySelectorAll('[data-li$=".l"]').forEach(liInfo);
 }
-document.addEventListener('input', ev=>{ const t=ev.target; setTimeout(()=>{ const el=t.id?document.getElementById(t.id):null; if(!el) return; if(el.getAttribute('inputmode')==='decimal') conferirNumero(el); if(el.type==='date') conferirDatas(el); },0); });
-document.addEventListener('change', ev=>{ const t=ev.target; setTimeout(()=>{ const el=t.id?document.getElementById(t.id):null; if(el&&el.type==='date') conferirDatas(el); prepararCampos(document.getElementById('main')); },0); });
+document.addEventListener('input', ev=>{ const t=ev.target; setTimeout(()=>{ const el=t.id?document.getElementById(t.id):null; if(!el) return; if(el.dataset.li&&/\.l$/.test(el.dataset.li)) liInfo(el); if(el.getAttribute('inputmode')==='decimal') conferirNumero(el); if(el.type==='date') conferirDatas(el); },0); });
+document.addEventListener('change', ev=>{ const t=ev.target; setTimeout(()=>{ const el=t.id?document.getElementById(t.id):null; if(el&&el.type==='date'){ conferirDatas(el); notaData(el); } prepararCampos(document.getElementById('main')); },0); });
 
 /* ---------- Textos legais navegáveis ---------- */
 function docsTexto(){
