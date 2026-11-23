@@ -15,6 +15,7 @@ const EXEMPLO = {nome:'Caso exemplo (fictício) — operador de produção', sex
  {empresa:'Ambiental Coleta Ltda.', funcao:'Coletor de resíduos', ini:'2020-04-01', fim:'2025-12-31', agente:'biologico', tempo:25, epi:false, d:{alinea:'g'}}
 ]};
 
+const plural=(n,um,varios)=>Number(n).toLocaleString('pt-BR')+' '+(n===1?um:varios);
 let S = {gq:'', agq:'', tq:'', tab:'inicio', caso:JSON.parse(JSON.stringify(EXEMPLO)), ag:'ruido', a15:1, a16:'a2', tf:'todos', lib:'d3048_IV', q:'', ins:{}, per:{}};
 /* ===== Casos salvos (vários) — ficam só neste navegador ===== */
 const STORE='caracterizador:v2', STORE_PERFIL='caracterizador:perfil';
@@ -38,25 +39,25 @@ function save(){ S.caso.alterado=agora(); DB.casos[DB.ativo]=S.caso; persist(); 
 const TABS = [['inicio','Início'],['funcao','Por função'],['aposentadoria','Aposentadoria especial'],['insalubridade','Insalubridade'],['periculosidade','Periculosidade'],['teses','Teses'],['biblioteca','Biblioteca'],['perfil','Perfil e dados']];
 const AP_SUB = [['agentes','Consulta por agente','Critério, campo, metodologia, simulação e PPP'],['data','Regra na data','Linha do tempo e o que valia numa data'],['comparar','Comparar agentes','Dois ou três agentes lado a lado'],['caso','Simulação de enquadramento','Períodos de trabalho testados contra as regras'],['resultado','Resultado da simulação','Tempo especial simulado, linha do tempo e divergências']];
 
-function chip(st, short){ return '<span class="chip st-'+st+'">'+(short?st==='E'?'Especial':st==='N'?'Não':st==='C'?'Controverso':'Faltam dados':ST[st])+'</span>'; }
+function chip(st, short){ return '<span class="chip st-'+st+'">'+(short?st==='E'?'Especial':st==='N'?'Não':st==='C'?'Controverso':'Dados insuficientes':ST[st])+'</span>'; }
 
 
 /* ---------- INÍCIO (apresentação) ---------- */
 function renderInicio(){
   const n = {ag:AGENTS.length, a11:A11.length, a13:A13FULL.filter(x=>x.g!=='nota').length, nr16:NR16.length, teses:Object.keys(TESES).length};
   const area=(cls,eb,tit,txt,links)=>'<article class="acard '+cls+'"><p class="eyebrow">'+eb+'</p><h3>'+tit+'</h3><p>'+txt+'</p><div class="alinks">'+links.map(([h,t],k)=>'<a class="'+(k?'sec':'pri')+'" href="#'+h+'">'+t+(k?'':' →')+'</a>').join('')+'</div></article>';
-  return '<section class="hero"><div class="hero-in"><img class="hero-logo" alt="Grahl Consultoria e Treinamentos" src="'+BRAND.logo+'"><div class="hero-txt"><p class="eyebrow">Consulta técnica para laudos, pareceres e perícias</p><h2>Do texto legal ao laudo, período a período</h2><p>Legislação trabalhista e previdenciária num só lugar: qual regra vale em cada época, qual o limite, como medir e como fundamentar a conclusão em <b>aposentadoria especial</b>, <b>insalubridade</b> e <b>periculosidade</b>.</p><div class="hero-btns"><button class="btn" data-focusg="1">Pesquisar agente, substância ou atividade</button></div></div></div>'+
+  return '<section class="hero"><div class="hero-in"><img class="hero-logo" alt="Grahl Consultoria e Treinamentos" src="'+BRAND.logo+'"><div class="hero-txt"><p class="eyebrow">Consulta técnica em aposentadoria especial, insalubridade e periculosidade</p><h2>A regra de cada época, período a período</h2><p>Legislação trabalhista e previdenciária num só lugar: qual regra vale em cada época, qual o limite e como medir, com as fontes para conferir, em <b>aposentadoria especial</b>, <b>insalubridade</b> e <b>periculosidade</b>.</p><div class="hero-btns"><button class="btn" data-focusg="1">Pesquisar agente, substância ou atividade</button></div></div></div>'+
    '<dl class="hero-num"><div><dt>'+n.ag+'</dt><dd>agentes com ficha e simulador</dd></div><div><dt>'+n.a11+'</dt><dd>substâncias do Anexo 11, com sinônimos</dd></div><div><dt>'+n.a13+'</dt><dd>atividades do Anexo 13</dd></div><div><dt>'+n.nr16+'</dt><dd>anexos da NR-16 estruturados</dd></div><div><dt>'+n.teses+'</dt><dd>teses, súmulas e OJs</dd></div></dl></section>'+
    '<section class="isec"><div class="ihead"><h2 class="ih">Escolha a área</h2><p class="ilead">Cada área segue a sua própria legislação. A NR-15 só entra no previdenciário quando a norma do período remete a ela.</p></div>'+
    '<div class="acards">'+area('a-prev','Previdenciário · Decreto 3.048/99, Anexo IV','Aposentadoria especial','Agentes nocivos em cinco passos: critério por período, levantamento em campo, metodologia, simulação e PPP. Inclui a simulação de enquadramento por período.',[['aposentadoria/agentes','Consultar um agente'],['aposentadoria/caso','Simular períodos']])+
    area('a-ins','Trabalhista · NR-15','Insalubridade','Limites e graus dos anexos da NR-15, calculadoras de ruído, calor e vibração, Quadro 1 do Anexo 11 e as listas integrais dos Anexos 13 e 14.',[['insalubridade','Abrir a NR-15']])+
    area('a-per','Trabalhista · NR-16','Periculosidade','Todos os anexos com itens, quadros e áreas de risco, hipóteses de exclusão e frequência da exposição (Súmula 364).',[['periculosidade','Abrir a NR-16']])+'</div></section>'+favoritosInicio()+recentesInicio()+novidadesHtml()+
-   '<section class="forwho"><h2 class="ih">Para quem</h2><div class="fw-grid"><div><b>Atuação</b><ul class="chips"><li>Perito judicial</li><li>Assistente técnico</li><li>Laudos extrajudiciais</li><li>Pareceres técnicos</li></ul></div><div><b>Profissão</b><ul class="chips"><li>Engenheiro de segurança do trabalho</li><li>Médico do trabalho</li><li>Técnico de segurança do trabalho</li><li>Enfermeiro do trabalho</li></ul></div></div></section>'+
-   '<section class="isec"><h2 class="ih">Como usar</h2><ol class="steps"><li><b>Pesquise</b><span>Digite no campo do topo um agente, substância, atividade ou tese, inclusive por sinônimo (toluol, amianto, H2S).</span></li><li><b>Escolha a área</b><span>Aposentadoria especial, insalubridade ou periculosidade: cada uma com a sua legislação e os seus critérios por período.</span></li><li><b>Siga os passos</b><span>Critério, levantamento em campo, metodologia e simulação com os seus dados, com a nota do especialista ao lado do critério oficial.</span></li><li><b>Imprima</b><span>Gere o relatório, a ficha ou a consulta no papel timbrado, em PDF ou papel.</span></li></ol></section>'+
+   '<section class="forwho"><h2 class="ih">Para quem</h2><div class="fw-grid"><div><b>Atuação</b><ul class="chips"><li>Perícia judicial</li><li>Assistência técnica</li><li>Advocacia previdenciária e trabalhista</li><li>Gestão de SST</li></ul></div><div><b>Profissão</b><ul class="chips"><li>Engenharia de segurança do trabalho</li><li>Medicina do trabalho</li><li>Técnico de segurança do trabalho</li><li>Enfermagem do trabalho</li><li>Advocacia</li></ul></div></div></section>'+
+   '<section class="isec"><h2 class="ih">Como usar</h2><ol class="steps"><li><b>Pesquise</b><span>Digite no campo do topo um agente, substância, atividade ou tese, inclusive por sinônimo (toluol, amianto, H2S).</span></li><li><b>Escolha a área</b><span>Aposentadoria especial, insalubridade ou periculosidade: cada uma com a sua legislação e os seus critérios por período.</span></li><li><b>Siga os passos</b><span>Critério, levantamento em campo, metodologia e simulação com os seus dados, com a nota do especialista ao lado do critério oficial.</span></li><li><b>Imprima</b><span>Imprima a ficha, a consulta ou a simulação com a sua identificação, em papel ou PDF.</span></li></ol></section>'+
    '<div class="grid2"><section class="isec panel"><h2 class="ih">Base normativa</h2><ul class="blist"><li>Lei 8.213/91 e Decreto 3.048/99 (Anexo IV), com Decretos 53.831/64, 83.080/79, 2.172/97, 4.882/03, 8.123/13 e 10.410/20</li><li>IN PRES/INSS 128/2022 e alterações posteriores, até a IN 212/2026</li><li>Manual de Aposentadoria Especial do INSS (2018)</li><li>NR-15 e NR-16 atualizadas, com a Portaria MTE 2.021/2025</li><li>NHO da Fundacentro (01, 06, 09, 10 e demais) e ISO 2631/5349</li><li>LINACH (Portaria Interministerial 9/2014)</li><li>Teses do STF, STJ, TNU e súmulas e OJs do TST</li></ul><p class="fine">Datas de conferência de cada fonte na tabela abaixo. Confira sempre a redação oficial antes de citar.</p></section>'+
    '<section class="isec panel about"><h2 class="ih">Sobre a Grahl</h2><img class="about-logo" alt="" src="'+BRAND.logo+'"><p><b>Grahl Consultoria e Treinamentos</b> é conduzida por <b>Rogério Grahl</b>, Engenheiro Químico e Engenheiro de Segurança do Trabalho, com mais de 30 anos na indústria química e 19 anos em segurança do trabalho. Desde 2015 dedica-se à consultoria técnica, às perícias judiciais e à assistência técnica, e é professor de pós-graduação na disciplina Elaboração de Laudos Técnicos.</p><ul class="blist"><li><b>Perícia judicial:</b> insalubridade (NR-15), periculosidade (NR-16) e acidentes de trabalho; aposentadoria especial e ações regressivas; perícias em processos químicos</li><li><b>Assistência técnica:</b> análise preventiva do posto de trabalho, elaboração de quesitos e impugnação técnica de laudos</li><li><b>Auditoria de conformidade:</b> PGR, LIP e LTCAT confrontados com as condições reais de operação</li><li><b>Consultoria industrial:</b> injeção de poliuretano rígido (processo descontínuo) e responsabilidade técnica no setor químico</li><li><b>Docência e treinamento:</b> perícia judicial, laudos de insalubridade, periculosidade e aposentadoria especial</li></ul><p class="small">Engenharia de Segurança do Trabalho (UEL, 2007) · MBA em Gestão Empresarial (FGV, 2003) · Engenharia Química (FURB, 1995)</p><p class="small">CREA-SC 1039223-9 · CRQ 09302007 · Londrina, PR</p><div class="contacts"><a href="https://grahlconsultoria.com.br/" target="_blank" rel="noopener">grahlconsultoria.com.br</a><span>WhatsApp (43) 99884-6888</span><span>Instagram @rogerio_grahl</span></div></section></div>'+
    fontesHtml()+
-   '<p class="fine center">Ferramenta de consulta técnica. Os resultados não substituem a análise do caso concreto, a inspeção do local de trabalho nem o laudo técnico assinado por profissional habilitado.</p>';
+   '';
 }
 
 /* ---------- PAINEL ---------- */
@@ -64,7 +65,7 @@ function renderInicio(){
 /* ---------- APOSENTADORIA ESPECIAL: subabas ---------- */
 function renderAposentadoria(){
   const sub=S.ap||'agentes', t=totais(S.caso);
-  const badge={agentes:AGENTS.length+' agentes', data:S.dt?brData(S.dt):'consulta', comparar:(S.cmpAg||CMP_PADRAO).filter(Boolean).length+' agentes', caso:S.caso.rows.length+' período(s)', resultado:fmtDias(t.perito.dias)};
+  const badge={agentes:AGENTS.length+' agentes', data:S.dt?brData(S.dt):'consulta', comparar:(S.cmpAg||CMP_PADRAO).filter(Boolean).length+' agentes', caso:plural(S.caso.rows.length,'período','períodos'), resultado:fmtDias(t.perito.dias)};
   const nav='<nav class="subnav" aria-label="Aposentadoria especial">'+AP_SUB.map(([k,tit,desc],i)=>'<a href="#aposentadoria/'+k+'" class="'+(k===sub?'on':'')+'" aria-current="'+(k===sub?'page':'false')+'"><span class="sn-n">'+(i+1)+'</span><span class="sn-t"><b>'+tit+'</b><small>'+desc+'</small></span><span class="sn-b">'+esc(badge[k])+'</span></a>').join('')+'</nav>';
   const head='<section class="aphead"><div><p class="eyebrow">Previdenciário · Lei 8.213/91, arts. 57 e 58 · Decreto 3.048/99, Anexo IV</p><h2>Aposentadoria especial</h2></div>'+nav+'</section>';
   const body = sub==='caso'?renderCaso(): sub==='resultado'?renderPainel(): sub==='data'?renderRegraData(): sub==='comparar'?renderComparar(): renderAgentes();
@@ -73,11 +74,11 @@ function renderAposentadoria(){
 function renderPainel(){
   const t=totais(S.caso), dif=t.perito.dias-t.inss.dias;
   const card=(lab,val,sub,cls='')=>'<div class="stat '+cls+'"><span class="lab">'+lab+'</span><span class="val">'+val+'</span><span class="sub">'+sub+'</span></div>';
-  let h='<section class="intro"><div><p class="eyebrow">Simulação carregada</p><h2>'+esc(S.caso.nome||'Caso sem nome')+'</h2><p class="muted">'+S.caso.rows.length+' período(s) · '+(S.caso.sexo==='M'?'mulher':'homem')+' · edite em <a href="#aposentadoria/caso">Simulação de enquadramento</a></p></div></section>';
+  let h='<section class="intro"><div><p class="eyebrow">Simulação carregada</p><h2>'+esc(S.caso.nome||'Caso sem nome')+'</h2><p class="muted">'+plural(S.caso.rows.length,'período','períodos')+' · '+(S.caso.sexo==='M'?'mulher':'homem')+' · edite em <a href="#aposentadoria/caso">Simulação de enquadramento</a></p></div></section>';
   h+='<div class="stats">'+
     card('Tempo especial · nota do especialista', fmtDias(t.perito.dias), t.perito.dias.toLocaleString('pt-BR')+' dias', 'acc')+
     card('Tempo especial · INSS (IN 128/2022)', fmtDias(t.inss.dias), t.inss.dias.toLocaleString('pt-BR')+' dias')+
-    card('Diferença entre os critérios', fmtDias(Math.abs(dif)), (dif>=0?'a favor da nota do especialista':'a favor do INSS')+' · '+t.diverg+' trecho(s) divergente(s)')+
+    card('Diferença entre os critérios', fmtDias(Math.abs(dif)), (dif>=0?'maior pela nota do especialista':'maior pelo critério do INSS')+' · '+plural(t.diverg,'trecho divergente','trechos divergentes'))+
     card('Acréscimo por conversão até 13/11/2019', fmtDias(t.perito.conv), 'especialista · INSS: '+fmtDias(t.inss.conv))+
   '</div>';
   const sit=situacaoTempo(t), pend=[]; S.caso.rows.forEach((row,i)=>{ const ag=agById(row.agente); if(!ag) return; const r=avaliar(row,ag); if(r.erro&&!r.segs.length) pend.push([i,r.erro]); else r.segs.forEach(sg=>{ if(sg.perito.st==='I'||sg.inss.st==='I') pend.push([i,fmtBR(sg.ini)+' a '+fmtBR(sg.fim)+': '+(sg.perito.st==='I'?sg.perito.txt:sg.inss.txt)]); }); });
@@ -197,13 +198,13 @@ function situacaoTempo(t){
 }
 function totBar(){
   const t=totais(S.caso), sit=situacaoTempo(t);
-  const extra=(sit&&!sit.misto?'<p class="totnota"><b>Tempo exigido: '+sit.T+' anos</b> · especialista: '+sit.perito+' · INSS: '+sit.inss+'. Sem considerar carência, idade mínima e regras de transição.</p>':'')+
+  const extra=(sit&&!sit.misto?'<p class="totnota"><b>Tempo exigido: '+sit.T+' anos</b> · nota do especialista: '+sit.perito+' · INSS: '+sit.inss+'. Sem considerar carência, idade mínima e regras de transição.</p>':'')+
     (t.perito.sobrep||t.inss.sobrep?'<p class="totnota">'+fmtDias(Math.max(t.perito.sobrep,t.inss.sobrep))+' em períodos sobrepostos foram contados uma vez.</p>':'');
-  return extra+'<div class="totbar"><div><span>Nota do especialista</span><b>'+fmtDias(t.perito.dias)+'</b></div><div><span>INSS</span><b>'+fmtDias(t.inss.dias)+'</b></div><div><span>Conversão até 13/11/2019 (perito)</span><b>+ '+fmtDias(t.perito.conv)+'</b></div><div><span>Trechos divergentes</span><b>'+t.diverg+'</b></div></div>';
+  return extra+'<div class="totbar"><div><span>Nota do especialista</span><b>'+fmtDias(t.perito.dias)+'</b></div><div><span>INSS</span><b>'+fmtDias(t.inss.dias)+'</b></div><div><span>Conversão até 13/11/2019 (nota do especialista)</span><b>+ '+fmtDias(t.perito.conv)+'</b></div><div><span>Trechos divergentes</span><b>'+t.diverg+'</b></div></div>';
 }
 function renderCaso(){
   const c=S.caso;
-  return '<section class="intro"><div><p class="eyebrow">Simulação de enquadramento</p><h2>Aposentadoria especial por período</h2><p class="muted">Informe os períodos e os dados de exposição para ver como cada regra os trataria. Cada período é dividido nos marcos legais do agente e comparado com dois critérios: o do especialista (critério técnico da Grahl, com a fundamentação de cada ponto) e o do INSS (IN 128/2022). Fatores de conversão do art. 70 do Decreto 3.048/99, só até 13/11/2019.</p></div></section>'+
+  return '<section class="intro"><div><p class="eyebrow">Simulação de enquadramento</p><h2>Aposentadoria especial por período</h2><p class="muted">Informe os períodos e os dados de exposição para ver como cada regra os trataria. Cada período é dividido nos marcos legais do agente e comparado com dois critérios: a nota do especialista (leitura técnica das normas, com a fundamentação de cada ponto; cabe ao profissional adotá-la ou não) e o critério do INSS (IN 128/2022).</p></div></section>'+
   '<div class="consulta-aviso" role="note"><b>Ferramenta de consulta.</b> A simulação aplica as regras aos dados digitados; não examina documentos, não verifica a habitualidade nem a qualidade da prova e não substitui o laudo, o parecer ou a decisão. O resultado é um ponto de partida para a análise do profissional.</div>'+
   '<details class="comopreencher"'+(S.caso.rows.length<=1?' open':'')+'><summary>Como preencher</summary><ol>'+
    '<li><b>Um período por vínculo e agente.</b> Se o mesmo vínculo teve dois agentes (ex.: ruído e calor), crie dois períodos com as mesmas datas: os dias sobrepostos contam uma vez no total.</li>'+
@@ -213,7 +214,7 @@ function renderCaso(){
    '<li>Confira os trechos de cada período e o total em <a href="#aposentadoria/resultado">Resultado da simulação</a>. Valores fora do usual aparecem com aviso em vermelho embaixo do campo.</li></ol></details>'+
   casebar()+'<div class="casehead"><label class="f wide" for="c-nome"><span>Identificação do caso</span><input id="c-nome" type="text" data-c="nome" value="'+esc(c.nome)+'"></label>'+
   '<label class="f" for="c-sexo"><span>Segurado</span><select id="c-sexo" data-c="sexo"><option value="H"'+(c.sexo!=='M'?' selected':'')+'>Homem</option><option value="M"'+(c.sexo==='M'?' selected':'')+'>Mulher</option></select></label>'+
-  '<div class="btns"><button data-act="add">Adicionar período</button><button class="ghost" data-act="clr">Limpar períodos</button><button class="ghost" data-act="copy">Copiar quadro-resumo</button><button class="printbtn" data-print="caso">Imprimir simulação</button></div></div>'+
+  '<div class="btns"><button data-act="add">Adicionar período</button><button class="ghost" data-act="clr">Limpar períodos</button><button class="ghost" data-act="copy">Copiar quadro-resumo</button><button class="printbtn" data-print="caso">Imprimir / PDF</button></div></div>'+
   '<div id="totbar" aria-live="polite">'+totBar()+'</div><div class="rows">'+c.rows.map(rowCard).join('')+'</div>'+
   (c.rows.length?'':'<p class="empty">Nenhum período. Use <b>Adicionar período</b> ou crie um caso a partir do <button class="linkbtn" data-act="ex">exemplo</button>.</p>')+
   '<p class="fine">Os dois critérios aplicam a informação de EPI eficaz a partir de 03/12/1998, conforme o STJ (Tema 1090), salvo ruído e cancerígenos LINACH. Contagem em dias corridos; a conversão em anos, meses e dias usa 365/30 dias.</p>';
@@ -221,7 +222,7 @@ function renderCaso(){
 function resumoTexto(){
   const linhas=['Período\tEmpresa\tFunção\tAgente\tBase legal\tNota do especialista\tINSS'];
   S.caso.rows.forEach(row=>{ const a=agById(row.agente); avaliar(row,a).segs.forEach(s=>linhas.push(fmtBR(s.ini)+' a '+fmtBR(s.fim)+'\t'+(row.empresa||'')+'\t'+(row.funcao||'')+'\t'+a.nome+'\t'+s.base+'\t'+ST[s.perito.st]+' — '+s.perito.txt+'\t'+ST[s.inss.st]+' — '+s.inss.txt)); });
-  const t=totais(S.caso); linhas.push('','Tempo especial (perito): '+fmtDias(t.perito.dias)+' ('+t.perito.dias+' dias)','Tempo especial (INSS): '+fmtDias(t.inss.dias)+' ('+t.inss.dias+' dias)');
+  const t=totais(S.caso); linhas.push('','Tempo especial (nota do especialista): '+fmtDias(t.perito.dias)+' ('+t.perito.dias+' dias)','Tempo especial (INSS): '+fmtDias(t.inss.dias)+' ('+t.inss.dias+' dias)');
   return linhas.join('\n');
 }
 
@@ -365,7 +366,7 @@ function cmpHtml(){
   return h+'<div class="res" id="cmpres">'+cmpRes()+'</div></section>';
 }
 /* ---------- PROTÓTIPO: RUÍDO EM 5 PASSOS ---------- */
-const RS_STEPS=[['criterio','Critério por período','O que vale em cada época?'],['campo','Levantamento em campo','Como medir?'],['metodo','Metodologia e cálculo','Qual norma e qual grandeza?'],['simular','Simular','Com os meus dados, enquadra?'],['documentar','Documentar','Como registrar no PPP e no laudo?']];
+const RS_STEPS=[['criterio','Critério por período','O que vale em cada época?'],['campo','Levantamento em campo','Como medir?'],['metodo','Metodologia e cálculo','Qual norma e qual grandeza?'],['simular','Simular','Aplicar a regra aos meus dados'],['documentar','Documentar','Como registrar no PPP e no laudo?']];
 const RS_MANUAL=[
  ['Até 28/04/1995','Acima de 80 dB(A)','NR-15, Anexo 1','Decreto 53.831/64','Laudo técnico','Sem obrigatoriedade de informação','1.1.6','IS SSS-501.19/71, ISS-132, SB-40, DISES BE 5235'],
  ['29/04/1995 a 13/10/1996','Acima de 80 dB(A)','NR-15, Anexo 1','Decreto 53.831/64','LTCAT ou demais demonstrações ambientais','Sem obrigatoriedade de informação','1.1.6','DSS-8030'],
@@ -383,7 +384,7 @@ const RS_HARM=[
  ['A partir de 19/11/2003','O decreto toma da NR-15 os limites (q = 5) e da Fundacentro só o método; o INSS exige o NEN da NHO-01 (q = 3). As NHO não fixam limites (Portaria Fundacentro 675/2021)','O mesmo ambiente pode enquadrar por um critério e não pelo outro'],
  ['19/11 a 31/12/2003','A IN cria transição que o decreto não prevê','INSS aceita NR-15 ou NHO-01'],
  ['A partir de 17/10/2013','O § 12 (Decreto 8.123) deixa de citar os limites da legislação trabalhista; a IN mantém o Quadro do Anexo 1','A IN sustenta a referência à NR-15 que o decreto retirou'],
- ['Todos','O INSS só aceita "NEN" escrito no PPP; "dosímetro" ou "dosimetria" não são técnica','PPP tecnicamente correto pode ser recusado por redação']];
+ ['Todos','O INSS só aceita "NEN" escrito no PPP; "dosímetro" ou "dosimetria" não são técnica','Um PPP tecnicamente correto pode ser recusado pela forma como foi redigido']];
 const RS_CK={
  'Antes da vistoria':['Função, setor, período e jornada do segurado (Te), com a fonte da jornada: controle de ponto, empresa ou observação','Layout, máquinas e fontes de ruído; turnos e ciclos de trabalho','Grupos homogêneos de exposição; em perícia por similaridade, o critério de escolha do paradigma','Documentos da empresa: LTCAT, PGR/PPRA, PPP e laudos anteriores'],
  'Equipamento':['Dosímetro configurado: critério 85 dB(A), q = 5, limiar 80 dB(A), circuito A, resposta lenta','Calibrador acústico e certificados de calibração do dosímetro e do calibrador válidos','Baterias carregadas; relógio do aparelho acertado'],
@@ -414,7 +415,7 @@ function rsCriterio(a){
     ['Receita','ADI RFB 2/2019; IN RFB 2.110/2022, arts. 231 e 232','Cobra o adicional com ruído acima do limite, mesmo com EPI eficaz']].map(r=>r.map(esc)))+
    '<ul><li><b>STF, Tema 555 (ARE 664.335, 04/12/2014):</b> sem direito se o EPI neutralizar; no ruído, a declaração no PPP não descaracteriza. Não decidiu sobre a contribuição adicional da empresa.</li><li><b>STJ, Tema 1090 (REsp 2.082.072, 09/04/2025):</b> EPI eficaz no PPP descaracteriza, em princípio; ônus do segurado; dúvida a favor do segurado; ruído excepcionado.</li><li><b>Contribuição de 6%:</b> CARF majoritariamente a favor da Receita; TRF4 (1ª Turma, out./2025) afastou o adicional com prova técnica de EPI eficaz; ADI 7773 (CNI) no STF, suspensa para conciliação (jul./2026).</li><li><b>Trabalhista:</b> a NR-15 (15.4.1, b) admite neutralização pelo EPI.</li></ul></details>'+
    '<details><summary>Onde as normas não se harmonizam ('+RS_HARM.length+' pontos)</summary>'+tbl(['Período','Desarmonia','Efeito prático'], RS_HARM.map(r=>r.map(esc)))+'</details>'+
-   '<details><summary>Contexto jurídico (não é critério técnico)</summary><p class="fine">Serve para escrever o laudo de modo a responder antecipadamente ao que o juízo e as partes vão perguntar.</p><ul>'+jur.map(t=>'<li><b>'+t.trib+', '+t.num+'</b> — '+esc(t.tese)+'</li>').join('')+'</ul></details>';
+   '<details><summary>Contexto jurídico (não é critério técnico)</summary><p class="fine">Contexto para entender as discussões em juízo; não é critério técnico.</p><ul>'+jur.map(t=>'<li><b>'+t.trib+', '+t.num+'</b> — '+esc(t.tese)+'</li>').join('')+'</ul></details>';
 }
 function rsCampo(){
   S.rck=S.rck||{}; let n=0, done=0;
@@ -469,7 +470,7 @@ const NORMAS_CARDS=[
   ['Lavg (q = 5)','Lavg = 85 + 16,61 · log(D5 · 480 / T)','fx','Nota do especialista: para o Lavg, a dose D5 tem de ser apurada com q = 5 (dosímetro configurado em q = 5 ou Ti do Quadro). A dose da NHO-01 (q = 3) não serve para essa fórmula']]}];
 function ncardHtml(c){ return '<article class="ncard'+(c.lim?' nlim':'')+'"><header><b>'+esc(c.n)+'</b><span>'+esc(c.p)+'</span></header><dl>'+c.f.map(([k,v,fx,nt])=>'<dt>'+esc(k)+'</dt><dd>'+(fx?'<code class="fx">'+esc(v)+'</code>':esc(v))+(nt?'<small>'+esc(nt)+'</small>':'')+'</dd>').join('')+'</dl></article>'; }
 function rsMetodo(){
-  return '<div class="keynote"><b>Você não precisa escolher entre as normas.</b> A NR-15 dá o limite; as NHT e a NHO dão o jeito de medir. A data da medição define o método, e o limite é sempre o do Anexo 1 da NR-15 (nota do especialista; as NHO não fixam limites, Portaria Fundacentro 675/2021).</div>'+
+  return '<div class="keynote"><b>As normas se complementam.</b> A NR-15 dá o limite; as NHT e a NHO definem o método de medição. A data da medição define o método, e o limite é sempre o do Anexo 1 da NR-15 (nota do especialista; as NHO não fixam limites, Portaria Fundacentro 675/2021).</div>'+
    '<h3>O que existia em cada época</h3>'+rsTimeline()+
    '<h3>As quatro normas, nos mesmos termos</h3><div class="ncards">'+NORMAS_CARDS.map(ncardHtml).join('')+'</div>'+
    '<h3>O que comparar em cada período (q = 5)</h3>'+tbl(['Período','Grandeza','Limite'],[['Até 05/03/1997','Lavg da jornada','Acima de 80 dB(A)'],['06/03/1997 a 18/11/2003','Lavg da jornada','Acima de 90 dB(A)'],['A partir de 19/11/2003','NEN = Lavg + 16,61 · log(Te/480)','Acima de 85 dB(A)']].map(r=>r.map(esc)))+
@@ -479,7 +480,7 @@ function rsMetodo(){
     ['NE','Nível médio representativo da exposição diária','O da média','Não','Base do NEN'],
     ['NEN','NE convertido para 8 h','O da média','Sim','A partir de 19/11/2003'],
     ['TWA','Dose expressa como nível de 8 h (OSHA)','Configurável','Sim','= NEN com q = 5 só com critério 85 e jornada inteira']].map(r=>r.map(esc)))+'<p class="formula">NEN (q = 5) = Lavg + 16,61 · log(Te/480) = 85 + 16,61 · log(D)<br>NEN (q = 3) = NE + 10 · log(Te/480)</p></details>'+
-   '<details><summary>Armadilhas frequentes</summary><ul><li>NHT-09 (até 2001): o "Leq" do Apêndice 3 não é o Leq de energia (q = 3) da definição do item III.8. A fórmula usa 16,61, ou seja, q = 5 e limiar de 80 dB(A): o resultado é o mesmo número que hoje se chama Lavg e se compara com o limite do período.</li><li>NHT-06 (até 2001): a ordem é arredondar a média ao inteiro e só depois buscar o Ti no Quadro do Anexo 1, subindo para o nível imediatamente superior apenas quando o inteiro não consta do Quadro. Aplicar o item 4 direto sobre 88,4 dB(A) leva a 89 dB(A) (4 h 30 min); o correto é 88 dB(A) (5 h). Já 97 dB(A), ausente do Quadro, usa o Ti de 98 dB(A) (1 h 15 min).</li><li>A tabela de Ti do corpo da NHT-06 difere levemente do Quadro (88 dB(A): 5 h 15 min × 5 h). O limite é o do Quadro; a NHT dá o método (nota do especialista).</li><li>Leq (q = 3) da empresa não se compara com o critério q = 5: peça o Lavg ou a dose.</li><li>TWA de medição curta conta o tempo não medido como silêncio: projete a dose para Te.</li><li>Dosímetro no padrão OSHA (critério 90 dB(A)) dá dose e TWA em outra base.</li><li>Jornada acima de 480 min aumenta o NEN; abaixo, reduz.</li><li>Horas extras: nenhuma norma técnica trata delas; pela lógica de dose, a hora extra habitual entra em Te (ponto em aberto).</li></ul></details>';
+   '<details><summary>Pontos de atenção</summary><ul><li>NHT-09 (até 2001): o "Leq" do Apêndice 3 não é o Leq de energia (q = 3) da definição do item III.8. A fórmula usa 16,61, ou seja, q = 5 e limiar de 80 dB(A): o resultado é o mesmo número que hoje se chama Lavg e se compara com o limite do período.</li><li>NHT-06 (até 2001): a ordem é arredondar a média ao inteiro e só depois buscar o Ti no Quadro do Anexo 1, subindo para o nível imediatamente superior apenas quando o inteiro não consta do Quadro. Aplicar o item 4 direto sobre 88,4 dB(A) leva a 89 dB(A) (4 h 30 min); o correto é 88 dB(A) (5 h). Já 97 dB(A), ausente do Quadro, usa o Ti de 98 dB(A) (1 h 15 min).</li><li>A tabela de Ti do corpo da NHT-06 difere levemente do Quadro (88 dB(A): 5 h 15 min × 5 h). O limite é o do Quadro; a NHT dá o método (nota do especialista).</li><li>Leq (q = 3) da empresa não se compara com o critério q = 5: peça o Lavg ou a dose.</li><li>TWA de medição curta conta o tempo não medido como silêncio: projete a dose para Te.</li><li>Dosímetro no padrão OSHA (critério 90 dB(A)) dá dose e TWA em outra base.</li><li>Jornada acima de 480 min aumenta o NEN; abaixo, reduz.</li><li>Horas extras: nenhuma norma técnica trata delas; pela lógica de dose, a hora extra habitual entra em Te (ponto em aberto).</li></ul></details>';
 }
 function uRefresh(){ const box=$('#ures'); if(!box) return; const r=uCalc(); box.innerHTML=uRes(); uSync(r); const rs=$('#res-s'); if(rs) rs.innerHTML=resTable(simRow()); const fl=$('#rs-d-lavg'); if(fl&&r&&!r.err&&r.lavg!==null) fl.value=String(r1(r.lavg)).replace('.',','); const ft=$('#rs-d-te'); if(ft&&r&&!r.err&&r.te) ft.value=r.te; }
 /* ---------- SIMULADOR ÚNICO ---------- */
@@ -557,7 +558,7 @@ function rsDocumentar(){
 function rsHtml(a){
   const cur=rsStep(), i=RS_STEPS.findIndex(s=>s[0]===cur);
   const body = cur==='criterio'?rsCriterio(a): cur==='campo'?rsCampo(): cur==='metodo'?rsMetodo(): cur==='simular'?rsSimular(a): rsDocumentar();
-  return '<article class="ficha rs"><header><div class="fhead"><p class="eyebrow">Físicos · em 5 passos</p><span class="btns">'+favBtn('ag:ruido','Ruído — ficha do agente')+linkBtn('ag:ruido')+'<button class="printbtn" data-print="ficha">Imprimir passo</button></span></div><h2>Ruído contínuo ou intermitente</h2><div class="codes"><span>53.831: 1.1.6</span><span>83.080: 1.1.5</span><span>Anexo IV: 2.0.1</span><span>25 anos</span></div></header>'+
+  return '<article class="ficha rs"><header><div class="fhead"><p class="eyebrow">Físicos · em 5 passos</p><span class="btns">'+favBtn('ag:ruido','Ruído — ficha do agente')+linkBtn('ag:ruido')+'<button class="printbtn" data-print="ficha">Imprimir / PDF</button></span></div><h2>Ruído contínuo ou intermitente</h2><div class="codes"><span>53.831: 1.1.6</span><span>83.080: 1.1.5</span><span>Anexo IV: 2.0.1</span><span>25 anos</span></div></header>'+
    rsNav(cur)+'<section class="rsbody"><p class="eyebrow">Passo '+(i+1)+' de 5</p><h3 class="rsq">'+RS_STEPS[i][2]+'</h3>'+body+'</section>'+rsPager(cur)+'</article>';
 }
 
@@ -568,7 +569,7 @@ function renderAgentes(){
   let list='<nav class="aglist" aria-label="Agentes"><label class="f" for="agq"><span>Filtrar agentes</span><input id="agq" type="search" data-st="agq" value="'+esc(S.agq||'')+'" placeholder="Ex.: solda, amianto, 1.0.19"></label><label class="f agsel" for="agsel"><span>Agente</span><select id="agsel" data-agsel="1">'+GRUPOS.map(g=>'<optgroup label="'+g+'">'+AGENTS.filter(x=>x.grupo===g&&vis(x)).map(x=>'<option value="'+x.id+'"'+(x.id===a.id?' selected':'')+'>'+esc(x.nome)+'</option>').join('')+'</optgroup>').join('')+'</select></label>'+GRUPOS.map(g=>{ const xs=AGENTS.filter(x=>x.grupo===g&&vis(x)); return xs.length?'<div class="agg"><p>'+g+'</p>'+xs.map(x=>'<button data-ag="'+x.id+'" class="'+(x.id===a.id?'on':'')+'" aria-pressed="'+(x.id===a.id)+'"><span>'+esc(x.nome)+'</span><small>'+esc(x.cIV?x.cIV.split(' / ')[0]:(x.c53[0]||''))+'</small></button>').join('')+'</div>':''; }).join('')+(AGENTS.some(vis)?'':'<p class="agempty">Nenhum agente encontrado.</p>')+'</nav>';
   if(a.id==='ruido') return '<div class="agwrap">'+list+comVerTambem(rsHtml(a),'ag:ruido')+'</div>';
   const codes=[...(a.c53.length?['53.831: '+a.c53.join(', ')]:[]),...(a.c83.length?['83.080: '+a.c83.join(', ')]:[]),(a.cIV?'Anexo IV: '+a.cIV:'Fora do Anexo IV'),'NR-15: '+a.nr15];
-  let f='<article class="ficha"><header><div class="fhead"><p class="eyebrow">'+a.grupo+'</p><span class="btns">'+favBtn('ag:'+a.id,a.nome+' — ficha do agente')+linkBtn('ag:'+a.id)+'<button class="printbtn" data-print="ficha">Imprimir ficha</button></span></div><h2>'+esc(a.nome)+'</h2><div class="codes">'+codes.map(c=>'<span>'+esc(c)+'</span>').join('')+'<span>'+a.tempo+' anos</span></div></header>';
+  let f='<article class="ficha"><header><div class="fhead"><p class="eyebrow">'+a.grupo+'</p><span class="btns">'+favBtn('ag:'+a.id,a.nome+' — ficha do agente')+linkBtn('ag:'+a.id)+'<button class="printbtn" data-print="ficha">Imprimir / PDF</button></span></div><h2>'+esc(a.nome)+'</h2><div class="codes">'+codes.map(c=>'<span>'+esc(c)+'</span>').join('')+'<span>'+a.tempo+' anos</span></div></header>';
   f+='<div class="mxrow">'+['até 05/03/1997','06/03/1997–18/11/2003','19/11/2003–13/11/2019','após 13/11/2019'].map((p,k)=>'<div><span>'+p+'</span><b class="mxc mx-'+MX[a.mx[k]][1]+'">'+(a.mx[k]==='X'&&MXX[a.id]?esc(MXX[a.id].rot):MX[a.mx[k]][0])+'</b></div>').join('')+'</div>'+(a.mx.includes('X')&&MXX[a.id]?'<p class="mxnote"><b>Por que "'+esc(MXX[a.id].rot)+'"?</b> '+esc(MXX[a.id].nota)+'</p>':'');
   f+='<h3>Enquadramento por período</h3><div class="scrollx"><table class="pt"><thead><tr><th>Período</th><th>Norma</th><th>Critério</th></tr></thead><tbody>'+a.periodos.map(p=>'<tr><td class="mono">'+esc(p[0])+'</td><td>'+esc(p[1])+'</td><td>'+esc(p[2])+'</td></tr>').join('')+'</tbody></table></div>';
   f+=simHtml(a);
@@ -587,7 +588,7 @@ function renderAgentes(){
   if(a.comp) f+='<h3>Decreto × IN × Manual do INSS</h3><div class="scrollx"><table class="pt cmp"><thead><tr>'+a.comp.cols.map(c=>'<th>'+c+'</th>').join('')+'</tr></thead><tbody>'+a.comp.rows.map(r=>'<tr>'+r.map((c,k)=>'<td'+(k===0?' class="mono"':'')+'>'+esc(c)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
   if(a.id==='vibracao') f+='<h3>Referências ISO para 06/03/1997 a 12/08/2014</h3><div class="isogrid">'+ISO_VIB.map(x=>'<div class="iso"><b>'+esc(x.rot)+'</b>'+(x.v!==null?'<span class="isov">'+String(x.v).replace('.',',')+' '+x.un+(x.vdv?' · VDV '+String(x.vdv).replace('.',',')+' m/s¹·⁷⁵':'')+'</span>':'<span class="isov">sem LT</span>')+'<p>'+esc(x.nota)+'</p></div>').join('')+'</div><p class="fine">A IN 128/2022 não diz qual edição ou qual valor da ISO usar. Na simulação de enquadramento, escolha a referência no campo "Referência ISO"; o padrão é o limite superior da zona de cautela da ISO 2631-1:1997.</p>';
   if(a.art&&a.art.length) f+='<details class="lit"><summary>Texto literal da IN PRES/INSS 128/2022 — art. '+a.art.join(', ')+'</summary>'+a.art.map(n=>(IN128[n]||[]).map((p,k)=>'<p'+(k===0?' class="art0"':'')+'>'+esc(p)+'</p>').join('')).join('<hr>')+(a.art.includes('293')?'<p class="fine">Redação dada pela IN PRES/INSS 141/2022.</p>':'')+'<p class="fine">Abrir no texto navegável: '+a.art.map(n=>'<a href="#biblioteca/textos/in128/'+n+'">art. '+n+'</a>').join(', ')+'</p></details>';
-  f+='<h3>Texto das normas</h3>'+(leg||'<p class="muted">Sem texto cadastrado.</p>')+'<p class="fine">Textos transcritos das normas e do Manual do INSS. Confira sempre a redação oficial no Planalto.</p></article>';
+  f+='<h3>Texto das normas</h3>'+(leg||'<p class="muted">Sem texto cadastrado.</p>')+'<p class="fine">Textos transcritos das normas e do Manual do INSS. Confira sempre a redação oficial na fonte indicada.</p></article>';
   return '<div class="agwrap">'+list+comVerTambem(f,'ag:'+a.id)+'</div>';
 }
 
@@ -602,7 +603,7 @@ function icb(k,lab){ return '<label class="cb" for="i-'+k+'"><input id="i-'+k+'"
 function resultado(ok,grau,txt){
   const pct=GRAU[grau]; const base=num(insv('base',''))||0;
   const val= ok&&pct&&base ? ' · R$ '+(base*pct/100).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+' por mês' : '';
-  return '<div class="verdict '+(ok===null?'v-i':ok?'v-e':'v-n')+'" aria-live="polite"><b>'+(ok===null?'Faltam dados':ok?'Insalubre — grau '+grau+(pct?' ('+pct+'%)':''):'Não caracteriza insalubridade')+val+'</b><p>'+txt+'</p></div>';
+  return '<div class="verdict '+(ok===null?'v-i':ok?'v-e':'v-n')+'" aria-live="polite"><b>'+(ok===null?'Dados insuficientes':ok?'Enquadra no grau '+grau+(pct?' ('+pct+'%)':'')+' pelos dados informados':'Não enquadra pelos dados informados')+val+'</b><p>'+txt+'</p></div>';
 }
 function tmaxQuadro(L){ if(L<85) return Infinity; for(const [n,t] of A1_QUADRO){ if(n>=L) return t; } return 7; }
 function calcIns(an){
@@ -617,7 +618,7 @@ function calcIns(an){
         else { const L=num(insv('lv','')); if(L!==null){ lavg=L; D=(te/480)*Math.pow(2,(L-85)/5); extra='Dose = (Te/480) × 2^((Lavg − 85)/5).'; } }
         const nen = D!==null&&D>0 ? 85+16.61*log10(D) : null;
         const body=modoSel+(m1==='dose'?iin('dm','Dose medida (%)','','step="0.1"')+iin('tm1','Tempo de medição Tm (min)',480,'step="1"'):iin('lv','Lavg dB(A) · q = 5','','step="0.1"'))+iin('te1','Jornada Te (min)',480,'step="1"')+dicas('te', m1==='dose'?'dose':'lavg');
-        return body+'<div class="kv"><div><span>Dose na jornada</span><b>'+(D===null?'—':(D*100).toFixed(1).replace('.',',')+'%')+'</b></div><div><span>Lavg</span><b>'+(lavg===null?'—':f1(lavg))+' dB(A)</b></div><div><span>NEN 8 h (q = 5)</span><b>'+(nen===null?'—':f1(nen))+' dB(A)</b></div></div>'+resultado(D===null?null:r1(D*100)>100,'médio','Dose acima de 100% caracteriza (item 6 do Anexo 1). Dose arredondada a 0,1% antes da comparação. '+extra);
+        return body+'<div class="kv"><div><span>Dose na jornada</span><b>'+(D===null?'—':(D*100).toFixed(1).replace('.',',')+'%')+'</b></div><div><span>Lavg</span><b>'+(lavg===null?'—':f1(lavg))+' dB(A)</b></div><div><span>NEN 8 h (q = 5)</span><b>'+(nen===null?'—':f1(nen))+' dB(A)</b></div></div>'+resultado(D===null?null:r1(D*100)>100,'médio','Dose acima de 100% ultrapassa o limite (item 6 do Anexo 1). Dose arredondada a 0,1% antes da comparação. '+extra);
       }
       const rows=insv('nps',[[88,240],[92,120],[80,120]]), modo=insv('rmode','tab');
       let D=0, Te=0, max=0; const lin=rows.map((r,k)=>{ const L=num(r[0]), t=num(r[1]); if(L===null||t===null) return '<tr><td colspan="4">—</td></tr>'; Te+=t; max=Math.max(max,L); const T= L<85?Infinity:(modo==='tab'?tmaxQuadro(L):480/Math.pow(2,(L-85)/5)); const c=t/T; D+=c; return '<tr><td><input type="text" inputmode="decimal" step="0.1" aria-label="NPS da linha '+(k+1)+'" data-nps="'+k+'" data-col="0" value="'+r[0]+'"></td><td><input type="text" inputmode="decimal" step="1" aria-label="Tempo da linha '+(k+1)+'" data-nps="'+k+'" data-col="1" value="'+r[1]+'"></td><td class="mono">'+(T===Infinity?'—':Math.round(T))+'</td><td class="mono">'+(c*100).toFixed(1).replace('.',',')+'%</td></tr>'; }).join('');
@@ -625,7 +626,7 @@ function calcIns(an){
       return modoSel+isel('rmode','Tempo máximo permissível','tab',[['tab','Quadro do Anexo 1 (item 4)'],['form','Fórmula q = 5 (dosímetro)']])+'<p class="fine">'+(insv('rmode','tab')==='tab'?'Item 4: para nível intermediário, vale o tempo do nível imediatamente mais elevado do Quadro.':'Tempo máximo = 480 / 2^((NPS − 85)/5) min, como integra o dosímetro.')+'</p>'+
         '<div class="scrollx"><table class="pt calc"><thead><tr><th>NPS dB(A)</th><th>Tempo (min)</th><th>Tempo máximo (min)</th><th>Dose parcial</th></tr></thead><tbody>'+lin+'</tbody></table></div><div class="btns"><button class="ghost sm" data-nps-add="1">Adicionar nível</button><button class="ghost sm" data-nps-del="1">Remover último</button></div>'+
         '<div class="kv"><div><span>Dose</span><b>'+(D*100).toFixed(1).replace('.',',')+'%</b></div><div><span>Lavg ('+Te+' min)</span><b>'+(lavg===null?'—':f1(lavg))+' dB(A)</b></div><div><span>NEN 8 h (q = 5)</span><b>'+(nn===null?'—':f1(nn))+' dB(A)</b></div></div>'+
-        resultado(r1(D*100)>100||max>115,'médio',(max>115?'Item 5 do Anexo 1: não é permitida exposição acima de 115 dB(A) sem proteção adequada; há nível acima de 115 dB(A), o que caracteriza independentemente da dose e configura risco grave e iminente (item 7). ':'')+'Item 6 do Anexo 1: soma C/T acima da unidade. Níveis abaixo de 85 dB(A) não somam dose.'+(insv('rmode','tab')==='tab'?' Com o Quadro, o Lavg é estimado a partir da dose tabelada e pode diferir do Lavg integrado pelo dosímetro.':' A fórmula reproduz a integração do dosímetro; o Anexo 1 manda usar o Quadro (item 4), que pode dar dose maior para níveis intermediários.'))+
+        resultado(r1(D*100)>100||max>115,'médio',(max>115?'Item 5 do Anexo 1: não é permitida exposição acima de 115 dB(A) sem proteção adequada; há nível acima de 115 dB(A), o que ultrapassa o limite independentemente da dose e configura risco grave e iminente (item 7). ':'')+'Item 6 do Anexo 1: soma C/T acima da unidade. Níveis abaixo de 85 dB(A) não somam dose.'+(insv('rmode','tab')==='tab'?' Com o Quadro, o Lavg é estimado a partir da dose tabelada e pode diferir do Lavg integrado pelo dosímetro.':' A fórmula reproduz a integração do dosímetro; o Anexo 1 manda usar o Quadro (item 4), que pode dar dose maior para níveis intermediários.'))+
         '<details><summary>Quadro do Anexo 1</summary><div class="q1grid">'+A1_QUADRO.map(([l,t])=>'<span><b>'+l+'</b> '+(t>=60?Math.floor(t/60)+' h'+(t%60?' '+t%60+' min':''):t+' min')+'</span>').join('')+'</div></details>';
     }
     case 'impacto': { const p=n('pico'), t=insv('pt','lin'), lt=t==='lin'?130:120, rg=t==='lin'?140:130;
@@ -695,9 +696,9 @@ function renderInsal(){
   let h='<section class="intro"><div><p class="eyebrow">NR-15 · Trabalhista</p><h2>Insalubridade</h2><p class="muted">Adicional de 40%, 20% ou 10% conforme o grau (item 15.2). Com mais de um agente, vale só o de grau mais elevado (item 15.3). Base: salário mínimo, salvo norma coletiva (Súmula Vinculante 4).</p></div></section>';
   h+='<div class="anx" role="tablist" aria-label="Anexos da NR-15">'+NR15.map(x=>'<button role="tab" aria-selected="'+(x===an)+'" data-a15="'+x.n+'" class="'+(x===an?'on':'')+(x.tipo==='revogado'?' off':'')+'"><b>Anexo '+x.n+(x.tipo==='revogado'?' · revogado':'')+'</b><span>'+esc(x.t)+'</span></button>').join('')+'</div>';
   const wide = an.n===11||an.n===13;
-  h+='<div class="grid2 '+(wide?'one':'wide-l')+'"><section class="panel" id="pinsal"><div class="ph"><div class="fhead"><p class="eyebrow">Anexo '+an.n+' · grau '+esc(an.g)+'</p><span class="btns">'+favBtn('a15:'+an.n,'NR-15, Anexo '+an.n+' — '+an.t)+linkBtn('a15:'+an.n)+'<button class="printbtn" data-print="insal">Imprimir ou salvar PDF</button></span></div><h3>'+esc(an.t)+'</h3><p>'+esc(an.s)+'</p></div><div class="calcbox" id="calcbox">';
+  h+='<div class="grid2 '+(wide?'one':'wide-l')+'"><section class="panel" id="pinsal"><div class="ph"><div class="fhead"><p class="eyebrow">Anexo '+an.n+' · grau '+esc(an.g)+'</p><span class="btns">'+favBtn('a15:'+an.n,'NR-15, Anexo '+an.n+' — '+an.t)+linkBtn('a15:'+an.n)+'<button class="printbtn" data-print="insal">Imprimir / PDF</button></span></div><h3>'+esc(an.t)+'</h3><p>'+esc(an.s)+'</p></div><div class="calcbox" id="calcbox">';
   if(an.tipo==='calc') h+=calcIns(an);
-  else if(an.tipo==='quali' && an.n==='13-A'){ const g=insv('g13a',''); h+=icb('q13-A','Exposição ao benzeno constatada em inspeção')+isel('g13a','Grau atribuído pelo perito','',[['','Escolher…'],['máximo','Máximo'],['médio','Médio'],['mínimo','Mínimo']])+'<p class="fine">O Anexo 13-A não fixa grau. A escolha é do perito, por analogia com o Anexo 13 (hidrocarbonetos e outros compostos de carbono); a ferramenta não presume grau.</p>'+(insv('q13-A',false)&&!g?resultado(null,'médio','Escolha o grau atribuído no laudo.'):resultado(insv('q13-A',false),g||'médio','Caracterização qualitativa (Anexo 13-A).')); }
+  else if(an.tipo==='quali' && an.n==='13-A'){ const g=insv('g13a',''); h+=icb('q13-A','Exposição ao benzeno constatada em inspeção')+isel('g13a','Grau adotado pelo profissional','',[['','Escolher…'],['máximo','Máximo'],['médio','Médio'],['mínimo','Mínimo']])+'<p class="fine">O Anexo 13-A não fixa grau. A escolha é do profissional, por analogia com o Anexo 13 (hidrocarbonetos e outros compostos de carbono); a ferramenta não presume grau.</p>'+(insv('q13-A',false)&&!g?resultado(null,'médio','Escolha o grau atribuído no laudo.'):resultado(insv('q13-A',false),g||'médio','Caracterização qualitativa (Anexo 13-A).')); }
   else if(an.tipo==='quali') h+=icb('q'+an.n,'Condição constatada em inspeção (laudo qualitativo)')+resultado(insv('q'+an.n,false),an.g==='máximo'?'máximo':'médio','Caracterização qualitativa.');
   else if(an.tipo==='lista' && an.lista==='a14'){ const k=insv('a14',''); h+='<div class="opts">'+A14.map((x,j)=>'<label class="opt" for="a14-'+j+'"><input type="radio" name="a14" id="a14-'+j+'" data-ins="a14" value="'+j+'"'+(String(k)===String(j)?' checked':'')+'><span><em class="g-'+(x.g==='máximo'?'max':'med')+'">'+x.g+'</em> '+esc(x.t)+'<span class="sr"> — grau '+x.g+'</span></span></label>').join('')+'</div>'+(k!==''?'<p><button class="ghost sm" data-insclr="a14">Limpar escolha</button></p>':'')+(k===''?resultado(null,'médio','Escolha a atividade.'):resultado(true,A14[k].g,'Contato permanente na atividade listada. Para insalubridade, o Anexo 14 se aplica; para aposentadoria especial, não (código 3.0.1).')); }
   else if(an.tipo==='lista' && an.lista==='a13') h+=a13Lista();
@@ -732,7 +733,7 @@ function calcTransporte(){
   const lim= tp==='liq'?200:135, un= tp==='liq'?'litros':'kg';
   let h='<div class="pcalc">'+psel('a2:tr:tp','Produto transportado',[['liq','Inflamável líquido'],['gas','Inflamável gasoso liquefeito']],'liq')+pin('a2:tr:q','Quantidade total transportada ('+un+')')+pcb('p-a2-prop','a2:tr:prop','Somente tanques de consumo próprio, originais de fábrica ou suplementares certificados (16.6.1 e 16.6.1.1)')+(tp==='liq'?pcb('p-a2-41','a2:tr:41','Embalagens certificadas dentro dos limites do Quadro I (item 4.1)')+pcb('p-a2-42','a2:tr:42','Recipientes de até 5 L lacrados na fabricação (item 4.2)'):'')+'</div>';
   let ok=false, txt='';
-  if(q!==null){ if(prop) txt='Transporte não caracterizado: tanques de consumo próprio não contam (16.6.1 e 16.6.1.1).'; else if(tp==='liq'&&(e41||e42)) txt='Transporte não caracterizado: excluído pelo item '+(e41?'4.1':'4.2')+' do Anexo II.'; else if(q>=lim){ ok=true; txt='Transporte perigoso: '+brn(q)+' '+un+' (igual ou acima de '+lim+' '+un+'; item 16.6 e alínea '+(tp==='liq'?'j':'l')+' do Anexo II).'+(q===lim?' Exatamente no limite: o item 16.6 exclui o transporte "até" '+lim+' '+un+', mas a alínea '+(tp==='liq'?'j':'l')+' do Anexo II o considera perigoso a partir de '+lim+' '+un+'; a norma é contraditória neste ponto.':''); } else txt='Transporte não caracterizado: '+brn(q)+' '+un+', abaixo de '+lim+' '+un+' (pequena quantidade, item 16.6). Pela alínea '+(tp==='liq'?'j':'l')+' do Anexo II, a partir de '+lim+' '+un+' já é perigoso.'; }
+  if(q!==null){ if(prop) txt='Não enquadra no transporte: tanques de consumo próprio não contam (16.6.1 e 16.6.1.1).'; else if(tp==='liq'&&(e41||e42)) txt='Não enquadra no transporte: excluído pelo item '+(e41?'4.1':'4.2')+' do Anexo II.'; else if(q>=lim){ ok=true; txt='Enquadra no transporte: '+brn(q)+' '+un+' (igual ou acima de '+lim+' '+un+'; item 16.6 e alínea '+(tp==='liq'?'j':'l')+' do Anexo II).'+(q===lim?' Exatamente no limite: o item 16.6 exclui o transporte "até" '+lim+' '+un+', mas a alínea '+(tp==='liq'?'j':'l')+' do Anexo II o considera perigoso a partir de '+lim+' '+un+'; a norma é contraditória neste ponto.':''); } else txt='Não enquadra no transporte: '+brn(q)+' '+un+', abaixo de '+lim+' '+un+' (pequena quantidade, item 16.6). Pela alínea '+(tp==='liq'?'j':'l')+' do Anexo II, a partir de '+lim+' '+un+' já é perigoso.'; }
   if(txt) h+='<p class="'+(ok?'okline':'muted small')+'">'+esc(txt)+'</p>';
   return {h, ok, txt};
 }
@@ -752,23 +753,23 @@ function avaliaPeric(an){
   const atv=selected(an,'atv'), area=selected(an,'area'), exc=selected(an,'exc'), cond=selected(an,'cond'), sep=selected(an,'sep');
   const why=[]; let base=false, falta='';
   if(an.id==='a1'){ const c=calcExplosivos(an); base=atv.length>0||c.ok; atv.forEach(x=>why.push('Quadro 1, alínea '+x[0]+') '+x[1].toLowerCase())); if(c.ok) why.push(c.txt); if(!base) falta='Marque a atividade do Quadro 1 ou calcule a posição em relação ao depósito (item 3).'; }
-  else if(an.id==='a2'){ const c=calcTransporte(); base=atv.length>0||area.length>0||c.ok; atv.forEach(x=>why.push('Item 1, alínea '+x[0]+') — direito: '+x[2].toLowerCase())); area.forEach(x=>why.push('Área de risco 3.'+x[0]+') '+x[1]+': '+x[2].toLowerCase())); if(c.ok) why.push(c.txt); if(!base) falta='Marque a atividade (item 1), a área de risco (item 3) ou informe o transporte.'; }
+  else if(an.id==='a2'){ const c=calcTransporte(); base=atv.length>0||area.length>0||c.ok; atv.forEach(x=>why.push('Item 1, alínea '+x[0]+'): adicional previsto para '+x[2].toLowerCase())); area.forEach(x=>why.push('Área de risco 3.'+x[0]+') '+x[1]+': '+x[2].toLowerCase())); if(c.ok) why.push(c.txt); if(!base) falta='Marque a atividade (item 1), a área de risco (item 3) ou informe o transporte.'; }
   else if(an.id==='a3'){ base=cond.length>0&&atv.length>0; cond.forEach(x=>why.push('Item 2, alínea '+x[0]+') '+x[1])); atv.forEach(x=>why.push('Item 3: '+x[1])); if(!base) falta=!cond.length?'Falta atender a uma das condições do item 2 (quem é profissional de segurança).':'Marque a atividade do item 3.'; }
   else if(an.id==='a4'){ const abc=atv.filter(x=>x[0]!=='d'), d=atv.some(x=>x[0]==='d'); base=abc.length>0||(d&&sep.length>0); atv.forEach(x=>why.push('Item 1, alínea '+x[0]+') '+x[2])); sep.forEach(x=>why.push('Quadro I, atividade '+x[0])); if(!base) falta= d?'Para o SEP (alínea d), marque a atividade e a área do Quadro I.':'Marque a hipótese do item 1.'; }
   else { base=atv.length>0; atv.forEach(x=>why.push((an.id==='ar'?'Atividade ':'Item ')+x[0]+': '+x[1])); if(!base) falta='Marque a atividade ou operação do anexo.'; }
   const fr=pget(an.id+':fr',''); const frOk = fr==='perm'||fr==='int';
-  if(!base) return {st:'I', b:'Faltam elementos para caracterizar', p:falta};
-  if(!fr&&!exc.length) return {st:'I', b:'Faltam elementos para caracterizar', p:'Informe a frequência da exposição (permanente, intermitente, eventual ou por tempo extremamente reduzido).'};
-  if(exc.length) return {st:'N', b:'Periculosidade não caracterizada', p:'Hipótese de exclusão: '+exc.map(x=>x[0]+' — '+x[1]).join('; ')+'.'};
-  if(!frOk) return {st:'N', b:'Periculosidade não caracterizada', p:'Contato eventual ou habitual por tempo extremamente reduzido (Súmula 364'+(an.id==='a4'?'; Anexo 4, item 3':'')+').'};
-  return {st:'E', b:'Periculosidade caracterizada — adicional de 30%', p:why.join(' · ')+(fr==='int'?' Exposição intermitente: adicional integral (Súmula 364'+(an.id==='a4'?'; Anexo 4, item 3':'')+').':'')};
+  if(!base) return {st:'I', b:'Dados insuficientes para o enquadramento', p:falta};
+  if(!fr&&!exc.length) return {st:'I', b:'Dados insuficientes para o enquadramento', p:'Informe a frequência da exposição (permanente, intermitente, eventual ou por tempo extremamente reduzido).'};
+  if(exc.length) return {st:'N', b:'Não enquadra pelos itens marcados', p:'Hipótese de exclusão: '+exc.map(x=>x[0]+' — '+x[1]).join('; ')+'.'};
+  if(!frOk) return {st:'N', b:'Não enquadra pelos itens marcados', p:'Contato eventual ou habitual por tempo extremamente reduzido (Súmula 364'+(an.id==='a4'?'; Anexo 4, item 3':'')+').'};
+  return {st:'E', b:'Enquadra na NR-16 pelos itens marcados (adicional de 30%)', p:why.join(' · ')+(fr==='int'?' Exposição intermitente: adicional integral (Súmula 364'+(an.id==='a4'?'; Anexo 4, item 3':'')+').':'')};
 }
 function renderPeric(){
   const an=NR16.find(x=>x.id===S.a16)||NR16[0], sal=num(pget('sal',''));
   let h='<section class="intro"><div><p class="eyebrow">NR-16 · CLT, art. 193</p><h2>Periculosidade</h2><p class="muted">Adicional de 30% sobre o salário-base, sem gratificações, prêmios ou participação nos lucros (item 16.2). O empregado pode optar pela insalubridade; os adicionais não se acumulam (art. 193, §2º; IRR Tema 17). Marque, em cada anexo, os itens da norma constatados na inspeção.</p></div></section>';
   h+='<div class="anx anx16" role="tablist" aria-label="Anexos da NR-16">'+NR16.map(x=>'<button role="tab" aria-selected="'+(x===an)+'" data-a16="'+x.id+'" class="'+(x===an?'on':'')+'"><b>'+esc(x.n)+'</b><span>'+esc(x.t)+'</span></button>').join('')+'</div>';
   const r=avaliaPeric(an);
-  h+='<div class="grid2 one"><section class="panel" id="pperic"><div class="ph"><div class="fhead"><p class="eyebrow">'+esc(an.n)+' · '+esc(an.port)+'</p><span class="btns">'+favBtn('a16:'+an.id,'NR-16, '+an.n+' — '+an.t)+linkBtn('a16:'+an.id)+'<button class="printbtn" data-print="peric">Imprimir ou salvar PDF</button></span></div><h3>'+esc(an.t)+'</h3></div>'+
+  h+='<div class="grid2 one"><section class="panel" id="pperic"><div class="ph"><div class="fhead"><p class="eyebrow">'+esc(an.n)+' · '+esc(an.port)+'</p><span class="btns">'+favBtn('a16:'+an.id,'NR-16, '+an.n+' — '+an.t)+linkBtn('a16:'+an.id)+'<button class="printbtn" data-print="peric">Imprimir / PDF</button></span></div><h3>'+esc(an.t)+'</h3></div>'+
    an.secoes.map(sec=>secHtml(an,sec)).join('')+
    '<section class="sec16"><h4>Frequência da exposição (Súmula 364'+(an.id==='a4'?' e item 3 do Anexo 4':'')+')</h4><fieldset class="fr"><legend class="sr">Frequência</legend>'+[['perm','Permanente'],['int','Intermitente'],['ev','Eventual (fortuito)'],['red','Habitual por tempo extremamente reduzido']].map(([k,t])=>'<label class="cb" for="fr-'+k+'"><input type="radio" name="fr-'+an.id+'" id="fr-'+k+'" data-per="'+an.id+':fr" value="'+k+'"'+(pget(an.id+':fr','')===k?' checked':'')+'><span>'+t+'</span></label>').join('')+'</fieldset></section>'+
    '<div class="pcalc">'+pin('sal','Salário-base (R$) — opcional','step="0.01"')+'</div>'+
@@ -791,7 +792,7 @@ function renderTeses(){
   h+='<div class="libbar"><label class="f grow" for="tq"><span>Pesquisar nas teses</span><input id="tq" type="search" data-st="tq" value="'+esc(S.tq||'')+'" placeholder="Ex.: EPI, ruído, vigilante, Súmula 364, REsp 2.082.072"></label></div>';
   h+='<div class="filt">'+[['todos','Todas'],['prev','Previdenciário'],['trab','Trabalhista'],['STF','STF'],['STJ','STJ'],['TNU','TNU'],['TST','TST']].map(([k,t])=>'<button data-tf="'+k+'" class="'+(f===k?'on':'')+'">'+t+'</button>').join('')+'</div>';
   h+='<div class="filt">'+[['todas','Qualquer situação'],['firmadas','Firmadas e vigentes'],['abertas','Em aberto ('+nAbertas+')']].map(([k,t])=>'<button data-tsit="'+k+'" class="'+(fs===k?'on':'')+'">'+t+'</button>').join('')+'</div>';
-  h+='<div class="resbar"><p class="muted small">'+items.length+' resultado(s).</p>'+(items.length?'<button class="printbtn" data-print="teses">Imprimir '+(items.length===1?'esta tese':'estas '+items.length+' teses')+'</button>':'')+'</div>';
+  h+='<div class="resbar"><p class="muted small">'+plural(items.length,'resultado','resultados')+'.</p>'+(items.length?'<button class="printbtn" data-print="teses">Imprimir '+(items.length===1?'esta tese':'estas '+items.length+' teses')+'</button>':'')+'</div>';
   h+='<div class="teses">'+items.map(([k,t])=>{ const u=usos(k); return '<article class="tese" id="tese-'+k+'"><header><span class="trib t-'+t.trib+'">'+t.trib+'</span><b>'+esc(t.num)+'</b>'+(t.ano?'<span class="ano">'+t.ano+'</span>':'')+'<span class="sit sit-'+t.sit+'">'+esc(sitRot(t))+'</span></header><h4>'+esc(t.titulo)+'</h4><p>'+esc(t.tese)+'</p>'+(t.ref&&t.ref!=='—'?'<p class="ref">'+esc(t.ref)+'</p>':'')+(u.length?'<p class="uso">Fichas: '+u.map(a=>'<a href="#aposentadoria/agentes" data-ag="'+a.id+'">'+esc(a.nome)+'</a>').join(', ')+'</p>':'')+'<div class="btns">'+favBtn('tese:'+k,t.trib+', '+t.num+' — '+t.titulo)+'<button class="ghost sm" data-cite="'+k+'">Copiar citação</button><button class="ghost sm" data-tlink="'+k+'">Copiar link</button><button class="ghost sm" data-print="tese:'+k+'">Imprimir</button></div></article>'; }).join('')+'</div>';
   return h;
 }
@@ -823,7 +824,7 @@ function renderBib(){
   if(S.libv==='textos') return '<section class="intro"><div><p class="eyebrow">Biblioteca</p><h2>Textos legais navegáveis</h2><p class="muted">Lei 8.213/91 (arts. 57 e 58), IN 128/2022 (arts. 286 a 302), NR-01 (item 1.5 e Anexo I) e os itens gerais da NR-15 e da NR-16, com link e citação para cada artigo ou item.</p></div></section>'+vis+renderTextos();
   const q=S.q.trim(), norm=s=>String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase(), nq=norm(q);
   const tabs = S.lib==='todas' ? LIBT : LIBT.filter(t=>t[0]===S.lib);
-  let h='<section class="intro"><div><p class="eyebrow">Biblioteca</p><h2>Normas e quadros</h2><p class="muted">Conteúdo das planilhas originais (Agentes Nocivos e Legislação Previdenciária), agora pesquisável. A IN 77/2015 foi revogada pela IN 128/2022 e não consta aqui.</p></div></section>';
+  let h='<section class="intro"><div><p class="eyebrow">Biblioteca</p><h2>Normas e quadros</h2><p class="muted">Quadros dos decretos, Anexo IV, LINACH e legislação complementar, com pesquisa. A IN 77/2015 foi revogada pela IN 128/2022 e não consta aqui.</p></div></section>';
   h+=vis;
   h+='<div class="libbar"><label class="f" for="lib-sel"><span>Quadro</span><select id="lib-sel" data-lib="1"><option value="todas"'+(S.lib==='todas'?' selected':'')+'>Todos os quadros</option>'+LIBT.map(t=>'<option value="'+t[0]+'"'+(S.lib===t[0]?' selected':'')+'>'+esc(t[1])+'</option>').join('')+'</select></label><label class="f grow" for="lib-q"><span>Pesquisar</span><input id="lib-q" type="search" value="'+esc(S.q)+'" placeholder="Ex.: soldagem, 1.0.19, caldeira, benzeno" data-q="1"></label></div>';
   let total=0;
@@ -832,7 +833,7 @@ function renderBib(){
     if(nq) rows=rows.filter(r=>norm(r.join(' ')).includes(nq));
     if(!rows.length) continue; total+=rows.length;
     const shown = rows.slice(0, S.lib==='todas'?25:400);
-    h+='<section class="panel"><div class="ph"><h3>'+esc(tit)+'</h3><p class="muted small">'+rows.length+' registro(s)'+(shown.length<rows.length?' · mostrando '+shown.length:'')+'</p></div><div class="scrollx"><table class="pt lib"><thead><tr>'+heads.map(x=>'<th>'+x+'</th>').join('')+'</tr></thead><tbody>'+shown.map(r=>'<tr>'+heads.map((_,j)=>'<td class="pre">'+cellHtml(r[j],q)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div></section>';
+    h+='<section class="panel"><div class="ph"><h3>'+esc(tit)+'</h3><p class="muted small">'+plural(rows.length,'registro','registros')+(shown.length<rows.length?' · mostrando '+shown.length:'')+'</p></div><div class="scrollx"><table class="pt lib"><thead><tr>'+heads.map(x=>'<th>'+x+'</th>').join('')+'</tr></thead><tbody>'+shown.map(r=>'<tr>'+heads.map((_,j)=>'<td class="pre">'+cellHtml(r[j],q)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div></section>';
   }
   if(!total) h+='<p class="empty">Nada encontrado para "'+esc(q)+'".</p>';
   return h;
@@ -889,10 +890,10 @@ function renderBusca(){
   if(gf!=='todas') hits=hits.filter(e=>areaBusca(e.sec)===gf);
   h+='<div class="filt gfilt" role="group" aria-label="Filtrar por área">'+[['todas','Tudo',total]].concat(AREAS_BUSCA.filter(([k])=>contagem[k]).map(([k,t])=>[k,t,contagem[k]])).map(([k,t,n])=>'<button data-gf="'+k+'" class="'+(gf===k?'on':'')+'" aria-pressed="'+(gf===k)+'">'+t+' <span class="n">'+n+'</span></button>').join('')+'</div>';
   const groups={}; hits.forEach(e=>(groups[e.sec]=groups[e.sec]||[]).push(e));
-  h+='<p class="muted small">'+hits.length+' resultado(s) em '+Object.keys(groups).length+' seção(ões).</p><div class="sres">';
+  h+='<p class="muted small">'+plural(hits.length,'resultado','resultados')+' em '+plural(Object.keys(groups).length,'seção','seções')+'.</p><div class="sres">';
   const lim=gf==='todas'?12:60;
   for(const [sec,list] of Object.entries(groups)){
-    h+='<section class="panel"><div class="ph"><h3>'+esc(sec)+'</h3><p class="muted small">'+list.length+' resultado(s)</p></div><ul class="hits">'+list.slice(0,lim).map(e=>'<li><button class="hit" data-go="'+esc(e.go)+'"><b>'+hlTerms(e.t,terms)+'</b><span>'+hlTerms(snippet(e.s,terms),terms)+'</span></button></li>').join('')+'</ul>'+(list.length>lim?'<p class="fine">Mais '+(list.length-lim)+' resultado(s): '+(gf==='todas'?'filtre pela área acima ou refine a pesquisa':'refine a pesquisa')+(list[0].go.startsWith('lib:')?' ou abra a biblioteca':'')+'.</p>':'')+'</section>';
+    h+='<section class="panel"><div class="ph"><h3>'+esc(sec)+'</h3><p class="muted small">'+plural(list.length,'resultado','resultados')+'</p></div><ul class="hits">'+list.slice(0,lim).map(e=>'<li><button class="hit" data-go="'+esc(e.go)+'"><b>'+hlTerms(e.t,terms)+'</b><span>'+hlTerms(snippet(e.s,terms),terms)+'</span></button></li>').join('')+'</ul>'+(list.length>lim?'<p class="fine">Mais '+plural(list.length-lim,'resultado','resultados')+': '+(gf==='todas'?'filtre pela área acima ou refine a pesquisa':'refine a pesquisa')+(list[0].go.startsWith('lib:')?' ou abra a biblioteca':'')+'.</p>':'')+'</section>';
   }
   return h+'</div>';
 }
@@ -1053,10 +1054,10 @@ function reportCaso(){
   const c=S.caso, t=totais(c);
   let rows='';
   c.rows.forEach(row=>{ const a=agById(row.agente); const r=avaliar(row,a); r.segs.forEach((s,k)=>{ rows+='<tr><td class="mono">'+fmtBR(s.ini)+' a '+fmtBR(s.fim)+'</td><td>'+(k===0?esc(row.empresa||'—')+'<br><small>'+esc(row.funcao||'')+'</small>':'')+'</td><td>'+esc(a.nome)+'</td><td>'+esc(s.base)+'</td><td><b>'+ST[s.perito.st]+'</b><br><small>'+esc(s.perito.txt)+'</small></td><td><b>'+ST[s.inss.st]+'</b><br><small>'+esc(s.inss.txt)+'</small></td></tr>'; }); });
-  return '<h1>Simulação de enquadramento — aposentadoria especial</h1><p class="meta">Documento de consulta: aplica as regras aos dados informados e não substitui laudo, parecer ou decisão.</p><p class="meta"><b>Caso:</b> '+esc(c.nome||'—')+' · <b>Segurado:</b> '+(c.sexo==='M'?'mulher':'homem')+' · <b>Emitido em:</b> '+hoje()+'</p>'+
+  return '<h1>Simulação de enquadramento — aposentadoria especial</h1><p class="meta">Folha de consulta: aplica as regras aos dados informados; não é laudo, parecer nem decisão.</p><p class="meta"><b>Caso:</b> '+esc(c.nome||'—')+' · <b>'+(c.sexo==='M'?'Segurada:</b> mulher':'Segurado:</b> homem')+' · <b>Consulta gerada em:</b> '+hoje()+'</p>'+
    '<table class="rep"><thead><tr><th>Período</th><th>Empresa / função</th><th>Agente</th><th>Base legal</th><th>Nota do especialista</th><th>INSS (IN 128/2022)</th></tr></thead><tbody>'+rows+'</tbody></table>'+
-   '<table class="tot"><tr><th>Tempo especial — nota do especialista</th><td>'+fmtDias(t.perito.dias)+' ('+t.perito.dias.toLocaleString('pt-BR')+' dias)</td></tr><tr><th>Tempo especial — INSS</th><td>'+fmtDias(t.inss.dias)+' ('+t.inss.dias.toLocaleString('pt-BR')+' dias)</td></tr><tr><th>Acréscimo por conversão até 13/11/2019 (perito / INSS)</th><td>'+fmtDias(t.perito.conv)+' / '+fmtDias(t.inss.conv)+'</td></tr><tr><th>Trechos divergentes</th><td>'+t.diverg+'</td></tr></table>'+
-   (()=>{ const sit=situacaoTempo(t); return (sit&&!sit.misto?'<p class="meta"><b>Tempo exigido: '+sit.T+' anos</b> · especialista: '+sit.perito+' · INSS: '+sit.inss+' (sem considerar carência, idade mínima e regras de transição).</p>':'')+(t.perito.sobrep||t.inss.sobrep?'<p class="meta">'+fmtDias(Math.max(t.perito.sobrep,t.inss.sobrep))+' em períodos sobrepostos foram contados uma vez.</p>':''); })()+
+   '<table class="tot"><tr><th>Tempo especial — nota do especialista</th><td>'+fmtDias(t.perito.dias)+' ('+t.perito.dias.toLocaleString('pt-BR')+' dias)</td></tr><tr><th>Tempo especial — INSS</th><td>'+fmtDias(t.inss.dias)+' ('+t.inss.dias.toLocaleString('pt-BR')+' dias)</td></tr><tr><th>Acréscimo por conversão até 13/11/2019 (nota do especialista / INSS)</th><td>'+fmtDias(t.perito.conv)+' / '+fmtDias(t.inss.conv)+'</td></tr><tr><th>Trechos divergentes</th><td>'+t.diverg+'</td></tr></table>'+
+   (()=>{ const sit=situacaoTempo(t); return (sit&&!sit.misto?'<p class="meta"><b>Tempo exigido: '+sit.T+' anos</b> · nota do especialista: '+sit.perito+' · INSS: '+sit.inss+' (sem considerar carência, idade mínima e regras de transição).</p>':'')+(t.perito.sobrep||t.inss.sobrep?'<p class="meta">'+fmtDias(Math.max(t.perito.sobrep,t.inss.sobrep))+' em períodos sobrepostos foram contados uma vez.</p>':''); })()+
    '<p class="nota">Nota do especialista: ruído pela NR-15 (q = 5), Lavg até 18/11/2003 e NEN a partir de 19/11/2003; calor pelo código 2.0.4 do Decreto 3.048/99; agentes biológicos pelo rol do código 3.0.1. Contagem em dias corridos; anos, meses e dias aproximados por 365/30. Conversão pelo art. 70 do Decreto 3.048/99, só até 13/11/2019 (EC 103/2019).</p>';
 }
 /* uma linha da tabela externa por bloco: o cabeçalho e o rodapé do timbrado se repetem sem sobrepor o conteúdo */
@@ -1070,15 +1071,15 @@ function splitRows(html){
 function printOut(kind){
   let html='', ori='portrait';
   if(kind==='caso'){ html=reportCaso(); ori='landscape'; }
-  else if(kind==='ficha'){ const f=$('.ficha'); html='<p class="meta">Ficha de agente nocivo · emitida em '+hoje()+'</p>'+freeze(f); }
-  else if(kind==='insal'){ html='<h1>Insalubridade — NR-15</h1><p class="meta">Consulta emitida em '+hoje()+'</p>'+freeze($('#pinsal')); }
-  else if(kind.startsWith('tese:')){ const el=document.getElementById('tese-'+kind.slice(5)); if(!el) return; html='<h1>Jurisprudência — consulta</h1><p class="meta">Resumo para consulta, emitido em '+hoje()+'. Confira a íntegra e a situação atual antes de citar.</p>'+freeze(el)+'<p class="meta"><b>Citação:</b> '+esc(citacao(kind.slice(5)))+'</p>'; }
-  else if(kind==='teses'){ const l=[...document.querySelectorAll('.teses .tese')]; if(!l.length) return; html='<h1>Jurisprudência — '+l.length+' tese(s)</h1><p class="meta">Seleção conforme os filtros da tela, emitida em '+hoje()+'. Resumos para consulta; confira a íntegra e a situação atual antes de citar.</p>'+l.map(freeze).join('<hr>'); }
-  else if(kind==='txtdoc'){ let d=$('.txdoc'); if(!d) return; d=d.cloneNode(true); d.querySelectorAll('label.f').forEach(e=>e.remove()); html='<h1>Texto legal — consulta</h1><p class="meta">Reprodução para consulta, emitida em '+hoje()+'. Confira a redação na fonte oficial antes de citar.</p>'+freeze(d); }
-  else if(kind==='peric'){ html='<h1>Periculosidade — NR-16</h1><p class="meta">Consulta emitida em '+hoje()+'</p>'+freeze($('#pperic')); }
+  else if(kind==='ficha'){ const f=$('.ficha'); html='<p class="meta">Ficha de agente nocivo · consulta gerada em '+hoje()+'</p>'+freeze(f); }
+  else if(kind==='insal'){ html='<h1>Insalubridade — NR-15</h1><p class="meta">Consulta gerada em '+hoje()+'</p>'+freeze($('#pinsal')); }
+  else if(kind.startsWith('tese:')){ const el=document.getElementById('tese-'+kind.slice(5)); if(!el) return; html='<h1>Jurisprudência — consulta</h1><p class="meta">Resumo para consulta, gerado em '+hoje()+'. Confira a íntegra e a situação atual antes de citar.</p>'+freeze(el)+'<p class="meta"><b>Citação:</b> '+esc(citacao(kind.slice(5)))+'</p>'; }
+  else if(kind==='teses'){ const l=[...document.querySelectorAll('.teses .tese')]; if(!l.length) return; html='<h1>Jurisprudência — '+plural(l.length,'tese','teses')+'</h1><p class="meta">Seleção conforme os filtros da tela, gerada em '+hoje()+'. Resumos para consulta; confira a íntegra e a situação atual antes de citar.</p>'+l.map(freeze).join('<hr>'); }
+  else if(kind==='txtdoc'){ let d=$('.txdoc'); if(!d) return; d=d.cloneNode(true); d.querySelectorAll('label.f').forEach(e=>e.remove()); html='<h1>Texto legal — consulta</h1><p class="meta">Reprodução para consulta, gerada em '+hoje()+'. Confira a redação na fonte oficial antes de citar.</p>'+freeze(d); }
+  else if(kind==='peric'){ html='<h1>Periculosidade — NR-16</h1><p class="meta">Consulta gerada em '+hoje()+'</p>'+freeze($('#pperic')); }
   const root=$('#printroot');
   const TB=timbradoPara(ori);
-  root.innerHTML=(TB.img?'<img class="lh" alt="" src="'+TB.img+'">':'')+'<table class="pwrap'+(TB.simples?' simples':'')+'"><thead><tr><td><div class="sp-top">'+(TB.simples?cabecalhoSimples():'')+'</div></td></tr></thead><tbody>'+splitRows(html)+(kind==='caso'?'<tr><td class="pbody">'+blocoAssinatura()+'</td></tr>':'')+'<tr><td class="pbody"><p class="disc">Documento elaborado com o apoio do Caracterizador Pericial (Grahl Consultoria e Treinamentos). Ferramenta de apoio técnico: não substitui a análise do caso concreto nem a redação oficial das normas; a conclusão é de responsabilidade do profissional que assina.</p></td></tr></tbody><tfoot><tr><td><div class="sp-bot"></div></td></tr></tfoot></table>';
+  root.innerHTML=(TB.img?'<img class="lh" alt="" src="'+TB.img+'">':'')+'<table class="pwrap'+(TB.simples?' simples':'')+'"><thead><tr><td><div class="sp-top">'+(TB.simples?cabecalhoSimples():'')+'</div></td></tr></thead><tbody>'+splitRows(html)+(kind==='caso'?'<tr><td class="pbody">'+blocoAssinatura()+'</td></tr>':'')+'<tr><td class="pbody"><p class="disc">Folha de consulta gerada pelo Caracterizador Pericial (Grahl Consultoria e Treinamentos). Não é laudo, parecer nem documento técnico e não substitui a análise do caso concreto nem a redação oficial das normas. Qualquer conclusão é do profissional que a adotar em seu próprio documento.</p></td></tr></tbody><tfoot><tr><td><div class="sp-bot"></div></td></tr></tfoot></table>';
   root.dataset.ori=ori;
   $('#pagestyle').textContent='@page{size:A4 '+ori+';margin:0}';
   const emFrame = (()=>{ try{ return window.self!==window.top; }catch(e){ return true; } })();
@@ -1110,7 +1111,7 @@ const dataBR = iso => { const d=iso?new Date(iso):null; return d&&!isNaN(d)?d.to
 function casebar(){
   const l=casosOrdenados();
   return '<section class="casebar panel" aria-label="Meus casos"><label class="f grow" for="c-sel"><span>Meus casos ('+l.length+')</span><select id="c-sel" data-casesel="1">'+
-   l.map(c=>'<option value="'+esc(c.id)+'"'+(c.id===DB.ativo?' selected':'')+'>'+esc(c.nome||'Caso sem nome')+' · '+c.rows.length+' período(s)'+(c.alterado?' · '+dataBR(c.alterado):'')+'</option>').join('')+
+   l.map(c=>'<option value="'+esc(c.id)+'"'+(c.id===DB.ativo?' selected':'')+'>'+esc(c.nome||'Caso sem nome')+' · '+plural(c.rows.length,'período','períodos')+(c.alterado?' · '+dataBR(c.alterado):'')+'</option>').join('')+
    '</select></label><div class="btns"><button class="ghost sm" data-cs="novo">Novo caso</button><button class="ghost sm" data-cs="dup">Duplicar</button><button class="ghost sm" data-cs="exp">Exportar caso</button><button class="ghost sm" data-cs="imp">Importar</button><button class="ghost sm danger" data-cs="del">Excluir caso</button></div>'+
    '<p class="fine">Os casos ficam salvos só neste navegador; nada é enviado a servidor. Exporte para guardar uma cópia ou abrir em outro computador.</p></section>';
 }
@@ -1149,18 +1150,18 @@ const PROFISSOES=['Engenheiro(a) de Segurança do Trabalho','Médico(a) do Traba
 function assinaturaTxt(){ const p=PERFIL; return [p.nome, [p.prof,p.registro].filter(Boolean).join(' · ')].filter(Boolean); }
 function pf(id,rot,ph,tipo){ return '<label class="f" for="pf-'+id+'"><span>'+rot+'</span><input id="pf-'+id+'" type="'+(tipo||'text')+'" data-pf="'+id+'" value="'+esc(PERFIL[id]||'')+'" placeholder="'+esc(ph||'')+'"></label>'; }
 function renderPerfil(){
-  const p=PERFIL, tb=p.timbrado||'grahl', nCasos=Object.keys(DB.casos).length;
+  const p=PERFIL, tb=p.timbrado||'simples', nCasos=Object.keys(DB.casos).length;
   const img=(k,rot,dica)=>'<div class="tbimg"><span class="small"><b>'+rot+'</b> · '+dica+'</span>'+(p[k]?'<img alt="Prévia do timbrado" src="'+p[k]+'"><button class="ghost sm" data-pfdel="'+k+'">Remover</button>':'<label class="ghost sm filebtn" for="pf-'+k+'">Escolher imagem<input id="pf-'+k+'" type="file" accept="image/png,image/jpeg" data-pfimg="'+k+'"></label>')+'</div>';
   return '<section class="intro"><div><p class="eyebrow">Configuração</p><h2>Perfil e dados</h2><p class="muted">Seus dados aparecem no cabeçalho e na assinatura dos relatórios impressos. Tudo fica salvo só neste navegador, a cada alteração. <span id="perfil-salvo" class="salvo" role="status"></span></p></div></section>'+
-  '<div class="grid2"><section class="panel"><div class="ph"><h3>Profissional responsável</h3></div><div class="fields">'+
+  '<div class="grid2"><section class="panel"><div class="ph"><h3>Seus dados (para identificar as impressões)</h3></div><div class="fields">'+
    pf('nome','Nome completo','Ex.: Maria da Silva')+
    '<label class="f" for="pf-prof"><span>Profissão</span><select id="pf-prof" data-pf="prof"><option value="">Escolha</option>'+PROFISSOES.map(x=>'<option'+(p.prof===x?' selected':'')+'>'+x+'</option>').join('')+'</select></label>'+
    pf('registro','Registro profissional','Ex.: CREA-PR 123456/D, CRM-SP 12345, OAB/PR 12.345')+
    pf('contato','Contato','E-mail ou telefone')+pf('cidade','Cidade/UF','Ex.: Londrina/PR')+
   '</div><div class="ph"><h3>Timbrado dos relatórios</h3></div><fieldset class="fr"><legend class="sr">Timbrado</legend>'+
-   [['grahl','Timbrado padrão do Caracterizador'],['proprio','Meu timbrado (imagem)'],['simples','Cabeçalho simples com meus dados']].map(([k,t])=>'<label class="cb" for="tb-'+k+'"><input type="radio" name="tb" id="tb-'+k+'" data-pf="timbrado" value="'+k+'"'+(tb===k?' checked':'')+'><span>'+t+'</span></label>').join('')+'</fieldset>'+
+   [['simples','Cabeçalho simples com meus dados (padrão)'],['proprio','Meu timbrado (imagem)'],['grahl','Timbrado da Grahl Consultoria']].map(([k,t])=>'<label class="cb" for="tb-'+k+'"><input type="radio" name="tb" id="tb-'+k+'" data-pf="timbrado" value="'+k+'"'+(tb===k?' checked':'')+'><span>'+t+'</span></label>').join('')+'</fieldset>'+
    (tb==='proprio'?'<div class="tbimgs">'+img('a4v','A4 em pé','usado nas fichas e consultas')+img('a4h','A4 deitado','usado no relatório do caso')+'</div><p class="fine">Use a página A4 inteira (cabeçalho em cima, rodapé embaixo e o meio em branco), em PNG ou JPG. A imagem é reduzida para caber no navegador.</p>':'')+
-   '<div class="sigprev"><span class="small">Assinatura nos relatórios</span><b>'+(assinaturaTxt().map(esc).join('<br>')||'— preencha nome, profissão e registro —')+'</b></div>'+
+   '<div class="sigprev"><span class="small">Identificação nas impressões</span><b>'+(assinaturaTxt().map(esc).join('<br>')||'— preencha nome, profissão e registro —')+'</b></div>'+
   '<div class="ph"><h3>Favoritos e anotações</h3></div>'+favoritosPerfil()+
   '</section><aside class="panel"><div class="ph"><h3>Meus dados</h3></div><p class="small">'+nCasos+(nCasos>1?' casos salvos':' caso salvo')+' neste navegador.</p>'+
    '<div class="btns col"><button class="ghost" data-cs="backup">Baixar backup completo</button><label class="ghost filebtn" for="pf-restore">Restaurar backup<input id="pf-restore" type="file" accept=".json,application/json" data-pfrestore="1"></label><button class="ghost danger" data-cs="wipe">Apagar todos os meus dados</button></div>'+
@@ -1179,11 +1180,11 @@ function reduzImagem(file, larguraMax, cb){
 function timbradoPara(ori){
   const p=PERFIL;
   if(p.timbrado==='proprio'){ const src= ori==='landscape' ? (p.a4h||'') : (p.a4v||''); return {img:src, simples:!src}; }
-  if(p.timbrado==='simples') return {img:'', simples:true};
-  return {img: ori==='landscape'?BRAND.a4h:BRAND.a4v, simples:false};
+  if(p.timbrado==='grahl') return {img: ori==='landscape'?BRAND.a4h:BRAND.a4v, simples:false};
+  return {img:'', simples:true};
 }
 function cabecalhoSimples(){ const l=assinaturaTxt(); const p=PERFIL; const linha=[p.contato,p.cidade].filter(Boolean).join(' · '); return '<div class="phead"><b>'+esc(l[0]||'Caracterizador Pericial')+'</b>'+(l[1]?'<span>'+esc(l[1])+'</span>':'')+(linha?'<span>'+esc(linha)+'</span>':'')+'</div>'; }
-function blocoAssinatura(){ const l=assinaturaTxt(); if(!l.length) return ''; return '<div class="assin"><div class="linha"></div>'+l.map(esc).join('<br>')+(PERFIL.cidade?'<br><small>'+esc(PERFIL.cidade)+', '+hoje()+'</small>':'')+'</div>'; }
+function blocoAssinatura(){ const l=assinaturaTxt(); if(!l.length) return ''; return '<div class="assin"><small>Consulta realizada por</small><br>'+l.map(esc).join('<br>')+(PERFIL.cidade?'<br><small>'+esc(PERFIL.cidade)+', '+hoje()+'</small>':'')+'</div>'; }
 
 /* ---------- aceite dos termos (primeiro acesso) ---------- */
 const TERMOS_VERSAO='2026-11';
@@ -1310,7 +1311,7 @@ function novidadesHtml(){
   if(!NOV_OK.length) return '';
   const ult=NOV_OK[0].data, ini=NOV_OK.slice(0,4), resto=NOV_OK.slice(4);
   const nn=NOV_NOVAS().length;
-  return '<section class="isec panel novs" id="novidades"><div class="ihead"><h2 class="ih">Novidades na base</h2><p class="ilead">Atualizado em '+brData(ult)+'. Normas e decisões que entraram no app, com o caminho para consultar.'+(nn?' <b>'+nn+' nova(s) desde a sua última visita.</b> <button class="linkbtn" data-novok="1">Marcar como vistas</button>':'')+'</p></div><ul class="novl">'+ini.map(novItem).join('')+'</ul>'+(resto.length?'<details><summary>Ver mais '+resto.length+' novidade(s)</summary><ul class="novl">'+resto.map(novItem).join('')+'</ul></details>':'')+'</section>';
+  return '<section class="isec panel novs" id="novidades"><div class="ihead"><h2 class="ih">Novidades na base</h2><p class="ilead">Atualizado em '+brData(ult)+'. Normas e decisões que entraram no app, com o caminho para consultar.'+(nn?' <b>'+(nn===1?'1 nova':nn+' novas')+' desde a sua última visita.</b> <button class="linkbtn" data-novok="1">Marcar como vistas</button>':'')+'</p></div><ul class="novl">'+ini.map(novItem).join('')+'</ul>'+(resto.length?'<details><summary>Ver mais '+plural(resto.length,'novidade','novidades')+'</summary><ul class="novl">'+resto.map(novItem).join('')+'</ul></details>':'')+'</section>';
 }
 
 /* ---------- favoritos e anotações pessoais (ficam só no navegador) ---------- */
@@ -1352,7 +1353,7 @@ function favoritosInicio(){
 }
 function favoritosPerfil(){
   const l=favLista();
-  if(!l.length) return '<p class="small">Nenhum favorito ainda. Use o botão "☆ Favoritar" nas fichas de agentes, nas teses e nos anexos da NR-15 e da NR-16.</p>';
+  if(!l.length) return '<p class="small">Nenhum favorito ainda. Use o botão Favoritar (☆) nas fichas de agentes, nas teses e nos anexos da NR-15 e da NR-16.</p>';
   return '<ul class="favl edit">'+l.map(f=>'<li><div class="favh"><span class="chip st-I">'+FAV_TIPO(f.key)+'</span><button class="linkbtn" data-go="'+esc(f.key)+'">'+esc(f.titulo)+'</button><button class="ghost sm" data-favdel="'+esc(f.key)+'">Remover</button></div><label class="f" for="fn-'+esc(f.key.replace(':','-'))+'"><span>Minha anotação</span><textarea id="fn-'+esc(f.key.replace(':','-'))+'" rows="2" data-favnota="'+esc(f.key)+'" placeholder="Ex.: usar no quesito 3; conferir embargos">'+esc(f.nota||'')+'</textarea></label></li>').join('')+'</ul>';
 }
 function atualizarBotoesFav(key){ document.querySelectorAll('[data-fav]').forEach(b=>{ if(b.dataset.fav===key){ const tmp=document.createElement('div'); tmp.innerHTML=favBtn(key,b.dataset.favt); b.replaceWith(tmp.firstChild); } }); }
@@ -1428,7 +1429,7 @@ function renderFuncao(){
    '<div class="consulta-aviso" role="note"><b>Pontos a investigar, não enquadramento.</b> A mesma função pode ter exposições muito diferentes conforme a empresa, o processo e o período. O enquadramento depende da avaliação do posto de trabalho e da prova de cada caso.</div>'+
    '<div class="libbar"><label class="f grow" for="fq"><span>Pesquisar função ou atividade</span><input id="fq" type="search" data-fq="1" value="'+esc(S.fq||'')+'" placeholder="Ex.: soldador, motoboy, enfermagem, frigorífico, gari"></label></div>';
   h+='<div class="fgrid"><nav class="flist panel" aria-label="Funções">'+(vis.length?vis.map(([x,i])=>'<button class="fitem'+(i===sel?' on':'')+'" data-fsel="'+i+'" aria-current="'+(i===sel)+'">'+esc(x.f)+'</button>').join(''):'<p class="muted small">Nenhuma função encontrada. Tente um sinônimo ou use a pesquisa geral do topo.</p>')+'</nav>';
-  if(sel===null) h+='<section class="panel"><p class="muted">Escolha uma função na lista.</p><p class="fine">'+L.length+' funções cadastradas. Sentiu falta de alguma? A lista é ampliada nas atualizações.</p></section>';
+  if(sel===null) h+='<section class="panel"><p class="muted">Escolha uma função na lista.</p><p class="fine">'+L.length+' funções cadastradas. A lista é ampliada a cada atualização.</p></section>';
   else {
     const x=L[sel];
     const chips=(arr,fn)=>arr.length?'<div class="fchips">'+arr.map(fn).join('')+'</div>':'<p class="muted small">—</p>';
@@ -1610,7 +1611,7 @@ function docsTexto(){
     nota:'Redação vigente, com as alterações das Leis 9.032/95, 9.528/97 e 9.732/98. Para benefícios com requisitos cumpridos após 13/11/2019, veja também a EC 103/2019.',
     itens:[18,19].map(i=>{ const pars=String(LIB.txt_resumo[i]||'').split('\n').filter(Boolean); const n=(pars[0].match(/^Art\. (\d+)/)||[])[1]; return {id:n, rot:'Art. '+n, pars, cit:'Lei 8.213/1991, art. '+n}; })});
   D.push({id:'in128', tit:'IN PRES/INSS 128/2022 — arts. 286 a 302', curto:'IN 128/2022', fonte:fonteUrl('in128'),
-    nota:'Texto literal conferido no DOU. Art. 293 na redação da IN 141/2022; arts. 287, 290, 291 e 292 na redação da IN 170/2024.',
+    nota:'Texto conferido com o DOU em 21/11/2026. Art. 293 na redação da IN 141/2022; arts. 287, 290, 291 e 292 na redação da IN 170/2024.',
     itens:Object.keys(IN128).sort((x,y)=>x-y).map(n=>({id:n, rot:'Art. '+n, pars:IN128[n], cit:'IN PRES/INSS 128/2022, art. '+n+(n==='293'?' (redação da IN 141/2022)':['287','290','291','292'].includes(n)?' (redação da IN 170/2024)':'')}))});
   const slug=t=>t.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
   const NR01_URL=fonteUrl('nr01');
@@ -1691,7 +1692,7 @@ function fontesHtml(){
   const pend = id => ALERTAS_PEND.filter(a=>a.fonte===id).length;
   return '<section class="isec panel fontes"><h2 class="ih">Fontes oficiais e conferência</h2><div class="tscroll"><table class="rt"><thead><tr><th>Fonte</th><th>Versão considerada no app</th><th>Conferida em</th><th>Monitor</th></tr></thead><tbody>'+
    FONTES_OK.map(f=>'<tr><td>'+(f.url?'<a href="'+esc(f.url)+'" target="_blank" rel="noopener">'+esc(f.nome)+' ↗</a>':esc(f.nome))+'</td><td>'+esc(f.versao)+'</td><td>'+brData(f.conferido)+'</td><td>'+(pend(f.id)?'<span class="chip st-C">'+pend(f.id)+' em revisão</span>':f.monitor?'diário':'auditoria semanal')+'</td></tr>').join('')+
-   '</tbody></table></div><p class="fine">O robô verifica diariamente as páginas oficiais'+(typeof MONITOR!=='undefined'&&MONITOR.ultima?' (última verificação: '+brData(MONITOR.ultima)+')':'')+' e avisa quando surge documento novo. A jurisprudência é revista na auditoria semanal. Nenhuma alteração entra no app sem revisão.</p></section>';
+   '</tbody></table></div><p class="fine">Um monitoramento automático verifica diariamente as páginas oficiais'+(typeof MONITOR!=='undefined'&&MONITOR.ultima?' (última verificação: '+brData(MONITOR.ultima)+')':'')+' e avisa quando surge documento novo. A jurisprudência é revista na auditoria semanal. Nenhuma alteração entra no app sem revisão.</p></section>';
 }
 function renderAlertas(){
   const el=document.getElementById('alertas'); if(!el) return;
