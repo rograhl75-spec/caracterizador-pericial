@@ -738,3 +738,8 @@ input[aria-invalid="true"]{border-color:var(--n, #b42318)!important; box-shadow:
 /* passos da ficha do ruído: indica que há mais à direita */
 @media (max-width:860px){ .rsnav{-webkit-mask-image:linear-gradient(90deg,#000 85%,transparent); mask-image:linear-gradient(90deg,#000 85%,transparent)} }
 @media (max-width:480px){ .row header{flex-wrap:wrap} .row header .btns{margin-left:0; width:100%} }
+/* termos explicados e notas de campo */
+.fields .dicas, .dicas{grid-column:1 / -1; margin:2px 0 0; color:var(--muted)}
+.dicas b{color:var(--ink)}
+.campo-nota{display:block; margin-top:4px; color:var(--i); font-size:.8rem; line-height:1.35}
+.salvo{color:var(--e); font-weight:700; font-size:.85rem}
