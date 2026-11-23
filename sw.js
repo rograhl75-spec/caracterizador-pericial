@@ -1,11 +1,11 @@
 /* Service worker do Caracterizador Pericial: permite abrir o app sem internet.
    Estratégia: rede primeiro (sempre a versão mais nova quando há conexão) e cópia local como reserva.
    Ao incluir um arquivo novo no site, acrescente-o em ARQUIVOS e mude VERSAO. */
-const VERSAO = 'v9';
+const VERSAO = 'v10';
 const CACHE = 'caracterizador-' + VERSAO;
 const ARQUIVOS = [
   './', 'index.html', 'termos.html', 'privacidade.html', 'manifest.webmanifest', 'css/estilo.css',
-  'js/marca.js', 'js/motor.js', 'js/app.js',
+  'js/compat.js', 'js/marca.js', 'js/motor.js', 'js/app.js',
   'dados/biblioteca.js', 'dados/normas-base.js', 'dados/nr15-anexo11.js', 'dados/nr15-anexo13.js', 'dados/in128-artigos.js',
   'dados/atualizacoes.js', 'dados/nr16.js', 'dados/fontes.js', 'dados/alertas.js', 'dados/glossario.js', 'dados/novidades.js', 'dados/ajuda.js', 'dados/funcoes.js', 'dados/textos.js', 'dados/historico-nr.js',
   'img/logo-grahl.png', 'img/timbrado-a4-retrato.jpg', 'img/timbrado-a4-paisagem.jpg', 'img/icone-192.png', 'img/icone-512.png'
@@ -39,12 +39,14 @@ self.addEventListener('fetch', ev => {
   }
   if (url.origin !== self.location.origin) return;
   /* arquivos do próprio site: rede primeiro, cópia local se estiver sem conexão ou lento */
+  /* a busca na rede continua mesmo depois do tempo-limite: em conexão lenta a página usa a cópia local
+     agora, e a cópia é atualizada quando a resposta chegar (antes ela era descartada e o cache nunca se atualizava) */
+  const rede = fetch(req).then(async r => { if (r.ok) { const c = await caches.open(CACHE); await c.put(req, r.clone()); } return r; });
+  ev.waitUntil(rede.catch(() => {}));
   ev.respondWith((async () => {
     const c = await caches.open(CACHE);
     try {
-      const r = await comTempo(fetch(req), 5000);
-      if (r.ok) c.put(req, r.clone());
-      return r;
+      return await comTempo(rede.then(r => r.clone()), 5000);
     } catch (e) {
       return (await c.match(req, { ignoreSearch: true })) || (req.mode === 'navigate' ? c.match('index.html') : Response.error());
     }

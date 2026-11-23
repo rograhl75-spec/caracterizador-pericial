@@ -28,16 +28,18 @@ jobs:
     env:
       TEM_CLAUDE: ${{ secrets.ANTHROPIC_API_KEY != '' }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09  # v5.1.0
+        with:
+          persist-credentials: false   # o token de escrita não fica no .git/config durante o npm e o monitor
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444  # v5.0.0
         with:
           node-version: '24'
 
       # Só instala o SDK do Claude se o segredo ANTHROPIC_API_KEY estiver cadastrado (análise opcional).
       - name: Instalar SDK do Claude
         if: env.TEM_CLAUDE == 'true'
-        run: npm install --prefix scripts --no-audit --no-fund
+        run: npm ci --prefix scripts --ignore-scripts --no-audit --no-fund   # versões travadas no package-lock.json, sem scripts de instalação
 
       - name: Verificar fontes oficiais
         env:
@@ -47,6 +49,8 @@ jobs:
 
       - name: Gravar alertas e estado
         if: ${{ !inputs.teste }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.name "monitor-legislacao[bot]"
           git config user.email "monitor-legislacao@users.noreply.github.com"
@@ -55,5 +59,5 @@ jobs:
             echo "Sem mudanças para gravar."
           else
             git commit -m "Monitor: verificação de $(date -u +%Y-%m-%d)"
-            git push
+            git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:main
           fi

@@ -151,7 +151,7 @@ function avaliar(row, agent){
           if(mk===null){ base='Anexo 3 original · Quadro 2'; p=i=R('I','Informe a taxa metabólica média ponderada M (kcal/h).'); out.push({ini:a, fim:b, dias:daysIncl(a,b), base, perito:p, inss:i}); continue; }
           if(!row){ base='Anexo 3 original · Quadro 2'; p=i=R('I','M acima de 500 kcal/h: fora do Quadro 2.'); out.push({ini:a, fim:b, dias:daysIncl(a,b), base, perito:p, inss:i}); continue; }
           lt=row[1]; rot='descanso em outro local, M '+mk+' kcal/h → linha '+row[0]; base='Anexo 3 original · Quadro 2 · LT '+f1(lt)+' °C'; }
-        else { const reg=Q1_ORIG[d.regime||'cont'], at=d.ativ||'moderada'; lt=reg[at]; rot=at+', '+reg.rot.toLowerCase(); base='Anexo 3 original · Quadro 1 · LT '+f1(lt)+' °C'; }
+        else { const reg=Q1_ORIG[d.regime]||Q1_ORIG.cont, at=['leve','moderada','pesada'].includes(d.ativ)?d.ativ:'moderada'; lt=reg[at]; rot=at+', '+reg.rot.toLowerCase(); base='Anexo 3 original · Quadro 1 · LT '+f1(lt)+' °C'; }
         if(tA===null){ p=i=R('I','Informe o IBUTG.'); }
         else { const ac=tA>lt, txt='IBUTG '+f1(tA)+(ac?' > ':' ≤ ')+f1(lt)+' °C ('+rot+')'+avTxt+'.';
           p=R(ac?'E':'N', txt);
