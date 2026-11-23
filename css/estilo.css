@@ -705,3 +705,36 @@ input[aria-invalid="true"]{border-color:var(--n, #b42318)!important; box-shadow:
 #toast.on{pointer-events:auto}
 .toastbtn{margin-left:10px; background:transparent; color:var(--gold-line); border:1px solid currentColor; border-radius:6px; padding:3px 10px; font:inherit; font-weight:700; cursor:pointer}
 .rslink{margin:4px 0 8px}
+/* ===== Usabilidade: acessibilidade e celular ===== */
+/* avisos de campo não desalinham a linha: rótulos alinhados pelo topo, com altura reservada no quadro de medição */
+.fields{align-items:start}
+.fields.ag label.f > span{min-height:2.5em; display:flex; align-items:flex-end}
+/* cabeçalho compacto no celular */
+@media (max-width:700px){
+  .band{transition:transform .2s ease}
+  .band.esconde{transform:translateY(-110%)}
+  .tabs{flex-wrap:nowrap!important; overflow-x:auto; scrollbar-width:none; -webkit-mask-image:linear-gradient(90deg,#000 88%,transparent); mask-image:linear-gradient(90deg,#000 88%,transparent)}
+  .tabs::-webkit-scrollbar{display:none}
+  .tabs a{white-space:nowrap}
+  .brand p{display:none}
+}
+/* NR-16: itens em cartões e barra de resultado no celular */
+.vbar{display:none}
+@media (max-width:700px){
+  table.t16 thead{display:none}
+  table.t16, table.t16 tbody{display:block; width:100%}
+  table.t16 tr{display:grid; grid-template-columns:44px 1fr; gap:2px 8px; padding:10px 4px; border-bottom:1px solid var(--line)}
+  table.t16 td{display:block; padding:0; border:0}
+  table.t16 td.ck{grid-row:1 / span 3; display:flex; align-items:flex-start; justify-content:center}
+  table.t16 td.ck input{width:24px; height:24px}
+  table.t16 td:last-child{color:var(--muted); font-size:.85rem}
+  .vbar{display:flex; position:sticky; bottom:0; z-index:4; justify-content:space-between; align-items:center; gap:8px; margin:0 -12px; padding:10px 14px; background:var(--surface); border-top:2px solid var(--gold-line); box-shadow:0 -4px 12px rgba(0,0,0,.08); font-size:.88rem}
+  .vbar a{white-space:nowrap; font-weight:700}
+  .vb-E{color:var(--e)} .vb-N{color:var(--n)} .vb-I{color:var(--i)}
+  /* alvos de toque */
+  button.ghost.sm, .tabs a{min-height:40px}
+  button.gl{padding:6px 0; margin:-6px 0}
+}
+/* passos da ficha do ruído: indica que há mais à direita */
+@media (max-width:860px){ .rsnav{-webkit-mask-image:linear-gradient(90deg,#000 85%,transparent); mask-image:linear-gradient(90deg,#000 85%,transparent)} }
+@media (max-width:480px){ .row header{flex-wrap:wrap} .row header .btns{margin-left:0; width:100%} }
