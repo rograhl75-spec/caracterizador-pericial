@@ -1154,19 +1154,44 @@ function marcosNaData(d){
 }
 function renderRegraData(){
   const d=S.dt||new Date().toISOString().slice(0,10);
+  const d2=S.dt2||'';
   const grupos=[...new Set(AGENTS.map(a=>a.grupo))];
-  let h='<section class="intro"><div><p class="eyebrow">Consulta por data</p><h2>Qual regra valia em '+brData(d)+'?</h2><p class="muted">Escolha uma data para ver, agente por agente, a norma e o critério do período, além dos marcos gerais que valiam naquele dia. É uma consulta à legislação: a análise do caso concreto continua com o profissional.</p></div></section>'+
-   '<div class="libbar"><label class="f" for="rd-data"><span>Data</span><input id="rd-data" type="date" data-rd="1" value="'+d+'" min="1960-01-01"></label><div class="btns">'+[['1996-12-31','31/12/1996'],['2000-06-30','30/06/2000'],['2003-12-01','01/12/2003'],['2015-06-30','30/06/2015'],['2021-06-30','30/06/2021']].map(([v,t])=>'<button class="ghost sm" data-rdset="'+v+'">'+t+'</button>').join('')+'</div></div>'+
-   linhaTempoHtml(d)+'<section class="panel"><div class="ph"><h3>Marcos gerais em '+brData(d)+'</h3></div><dl class="dl16 small">'+marcosNaData(d).map(([k,t])=>'<dt>'+esc(k)+'</dt><dd>'+esc(t)+'</dd>').join('')+'</dl></section>';
-  grupos.forEach(g=>{
-    h+='<section class="panel rdg"><div class="ph"><h3>'+esc(g)+'</h3></div><div class="tscroll"><table class="rt"><thead><tr><th>Agente</th><th>Norma do período</th><th>Critério</th></tr></thead><tbody>'+
-     AGENTS.filter(a=>a.grupo===g).map(a=>{ const r=regraNaData(a,d); return '<tr><td><a href="#aposentadoria/agentes" data-ag="'+a.id+'">'+esc(a.nome)+'</a></td>'+(r.length?'<td>'+r.map(p=>esc(p[1])+'<small>'+esc(p[0])+'</small>').join('')+'</td><td>'+r.map(p=>esc(p[2])).join('<br>')+'</td>':'<td colspan="2" class="muted">Sem regra própria registrada para esta data; veja a ficha.</td>')+'</tr>'; }).join('')+
-     '</tbody></table></div></section>';
-  });
-  return h+'<p class="fine">Datas-limite conforme as fichas dos agentes. Situações de transição e divergências entre o critério do INSS e o técnico estão detalhadas em cada ficha.</p>';
+  const atalhos=(attr)=>[['1996-12-31','31/12/1996'],['2000-06-30','30/06/2000'],['2003-12-01','01/12/2003'],['2015-06-30','30/06/2015'],['2021-06-30','30/06/2021']].map(([v,t])=>'<button class="ghost sm" '+attr+'="'+v+'">'+t+'</button>').join('');
+  let h='<section class="intro"><div><p class="eyebrow">Consulta por data</p><h2>'+(d2?'O que mudou entre '+brData(d)+' e '+brData(d2)+'?':'Qual regra valia em '+brData(d)+'?')+'</h2><p class="muted">Escolha uma data para ver, agente por agente, a norma e o critério do período, além dos marcos gerais que valiam naquele dia. Para ver o que mudou entre dois momentos (por exemplo, dois vínculos do mesmo trabalhador), ative "Comparar com outra data". É uma consulta à legislação: a análise do caso concreto continua com o profissional.</p></div></section>'+
+   '<div class="libbar rdbar"><label class="f" for="rd-data"><span>'+(d2?'Primeira data':'Data')+'</span><input id="rd-data" type="date" data-rd="1" value="'+d+'" min="1960-01-01" max="2100-12-31"></label><div class="btns">'+atalhos('data-rdset')+'</div></div>'+
+   (d2?'<div class="libbar rdbar"><label class="f" for="rd-data2"><span>Segunda data</span><input id="rd-data2" type="date" data-rd2="1" value="'+d2+'" min="1960-01-01" max="2100-12-31"></label><div class="btns">'+atalhos('data-rdset2')+'<button class="ghost sm" data-rdcmp="0">Voltar a uma data</button></div></div>'
+      :'<p><button class="ghost sm" data-rdcmp="1">Comparar com outra data</button></p>');
+  if(!d2){
+    h+=linhaTempoHtml(d)+'<section class="panel"><div class="ph"><h3>Marcos gerais em '+brData(d)+'</h3></div><dl class="dl16 small">'+marcosNaData(d).map(([k,t])=>'<dt>'+esc(k)+'</dt><dd>'+esc(t)+'</dd>').join('')+'</dl></section>';
+    grupos.forEach(g=>{
+      h+='<section class="panel rdg"><div class="ph"><h3>'+esc(g)+'</h3></div><div class="tscroll"><table class="rt"><thead><tr><th>Agente</th><th>Norma do período</th><th>Critério</th></tr></thead><tbody>'+
+       AGENTS.filter(a=>a.grupo===g).map(a=>{ const r=regraNaData(a,d); return '<tr><td><a href="#aposentadoria/agentes" data-ag="'+a.id+'">'+esc(a.nome)+'</a></td>'+(r.length?'<td>'+r.map(p=>esc(p[1])+'<small>'+esc(p[0])+'</small>').join('')+'</td><td>'+r.map(p=>esc(p[2])).join('<br>')+'</td>':'<td colspan="2" class="muted">Sem regra própria registrada para esta data; veja a ficha.</td>')+'</tr>'; }).join('')+
+       '</tbody></table></div></section>';
+    });
+    return h+'<p class="fine">Datas-limite conforme as fichas dos agentes. Situações de transição e divergências entre o critério do INSS e o técnico estão detalhadas em cada ficha.</p>';
+  }
+  /* comparação entre duas datas */
+  const m1=marcosNaData(d), m2=marcosNaData(d2), chaves=[...new Set([...m1,...m2].map(x=>x[0]))];
+  const mv=(m,k)=>(m.find(x=>x[0]===k)||[,'— (ainda não existia)'])[1];
+  const celR=r=>r.length?r.map(p=>'<b>'+esc(p[1])+'</b><small>'+esc(p[0])+'</small><span class="crit">'+esc(p[2])+'</span>').join('<hr>'):'<span class="muted">Sem regra própria registrada; veja a ficha.</span>';
+  let nMuda=0;
+  const linhas=AGENTS.map(a=>{ const r1=regraNaData(a,d), r2=regraNaData(a,d2); const muda=JSON.stringify(r1)!==JSON.stringify(r2); if(muda) nMuda++; return {a,r1,r2,muda}; });
+  const so=S.rdSo!==false;
+  h+='<section class="panel"><div class="ph"><h3>Marcos gerais</h3><p class="muted small">O selo "mudou" marca o que é diferente entre as duas datas.</p></div><div class="tscroll"><table class="rt rdcmp"><thead><tr><th>Marco</th><th>'+brData(d)+'</th><th>'+brData(d2)+'</th></tr></thead><tbody>'+
+     chaves.map(k=>{ const a1=mv(m1,k), a2=mv(m2,k); return '<tr class="'+(a1!==a2?'muda':'')+'"><td><b>'+esc(k)+'</b>'+(a1!==a2?'<span class="mudou">mudou</span>':'')+'</td><td>'+esc(a1)+'</td><td>'+esc(a2)+'</td></tr>'; }).join('')+'</tbody></table></div></section>';
+  h+='<section class="panel"><div class="ph"><h3>Agentes: '+nMuda+' de '+AGENTS.length+' com regra diferente</h3><label class="cb" for="rd-so"><input id="rd-so" type="checkbox" data-rdso="1"'+(so?' checked':'')+'><span>Mostrar só os agentes cuja regra muda</span></label></div><div class="tscroll"><table class="rt rdcmp"><thead><tr><th>Agente</th><th>'+brData(d)+'</th><th>'+brData(d2)+'</th></tr></thead><tbody>'+
+     linhas.filter(x=>!so||x.muda).map(x=>'<tr class="'+(x.muda?'muda':'')+'"><td><a href="#aposentadoria/agentes" data-ag="'+x.a.id+'">'+esc(x.a.nome)+'</a>'+(x.muda?'<span class="mudou">mudou</span>':'')+'</td><td>'+celR(x.r1)+'</td><td>'+celR(x.r2)+'</td></tr>').join('')+
+     (so&&!nMuda?'<tr><td colspan="3" class="muted">Nenhum agente muda de regra entre essas datas.</td></tr>':'')+'</tbody></table></div></section>';
+  return h+'<p class="fine">Comparação das regras registradas nas fichas. "Mudou" indica norma, período ou critério diferente; veja a ficha para os detalhes de transição.</p>';
 }
 document.addEventListener('change', ev=>{ const t=ev.target; if(t.dataset.rd&&t.value){ S.dt=t.value; render(); const el=document.getElementById('rd-data'); if(el) el.focus(); } });
 document.addEventListener('click', ev=>{ const b=ev.target.closest('[data-rdset]'); if(b){ S.dt=b.dataset.rdset; render(); } });
+document.addEventListener('click', ev=>{ const b=ev.target.closest('[data-rdset2],[data-rdcmp]'); if(!b) return;
+  if(b.dataset.rdset2) S.dt2=b.dataset.rdset2;
+  else if(b.dataset.rdcmp==='1'){ const d=S.dt||new Date().toISOString().slice(0,10); S.dt2=d<'2003-11-19'?new Date().toISOString().slice(0,10):'1996-12-31'; }
+  else S.dt2='';
+  render(); const el=document.getElementById(S.dt2?'rd-data2':'rd-data'); if(el) el.focus(); });
+document.addEventListener('change', ev=>{ const t=ev.target; if(t.dataset.rd2&&t.value){ S.dt2=t.value; render(); const el=document.getElementById('rd-data2'); if(el) el.focus(); } if(t.dataset.rdso){ S.rdSo=t.checked; render(); const el=document.getElementById('rd-so'); if(el) el.focus(); } });
 
 /* ---------- Novidades da base ---------- */
 const NOV_OK = typeof NOVIDADES!=='undefined' ? NOVIDADES.slice().sort((x,y)=>y.data.localeCompare(x.data)) : [];

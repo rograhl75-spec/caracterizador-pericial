@@ -43,6 +43,7 @@ Para atualizar, edite o arquivo no próprio GitHub (ícone de lápis) ou envie a
 ## Recursos de consulta
 
 - **Regra na data** (Aposentadoria especial): escolha uma data e veja, agente por agente, a norma e o critério do período, com os marcos gerais (categoria profissional, EPI, formulário, conversão, cancerígenos).
+- **Comparar duas datas** (Regra na data → "Comparar com outra data"): marcos gerais e regra de cada agente lado a lado, com selo "mudou" e a opção de mostrar só os agentes cuja regra muda.
 - **Teses:** etiqueta de situação (firmada, embargos pendentes, em julgamento, em revisão), filtro por situação, "Copiar citação" e "Copiar link" (endereço `#teses/<código>`). A situação de cada tese fica em `SITUACAO_TESE`, em `dados/normas-base.js`.
 - **Novidades na base** (Início) e **Glossário** (Biblioteca), ambos pesquisáveis na busca geral.
 - **Textos legais navegáveis** (Biblioteca → Textos legais navegáveis): Lei 8.213/91 arts. 57 e 58, IN 128/2022 arts. 286 a 302, NR-01 (item 1.5, GRO/PGR, e Anexo I, definições), NR-15 itens 15.1 a 15.7 e itens gerais da NR-16, com índice, filtro, "Copiar citação" e "Copiar link" por artigo ou item (endereço `#biblioteca/textos/<documento>/<item>`, ex.: `#biblioteca/textos/in128/290`).
