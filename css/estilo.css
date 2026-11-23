@@ -597,3 +597,15 @@ button.fav.on{border-color:var(--gold-line); color:var(--gold); background:var(-
 .favl.edit li{flex-direction:column; align-items:stretch; border-bottom:1px solid var(--line); padding-bottom:10px}
 .favh{display:flex; flex-wrap:wrap; gap:8px; align-items:center}
 .favh .linkbtn{flex:1; text-align:left}
+
+/* ajuda e tutorial */
+details.ajuda{margin:14px 0 0; border:1px solid var(--line); border-radius:8px; padding:0 14px; background:var(--surface)}
+details.ajuda summary{cursor:pointer; padding:9px 0; font-weight:600; font-size:.9rem; color:var(--muted)}
+details.ajuda summary::before{content:'? '; display:inline-grid; place-items:center; width:20px; height:20px; border-radius:50%; background:var(--band); color:var(--band-ink); font-size:.75rem; margin-right:6px}
+details.ajuda ul{margin:0 0 8px; padding-left:20px; font-size:.9rem; display:flex; flex-direction:column; gap:4px}
+details.ajuda .linkbtn{margin:0 0 12px}
+#tutorial{position:fixed; inset:0; background:rgba(8,16,30,.55); display:grid; place-items:center; z-index:60; padding:16px}
+.tut{background:var(--surface); color:var(--ink); border-radius:12px; border-top:4px solid var(--gold-line); max-width:480px; width:100%; padding:22px 22px 18px; display:flex; flex-direction:column; gap:10px; box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.tut h2{margin:0}
+.tut .btns{justify-content:flex-end}
+.tutdots{display:flex; gap:6px} .tutdots span{width:8px; height:8px; border-radius:50%; background:var(--line)} .tutdots span.on{background:var(--gold-line)}
