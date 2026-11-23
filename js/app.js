@@ -517,7 +517,7 @@ function renderAgentes(){
   const a=agById(S.ag);
   const aq=normTxt(S.agq||''); const vis=x=>!aq||normTxt(x.nome+' '+(x.kw||[]).join(' ')+' '+x.c53.join(' ')+' '+(x.cIV||'')).includes(aq);
   let list='<nav class="aglist" aria-label="Agentes"><label class="f" for="agq"><span>Filtrar agentes</span><input id="agq" type="search" data-st="agq" value="'+esc(S.agq||'')+'" placeholder="Ex.: solda, amianto, 1.0.19"></label><label class="f agsel" for="agsel"><span>Agente</span><select id="agsel" data-agsel="1">'+GRUPOS.map(g=>'<optgroup label="'+g+'">'+AGENTS.filter(x=>x.grupo===g&&vis(x)).map(x=>'<option value="'+x.id+'"'+(x.id===a.id?' selected':'')+'>'+esc(x.nome)+'</option>').join('')+'</optgroup>').join('')+'</select></label>'+GRUPOS.map(g=>{ const xs=AGENTS.filter(x=>x.grupo===g&&vis(x)); return xs.length?'<div class="agg"><p>'+g+'</p>'+xs.map(x=>'<button data-ag="'+x.id+'" class="'+(x.id===a.id?'on':'')+'" aria-pressed="'+(x.id===a.id)+'"><span>'+esc(x.nome)+'</span><small>'+esc(x.cIV?x.cIV.split(' / ')[0]:(x.c53[0]||''))+'</small></button>').join('')+'</div>':''; }).join('')+(AGENTS.some(vis)?'':'<p class="agempty">Nenhum agente encontrado.</p>')+'</nav>';
-  if(a.id==='ruido') return '<div class="agwrap">'+list+rsHtml(a)+'</div>';
+  if(a.id==='ruido') return '<div class="agwrap">'+list+comVerTambem(rsHtml(a),'ag:ruido')+'</div>';
   const codes=[...(a.c53.length?['53.831: '+a.c53.join(', ')]:[]),...(a.c83.length?['83.080: '+a.c83.join(', ')]:[]),(a.cIV?'Anexo IV: '+a.cIV:'Fora do Anexo IV'),'NR-15: '+a.nr15];
   let f='<article class="ficha"><header><div class="fhead"><p class="eyebrow">'+a.grupo+'</p><span class="btns">'+favBtn('ag:'+a.id,a.nome+' — ficha do agente')+linkBtn('ag:'+a.id)+'<button class="printbtn" data-print="ficha">Imprimir ficha</button></span></div><h2>'+esc(a.nome)+'</h2><div class="codes">'+codes.map(c=>'<span>'+esc(c)+'</span>').join('')+'<span>'+a.tempo+' anos</span></div></header>';
   f+='<div class="mxrow">'+['até 05/03/1997','06/03/1997–18/11/2003','19/11/2003–13/11/2019','após 13/11/2019'].map((p,k)=>'<div><span>'+p+'</span><b class="mxc mx-'+MX[a.mx[k]][1]+'">'+(a.mx[k]==='X'&&MXX[a.id]?esc(MXX[a.id].rot):MX[a.mx[k]][0])+'</b></div>').join('')+'</div>'+(a.mx.includes('X')&&MXX[a.id]?'<p class="mxnote"><b>Por que "'+esc(MXX[a.id].rot)+'"?</b> '+esc(MXX[a.id].nota)+'</p>':'');
@@ -539,7 +539,7 @@ function renderAgentes(){
   if(a.id==='vibracao') f+='<h3>Referências ISO para 06/03/1997 a 12/08/2014</h3><div class="isogrid">'+ISO_VIB.map(x=>'<div class="iso"><b>'+esc(x.rot)+'</b>'+(x.v!==null?'<span class="isov">'+String(x.v).replace('.',',')+' '+x.un+(x.vdv?' · VDV '+String(x.vdv).replace('.',',')+' m/s¹·⁷⁵':'')+'</span>':'<span class="isov">sem LT</span>')+'<p>'+esc(x.nota)+'</p></div>').join('')+'</div><p class="fine">A IN 128/2022 não diz qual edição ou qual valor da ISO usar. Na simulação de enquadramento, escolha a referência no campo "Referência ISO"; o padrão é o limite superior da zona de cautela da ISO 2631-1:1997.</p>';
   if(a.art&&a.art.length) f+='<details class="lit"><summary>Texto literal da IN PRES/INSS 128/2022 — art. '+a.art.join(', ')+'</summary>'+a.art.map(n=>(IN128[n]||[]).map((p,k)=>'<p'+(k===0?' class="art0"':'')+'>'+esc(p)+'</p>').join('')).join('<hr>')+(a.art.includes('293')?'<p class="fine">Redação dada pela IN PRES/INSS 141/2022.</p>':'')+'<p class="fine">Abrir no texto navegável: '+a.art.map(n=>'<a href="#biblioteca/textos/in128/'+n+'">art. '+n+'</a>').join(', ')+'</p></details>';
   f+='<h3>Texto das normas</h3>'+(leg||'<p class="muted">Sem texto cadastrado.</p>')+'<p class="fine">Textos transcritos das normas e do Manual do INSS. Confira sempre a redação oficial no Planalto.</p></article>';
-  return '<div class="agwrap">'+list+f+'</div>';
+  return '<div class="agwrap">'+list+comVerTambem(f,'ag:'+a.id)+'</div>';
 }
 
 /* ---------- INSALUBRIDADE ---------- */
@@ -650,7 +650,7 @@ function renderInsal(){
   else if(an.tipo==='lista' && an.lista==='a13') h+=a13Lista();
   else h+='<p class="muted">Anexo revogado. Não gera adicional.</p>';
   h+='</div></section><aside class="panel"><div class="ph"><h3>Valor do adicional</h3></div>'+'<label class="f" for="i-base"><span>Base de cálculo (R$)</span><input id="i-base" type="text" inputmode="decimal" step="0.01" data-ins="base" value="'+esc(insv('base',''))+'" placeholder="Salário mínimo ou piso da norma coletiva"></label><p class="fine">Informe a base para ver o valor mensal no resultado.</p><div class="ph"><h3>Súmulas e OJs</h3></div><ul class="sm-list">'+['s47','s80','s289','s448','oj173','sv4','irr17','tst80','tst180','tst209'].map(k=>'<li><b>'+TESES[k].num+'</b> '+esc(TESES[k].tese)+'</li>').join('')+'</ul><div class="ph"><h3>Itens gerais</h3></div><dl class="dl16 small"><dt>NR-15, 15.4.1.3</dt><dd>O laudo caracterizador da insalubridade deve ficar disponível aos trabalhadores, aos sindicatos das categorias profissionais e à inspeção do trabalho (Portaria MTE 2.021/2025, vigente desde 03/04/2026).</dd><dt>NR-01, 1.5.2</dt><dd>A caracterização de atividades insalubres ou perigosas segue a NR-15 e a NR-16. Os fatores de risco psicossociais (item 1.5.3.1.4, vigente desde 26/05/2026, Portarias MTE 1.419/2024 e 765/2025) entram no PGR, mas não geram adicional nem tempo especial.</dd></dl></aside></div>';
-  return h;
+  return h+verTambemHtml('a15:'+S.a15);
 }
 
 /* ---------- PERICULOSIDADE ---------- */
@@ -721,7 +721,7 @@ function renderPeric(){
    '<div class="verdict '+(r.st==='E'?'v-e':r.st==='N'?'v-n':'v-i')+'"><b>'+esc(r.b)+(r.st==='E'&&sal?' · R$ '+(sal*0.3).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+' por mês':'')+'</b><p>'+esc(r.p)+'</p></div>'+
    '<div class="btns"><button class="ghost sm" data-perclr="'+an.id+'">Limpar marcações deste anexo</button></div></section>'+
    '<aside class="panel"><div class="ph"><h3>Itens gerais da NR-16</h3></div><dl class="dl16 small">'+NR16_GERAL.map(([k,t])=>'<dt>'+k+'</dt><dd>'+esc(t)+'</dd>').join('')+'</dl><div class="ph"><h3>Jurisprudência relacionada</h3></div><ul class="sm-list">'+(an.j.length?an.j.map(k=>'<li><b>'+TESES[k].num+'</b> '+esc(TESES[k].tese)+'</li>').join(''):'<li>Sem súmula específica cadastrada.</li>')+'<li><b>IRR Tema 17</b> '+esc(TESES.irr17.tese)+'</li></ul><p class="fine">Na aposentadoria especial, a periculosidade por si só não gera tempo especial depois de 1997: veja STF, Tema 1209, e a ficha de eletricidade.</p></aside></div>';
-  return h;
+  return h+verTambemHtml('a16:'+S.a16);
 }
 
 /* ---------- TESES ---------- */
@@ -1323,6 +1323,31 @@ document.addEventListener('click', ev=>{
   if(b.dataset.fsel!==undefined){ S.fsel=+b.dataset.fsel; render(); if(window.innerWidth<760){ const p=document.getElementById('ffun'); if(p) p.scrollIntoView({block:'start'}); } }
   else { const x=FUNCOES[+b.dataset.fcmp]; S.cmpAg=x.ag.filter(id=>AGENTS.some(a=>a.id===id&&a.id!=='categoria')).slice(0,3); location.hash='aposentadoria/comparar'; }
 });
+
+/* ---------- Ver também: ligações entre agente, anexos e funções ---------- */
+const ROMANO={I:1,II:2,III:3,IV:4,V:5,VI:6};
+function anexosDoAgente(a){
+  const txt=String(a.nr15||''), r15=new Set(), r16=new Set();
+  txt.replace(/NR-16,\s*Anexo\s+([IVX]+)/g,(m,ro)=>{ if(ROMANO[ro]) r16.add('a'+ROMANO[ro]); return ''; }).replace(/\([^)]*\)/g,'')
+     .replace(/Anexos?\s+((?:\d{1,2}(?:-A)?(?:\s*(?:,|e)\s*)?)+)/g,(m,lista)=>{ (lista.match(/\d{1,2}(?:-A)?/g)||[]).forEach(n=>{ if(NR15.some(x=>String(x.n)===n)) r15.add(n); }); return ''; });
+  return {r15:[...r15], r16:[...r16]};
+}
+function verTambemHtml(key){
+  const [k,v]=key.split(':'); const grupos=[];
+  const fn=lista=>lista.map(i=>['funcao:'+i, FUNCOES[i].f]);
+  const idxF=pred=>FUNCOES.map((x,i)=>pred(x)?i:-1).filter(i=>i>=0);
+  if(k==='ag'){ const a=AGENTS.find(x=>x.id===v); if(!a) return ''; const an=anexosDoAgente(a);
+    grupos.push(['Na NR-15', an.r15.map(n=>{ const x=NR15.find(y=>String(y.n)===n); return ['a15:'+n,'Anexo '+n+' — '+x.t]; })]);
+    grupos.push(['Na NR-16', an.r16.map(id=>{ const x=NR16.find(y=>y.id===id); return x?['a16:'+id, x.n+' — '+x.t]:null; }).filter(Boolean)]);
+    grupos.push(['Funções em que costuma ser investigado', fn(idxF(x=>(x.ag||[]).includes(v)))]); }
+  else if(k==='a15'){ grupos.push(['Agentes da aposentadoria especial que remetem a este anexo', AGENTS.filter(a=>anexosDoAgente(a).r15.includes(String(v))).map(a=>['ag:'+a.id, a.nome])]);
+    grupos.push(['Funções em que costuma ser investigado', fn(idxF(x=>(x.nr15||[]).map(String).includes(String(v))))]); }
+  else if(k==='a16'){ grupos.push(['Agentes da aposentadoria especial relacionados', AGENTS.filter(a=>anexosDoAgente(a).r16.includes(v)).map(a=>['ag:'+a.id, a.nome])]);
+    grupos.push(['Funções em que costuma ser investigado', fn(idxF(x=>(x.nr16||[]).includes(v)))]); }
+  const g=grupos.filter(x=>x[1].length); if(!g.length) return '';
+  return '<section class="vtb"><h3>Ver também</h3>'+g.map(([tit,l])=>'<div class="vtg"><p class="small muted">'+esc(tit)+'</p><div class="vtl">'+l.map(([go,t])=>'<button class="ghost sm" data-go="'+esc(go)+'">'+esc(t)+'</button>').join('')+'</div></div>').join('')+'<p class="fine">Ligações para orientar a consulta; cada área segue a sua própria norma e a exposição depende do caso.</p></section>';
+}
+const comVerTambem=(html,key)=>{ const vt=verTambemHtml(key); return vt&&/<\/article>\s*$/.test(html)?html.replace(/<\/article>\s*$/,vt+'</article>'):html+vt; };
 
 /* ---------- Siglas do glossário explicadas no texto ---------- */
 /* sigla no texto → termo do GLOSSARIO; só a primeira ocorrência de cada sigla por tela */
