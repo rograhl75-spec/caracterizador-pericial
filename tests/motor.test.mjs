@@ -171,3 +171,14 @@ test('avaliar: datas trocadas, valor fora da faixa e período anterior a 1960', 
   assert.equal(antigo[1].ini, '1960-08-26'); assert.match(antigo[1].perito.txt, /48\.959-A/);
   assert.equal(antigo.at(-1).ini, '1964-03-25'); assert.doesNotMatch(antigo.at(-1).perito.txt, /48\.959-A/);
 });
+
+test('totais: períodos sobrepostos contam uma vez', () => {
+  const row = (agente, ini, fim, d) => ({ empresa: 'T', funcao: 'T', agente, ini, fim, tempo: 25, epi: false, d });
+  const um = X.totais({ sexo: 'H', rows: [row('ruido', '1990-01-01', '1995-12-31', { lavg: 90, te: 480 })] });
+  const dois = X.totais({ sexo: 'H', rows: [row('ruido', '1990-01-01', '1995-12-31', { lavg: 90, te: 480 }), row('ruido', '1990-01-01', '1995-12-31', { lavg: 95, te: 480 })] });
+  assert.equal(dois.perito.dias, um.perito.dias);
+  assert.equal(dois.perito.conv, um.perito.conv);
+  assert.equal(dois.perito.sobrep, um.perito.dias);
+  const parcial = X.totais({ sexo: 'H', rows: [row('ruido', '1990-01-01', '1995-12-31', { lavg: 90, te: 480 }), row('ruido', '1994-01-01', '1996-12-31', { lavg: 90, te: 480 })] });
+  assert.equal(parcial.perito.dias, X.totais({ sexo: 'H', rows: [row('ruido', '1990-01-01', '1996-12-31', { lavg: 90, te: 480 })] }).perito.dias);
+});

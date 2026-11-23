@@ -269,19 +269,31 @@ function diasConv(seg){ /* dias até 13/11/2019 */
 }
 /* Fatores do art. 70 do RPS (red. Dec. 4.827/2003; art. 70 revogado pelo Dec. 10.410/2020): conversão só até 13/11/2019 (EC 103/2019, art. 25, §2º). */
 function totais(caso){
-  const t={perito:{dias:0,conv:0}, inss:{dias:0,conv:0}, diverg:0, segs:0, porTempo:{}};
+  const t={perito:{dias:0,conv:0,sobrep:0}, inss:{dias:0,conv:0,sobrep:0}, diverg:0, segs:0, porTempo:{}};
+  const esp={perito:[], inss:[]};
   for(const row of caso.rows){
     const ag=AGENTS.find(x=>x.id===row.agente); if(!ag) continue;
     const r=avaliar(row,ag); const tempo=+(row.tempo||ag.tempo); const f=FATORES[tempo][caso.sexo||'H'];
     for(const s of r.segs){
       t.segs++;
       if(s.perito.st!==s.inss.st) t.diverg++;
-      for(const k of ['perito','inss']) if(s[k].st==='E'){ t[k].dias+=s.dias; t[k].conv+=diasConv(s)*(f-1); }
+      for(const k of ['perito','inss']) if(s[k].st==='E') esp[k].push({ini:s.ini, fim:s.fim, f});
+    }
+  }
+  /* períodos que se sobrepõem (ex.: ruído e calor no mesmo vínculo) contam uma vez; na sobreposição vale o fator mais favorável */
+  for(const k of ['perito','inss']){
+    const L=esp[k]; if(!L.length) continue;
+    const pts=[...new Set(L.flatMap(x=>[x.ini, addDays(x.fim,1)]))].sort();
+    for(let j=0;j<pts.length-1;j++){
+      const a=pts[j], b=addDays(pts[j+1],-1); const cob=L.filter(x=>x.ini<=a&&x.fim>=b); if(!cob.length) continue;
+      const d=daysIncl(a,b), f=Math.max(...cob.map(x=>x.f));
+      t[k].dias+=d; t[k].conv+=diasConv({ini:a,fim:b})*(f-1); if(cob.length>1) t[k].sobrep+=d;
     }
   }
   t.perito.conv=Math.round(t.perito.conv); t.inss.conv=Math.round(t.inss.conv);
   return t;
 }
+
 /* anos/meses/dias no padrão 365/30 (aproximação usual de contagem) */
 function amd(dias){
   const a=Math.floor(dias/365), r=dias-a*365, m=Math.floor(r/30), dd=r-m*30;

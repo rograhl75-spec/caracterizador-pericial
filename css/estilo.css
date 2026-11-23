@@ -701,3 +701,4 @@ input[aria-invalid="true"]{border-color:var(--n, #b42318)!important; box-shadow:
 .comopreencher{margin:0 0 14px; padding:10px 14px; border:1px solid var(--line); border-left:4px solid var(--gold-line); border-radius:8px; background:var(--surface)}
 .comopreencher summary{cursor:pointer; font-weight:700}
 .comopreencher ol{margin:8px 0 2px; padding-left:20px} .comopreencher li{margin:4px 0}
+.totnota{margin:0 0 8px; font-size:.9rem}
