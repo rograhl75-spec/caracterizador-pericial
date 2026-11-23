@@ -131,3 +131,13 @@ test('textos legais: NR-15 corpo, IN 128 e Lei 8.213 completos para navegação'
   assert.match(X.LIB.txt_resumo[18], /^Art\. 57\./);
   assert.match(X.LIB.txt_resumo[19], /^Art\. 58\./);
 });
+
+test('textos legais: NR-01 item 1.5 e Anexo I sem códigos repetidos', () => {
+  const cods = X.NR01_GRO.map(r => r[0]);
+  assert.equal(new Set(cods).size, cods.length);
+  ['1.5.1', '1.5.2', '1.5.3.1.4', '1.5.7.3.2', '1.5.8.4'].forEach(k => assert.ok(cods.includes(k), k));
+  assert.match(X.NR01_GRO.find(r => r[0] === '1.5.2')[1], /NR-15.*NR-16/);
+  const termos = X.NR01_TERMOS.map(r => r[0]);
+  assert.equal(new Set(termos).size, termos.length);
+  ['Agente físico', 'Programa de Gerenciamento de Riscos (PGR)', 'Risco ocupacional'].forEach(t => assert.ok(termos.includes(t), t));
+});
