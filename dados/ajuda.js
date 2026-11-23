@@ -10,7 +10,7 @@ const AJUDA_TELA = {
  'inicio':[
   'Use a pesquisa do topo ou escolha uma das três áreas.',
   '"Novidades na base" mostra o que mudou na legislação e na jurisprudência, com atalho para consultar.',
-  '"Meus favoritos" aparece aqui quando você favorita algum conteúdo.'],
+  '"Meus favoritos" aparece aqui quando você favorita algum conteúdo; "Consultados recentemente" guarda as últimas fichas, anexos, teses e textos abertos.'],
  'funcao':[
   'Pesquise a função pelo nome ou por sinônimo e escolha na lista.',
   'A ficha mostra agentes, anexos da NR-15 e da NR-16 e teses que costumam ser investigados: são pontos de partida, não conclusão.',
