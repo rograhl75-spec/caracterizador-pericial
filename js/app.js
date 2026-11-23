@@ -157,7 +157,7 @@ function rowCard(row,i){
    '<label class="f wide" for="r'+i+'-agente"><span>Agente nocivo</span><select id="r'+i+'-agente" data-r="'+i+'" data-f="agente" data-re="1">'+agentSelect(row.agente)+'</select></label>'+
    sel(i,'tempo','Tempo exigido',row.tempo||a.tempo,[['25','25 anos'],['20','20 anos'],['15','15 anos']])+
    (a.engine==='ruido'?'':cb(i,'epi','EPI eficaz informado no PPP/LTCAT',row.epi))+
-   '</div><div class="fields ag">'+campos(row,i)+'</div><div class="res" id="res-'+i+'">'+resTable(row)+'</div></article>';
+   '</div><div class="fields ag">'+campos(row,i)+'</div><div class="res" id="res-'+i+'" aria-live="polite">'+resTable(row)+'</div></article>';
 }
 function resTable(row){
   const a=agById(row.agente); const r=avaliar(row,a);
@@ -506,7 +506,7 @@ function uHtml(){
   else fields='<div class="fields">'+inp('lavg','Lavg dB(A) · q = 5')+'</div>';
   return '<section class="simbox" id="ubox"><div class="fhead"><h3>1. Calcular a exposição</h3><button class="ghost sm" data-ursr="1">Restaurar exemplo</button></div>'+
    '<div class="qgrid"><div class="q"><span class="ql">Período a ser analisado <small>define o limite</small></span>'+seg('per',[['todos','Todos'],['p1','Até 05/03/1997'],['p2','06/03/1997 a 18/11/2003'],['p3','Desde 19/11/2003']])+'</div><div class="q"><span class="ql">Quando foi feita a medição? <small>define o método (IN 128, art. 289)</small></span>'+seg('quando',[['ate2001','Antes da NHO-01 (até 2001)'],['desde2001','Com a NHO-01 (2001 em diante)']])+'</div><div class="q"><span class="ql">O que você tem em mãos?</span>'+seg('tipo',[['leituras','Leituras instantâneas'],['dose','Dose do dosímetro'],['lavg','Lavg calculado']])+'</div>'+inp('te','Jornada Te (min)')+'</div>'+
-   '<p class="mnote"><b>Método aplicado:</b> '+esc(metTxt)+'</p>'+fields+'<div class="res" id="ures">'+uRes()+'</div></section>';
+   '<p class="mnote"><b>Método aplicado:</b> '+esc(metTxt)+'</p>'+fields+'<div class="res" id="ures" aria-live="polite">'+uRes()+'</div></section>';
 }
 function rsSimular(a){
   const r=uCalc(); uSync(r);
@@ -572,7 +572,7 @@ function icb(k,lab){ return '<label class="cb" for="i-'+k+'"><input id="i-'+k+'"
 function resultado(ok,grau,txt){
   const pct=GRAU[grau]; const base=num(insv('base',''))||0;
   const val= ok&&pct&&base ? ' · R$ '+(base*pct/100).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+' por mês' : '';
-  return '<div class="verdict '+(ok===null?'v-i':ok?'v-e':'v-n')+'"><b>'+(ok===null?'Faltam dados':ok?'Insalubre — grau '+grau+(pct?' ('+pct+'%)':''):'Não caracteriza insalubridade')+val+'</b><p>'+txt+'</p></div>';
+  return '<div class="verdict '+(ok===null?'v-i':ok?'v-e':'v-n')+'" aria-live="polite"><b>'+(ok===null?'Faltam dados':ok?'Insalubre — grau '+grau+(pct?' ('+pct+'%)':''):'Não caracteriza insalubridade')+val+'</b><p>'+txt+'</p></div>';
 }
 function tmaxQuadro(L){ if(L<85) return Infinity; for(const [n,t] of A1_QUADRO){ if(n>=L) return t; } return 7; }
 function calcIns(an){
@@ -651,9 +651,10 @@ function a13Lista(){
   let h='<div class="libbar"><label class="f grow" for="i-q13"><span>Pesquisar no Anexo 13</span><input id="i-q13" type="search" data-ins="q13" value="'+esc(q)+'" placeholder="Ex.: pintura, galvanoplastia, diesel, isocianato"></label>'+isel('g13','Grau','todos',[['todos','Todos'],['máximo','Máximo'],['médio','Médio'],['mínimo','Mínimo'],['proibido','Proibido']])+'</div>';
   let cur=''; h+='<div class="opts a13">';
   for(const [x,k] of it){ if(x.ag!==cur){ cur=x.ag; h+='<p class="a13ag">'+esc(cur.charAt(0)+cur.slice(1).toLowerCase())+'</p>'; }
-    h+='<label class="opt'+(x.exc?' exc':'')+'" for="a13-'+k+'"><input type="radio" name="a13" id="a13-'+k+'" data-ins="a13sel" value="'+k+'"'+(String(sel)===String(k)?' checked':'')+(x.exc?' disabled':'')+'><span><em class="g-'+(x.g==='máximo'?'max':x.g==='médio'?'med':x.g==='mínimo'?'min':'max')+'">'+x.g+'</em>'+hl(x.t,q)+'</span></label>'; }
+    h+='<label class="opt'+(x.exc?' exc':'')+'" for="a13-'+k+'"><input type="radio" name="a13" id="a13-'+k+'" data-ins="a13sel" value="'+k+'"'+(String(sel)===String(k)?' checked':'')+(x.exc?' disabled':'')+'><span><em class="g-'+(x.g==='máximo'?'max':x.g==='médio'?'med':x.g==='mínimo'?'min':'max')+'">'+x.g+'</em> '+hl(x.t,q)+'<span class="sr"> — grau '+x.g+'</span></span></label>'; }
   h+='</div><p class="fine">'+it.length+' atividade(s). Itens riscados foram excluídos ou revogados. A caracterização é qualitativa, por inspeção no local (item 15.1.3); exclui os agentes dos Anexos 11 e 12 (item 1).</p>';
   const s= sel===''?null:A13FULL[+sel];
+  if(s) h+='<p><button class="ghost sm" data-insclr="a13sel">Limpar escolha</button></p>';
   if(!s) return h+resultado(null,'médio','Escolha a atividade constatada.');
   if(s.g==='proibido') return h+'<div class="verdict v-c"><b>Exposição proibida</b><p>'+esc(s.t)+': nenhuma exposição ou contato é permitido; processo não hermetizado é risco grave e iminente.</p></div>';
   return h+resultado(true,s.g,esc(s.ag.charAt(0)+s.ag.slice(1).toLowerCase())+': '+s.t);
@@ -667,7 +668,7 @@ function renderInsal(){
   if(an.tipo==='calc') h+=calcIns(an);
   else if(an.tipo==='quali' && an.n==='13-A'){ const g=insv('g13a',''); h+=icb('q13-A','Exposição ao benzeno constatada em inspeção')+isel('g13a','Grau atribuído pelo perito','',[['','Escolher…'],['máximo','Máximo'],['médio','Médio'],['mínimo','Mínimo']])+'<p class="fine">O Anexo 13-A não fixa grau. A escolha é do perito, por analogia com o Anexo 13 (hidrocarbonetos e outros compostos de carbono); a ferramenta não presume grau.</p>'+(insv('q13-A',false)&&!g?resultado(null,'médio','Escolha o grau atribuído no laudo.'):resultado(insv('q13-A',false),g||'médio','Caracterização qualitativa (Anexo 13-A).')); }
   else if(an.tipo==='quali') h+=icb('q'+an.n,'Condição constatada em inspeção (laudo qualitativo)')+resultado(insv('q'+an.n,false),an.g==='máximo'?'máximo':'médio','Caracterização qualitativa.');
-  else if(an.tipo==='lista' && an.lista==='a14'){ const k=insv('a14',''); h+='<div class="opts">'+A14.map((x,j)=>'<label class="opt" for="a14-'+j+'"><input type="radio" name="a14" id="a14-'+j+'" data-ins="a14" value="'+j+'"'+(String(k)===String(j)?' checked':'')+'><span><em class="g-'+(x.g==='máximo'?'max':'med')+'">'+x.g+'</em>'+esc(x.t)+'</span></label>').join('')+'</div>'+(k===''?resultado(null,'médio','Escolha a atividade.'):resultado(true,A14[k].g,'Contato permanente na atividade listada. Para insalubridade, o Anexo 14 se aplica; para aposentadoria especial, não (código 3.0.1).')); }
+  else if(an.tipo==='lista' && an.lista==='a14'){ const k=insv('a14',''); h+='<div class="opts">'+A14.map((x,j)=>'<label class="opt" for="a14-'+j+'"><input type="radio" name="a14" id="a14-'+j+'" data-ins="a14" value="'+j+'"'+(String(k)===String(j)?' checked':'')+'><span><em class="g-'+(x.g==='máximo'?'max':'med')+'">'+x.g+'</em> '+esc(x.t)+'<span class="sr"> — grau '+x.g+'</span></span></label>').join('')+'</div>'+(k!==''?'<p><button class="ghost sm" data-insclr="a14">Limpar escolha</button></p>':'')+(k===''?resultado(null,'médio','Escolha a atividade.'):resultado(true,A14[k].g,'Contato permanente na atividade listada. Para insalubridade, o Anexo 14 se aplica; para aposentadoria especial, não (código 3.0.1).')); }
   else if(an.tipo==='lista' && an.lista==='a13') h+=a13Lista();
   else h+='<p class="muted">Anexo revogado. Não gera adicional.</p>';
   h+='</div></section><aside class="panel"><div class="ph"><h3>Valor do adicional</h3></div>'+'<label class="f" for="i-base"><span>Base de cálculo (R$)</span><input id="i-base" type="text" inputmode="decimal" step="0.01" data-ins="base" value="'+esc(insv('base',''))+'" placeholder="Salário mínimo ou piso da norma coletiva"></label><p class="fine">Informe a base para ver o valor mensal no resultado.</p><div class="ph"><h3>Súmulas e OJs</h3></div><ul class="sm-list">'+['s47','s80','s289','s448','oj173','sv4','irr17','tst80','tst180','tst209'].map(k=>'<li><b>'+TESES[k].num+'</b> '+esc(TESES[k].tese)+'</li>').join('')+'</ul><div class="ph"><h3>Itens gerais</h3></div><dl class="dl16 small"><dt>NR-15, 15.4.1.3</dt><dd>O laudo caracterizador da insalubridade deve ficar disponível aos trabalhadores, aos sindicatos das categorias profissionais e à inspeção do trabalho (Portaria MTE 2.021/2025, vigente desde 03/04/2026).</dd><dt>NR-01, 1.5.2</dt><dd>A caracterização de atividades insalubres ou perigosas segue a NR-15 e a NR-16. Os fatores de risco psicossociais (item 1.5.3.1.4, vigente desde 26/05/2026, Portarias MTE 1.419/2024 e 765/2025) entram no PGR, mas não geram adicional nem tempo especial.</dd></dl></aside></div>';
@@ -710,7 +711,7 @@ function secHtml(an,sec){
   if(sec.lista) h+='<details><summary>Ver '+sec.lista.length+' itens</summary><dl class="dl16">'+sec.lista.map(([k,t])=>'<dt>'+esc(k)+'</dt><dd>'+esc(t)+'</dd>').join('')+'</dl></details>';
   if(sec.sel){ const exc=sec.sel==='exc';
     h+='<div class="scrollx"><table class="pt t16'+(exc?' exc':'')+'"><thead><tr><th class="ck"><span class="sr">Marcar</span></th><th>Item</th>'+sec.cols.map(c=>'<th>'+esc(c)+'</th>').join('')+'</tr></thead><tbody>'+
-      sec.itens.map(it=>{ const k=pk(an.id,sec.sel,it[0]), id='p-'+k.replace(/[^a-z0-9]/gi,'-'), on=pget(k,false); return '<tr class="'+(on?'on':'')+'"><td class="ck"><input type="checkbox" id="'+id+'" data-per="'+k+'"'+(on?' checked':'')+' aria-label="'+esc(sec.tit+' — '+it[0])+'"></td><td class="mono"><label for="'+id+'">'+esc(it[0])+'</label></td><td><label for="'+id+'">'+esc(it[1])+'</label></td><td>'+esc(it[2])+'</td></tr>'; }).join('')+'</tbody></table></div>';
+      sec.itens.map(it=>{ const k=pk(an.id,sec.sel,it[0]), id='p-'+k.replace(/[^a-z0-9]/gi,'-'), on=pget(k,false); return '<tr class="'+(on?'on':'')+'"><td class="ck"><input type="checkbox" id="'+id+'" data-per="'+k+'"'+(on?' checked':'')+'></td><td class="mono"><label for="'+id+'">'+esc(it[0])+'</label></td><td><label for="'+id+'">'+esc(it[1])+'</label></td><td>'+esc(it[2])+'</td></tr>'; }).join('')+'</tbody></table></div>';
   }
   if(sec.calc==='explosivos'){ const c=calcExplosivos(an); h+=c.h; }
   if(sec.calc==='transporte'){ const c=calcTransporte(); h+=c.h; }
@@ -740,7 +741,8 @@ function renderPeric(){
    an.secoes.map(sec=>secHtml(an,sec)).join('')+
    '<section class="sec16"><h4>Frequência da exposição (Súmula 364'+(an.id==='a4'?' e item 3 do Anexo 4':'')+')</h4><fieldset class="fr"><legend class="sr">Frequência</legend>'+[['perm','Permanente'],['int','Intermitente'],['ev','Eventual (fortuito)'],['red','Habitual por tempo extremamente reduzido']].map(([k,t])=>'<label class="cb" for="fr-'+k+'"><input type="radio" name="fr-'+an.id+'" id="fr-'+k+'" data-per="'+an.id+':fr" value="'+k+'"'+(pget(an.id+':fr','')===k?' checked':'')+'><span>'+t+'</span></label>').join('')+'</fieldset></section>'+
    '<div class="pcalc">'+pin('sal','Salário-base (R$) — opcional','step="0.01"')+'</div>'+
-   '<div class="verdict '+(r.st==='E'?'v-e':r.st==='N'?'v-n':'v-i')+'"><b>'+esc(r.b)+(r.st==='E'&&sal?' · R$ '+(sal*0.3).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+' por mês':'')+'</b><p>'+esc(r.p)+'</p></div>'+
+   '<div class="vbar" aria-hidden="true"><span class="vb-'+r.st+'">'+esc(r.b)+'</span><a href="#pres" data-vres="1" tabindex="-1">Ver resultado ↓</a></div>'+
+   '<div class="verdict '+(r.st==='E'?'v-e':r.st==='N'?'v-n':'v-i')+'" id="pres" tabindex="-1" aria-live="polite"><b>'+esc(r.b)+(r.st==='E'&&sal?' · R$ '+(sal*0.3).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+' por mês':'')+'</b><p>'+esc(r.p)+'</p></div>'+
    '<div class="btns"><button class="ghost sm" data-perclr="'+an.id+'">Limpar marcações deste anexo</button></div></section>'+
    '<aside class="panel"><div class="ph"><h3>Itens gerais da NR-16</h3></div><dl class="dl16 small">'+NR16_GERAL.map(([k,t])=>'<dt>'+k+'</dt><dd>'+esc(t)+'</dd>').join('')+'</dl><div class="ph"><h3>Jurisprudência relacionada</h3></div><ul class="sm-list">'+(an.j.length?an.j.map(k=>'<li><b>'+TESES[k].num+'</b> '+esc(TESES[k].tese)+'</li>').join(''):'<li>Sem súmula específica cadastrada.</li>')+'<li><b>IRR Tema 17</b> '+esc(TESES.irr17.tese)+'</li></ul><p class="fine">Na aposentadoria especial, a periculosidade por si só não gera tempo especial depois de 1997: veja STF, Tema 1209, e a ficha de eletricidade.</p></aside></div>';
   return h+verTambemHtml('a16:'+S.a16);
@@ -871,6 +873,7 @@ function destinoValido(dest){ const i=dest.indexOf(':'); if(i<1) return false; c
   if(k==='hist') return typeof HISTORICO_NR!=='undefined'&&!!HISTORICO_NR[v];
   return false; }
 function linkBtn(key){ return '<button class="ghost sm" data-golink="'+esc(key)+'" title="Copiar o endereço direto desta consulta">Copiar link</button>'; }
+document.addEventListener('click', ev=>{ const a=ev.target.closest('[data-vres]'); if(!a) return; ev.preventDefault(); const v=document.getElementById('pres'); if(v){ const hd=document.querySelector('header.band'); const topo=hd&&getComputedStyle(hd).position==='sticky'?Math.max(0,hd.getBoundingClientRect().bottom):0; window.scrollTo(0, v.getBoundingClientRect().top+window.scrollY-topo-8); v.focus({preventScroll:true}); } });
 document.addEventListener('click', ev=>{ const b=ev.target.closest('[data-irper]'); if(!b) return; const i=b.dataset.irper; setTimeout(()=>{ const el=document.getElementById('r'+i+'-ini'); if(el){ const art=el.closest('article,section')||el; const hd=document.querySelector('header.band'); const topo=hd&&getComputedStyle(hd).position==='sticky'?hd.getBoundingClientRect().bottom:0; window.scrollTo(0, art.getBoundingClientRect().top+window.scrollY-topo-8); el.focus({preventScroll:true}); } },120); });
 document.addEventListener('click', ev=>{ const b=ev.target.closest('[data-golink]'); if(!b) return; copiar(linkDireto(b.dataset.golink),'Link copiado. Quem abrir vai direto a esta consulta.'); });
 function go(dest){
@@ -898,6 +901,8 @@ function render(){
 function route(){ let h=location.hash.slice(1); if(h.startsWith('ir/')){ const dest=decodeURIComponent(h.slice(3)); if(destinoValido(dest)){ GO_REPLACE=true; go(dest); irAoConteudo(); return true; } h='inicio'; } const LEG={agentes:'aposentadoria/agentes',painel:'aposentadoria/resultado'}; if(LEG[h]){ h=LEG[h]; history.replaceState(null,'','#'+h); } const [h0,h1,h2,h3]=h.split('/');
   if(SRCH){ if(SRCH.fromGo){ SRCH.fromGo=false; } else { if(SRCH.tq!==null&&S.tq===SRCH.tq) S.tq=''; if(SRCH.q!==null&&S.q===SRCH.q){ S.q=''; S.lib='todas'; } if(SRCH.q11!==null&&S.ins.q11===SRCH.q11){ S.ins.q11=''; } SRCH=null; } } S.tab = TABS.some(t=>t[0]===h0)?h0:(h0==='busca'?'busca':'inicio'); if(S.tab==='aposentadoria') S.ap = AP_SUB.some(x=>x[0]===h1)?h1:(S.ap||'agentes'); if(S.tab==='teses'&&h1&&TESES[h1]){ S.tf='todos'; S.tsit='todas'; S.tq=''; } S.alvo=(S.tab==='teses'&&h1&&TESES[h1])?'tese:'+h1:(S.tab==='biblioteca'&&h1==='textos'&&h3)?'txt:'+h2+'/'+decodeURIComponent(h3):''; if(S.tab==='biblioteca'){ S.libv=h1==='textos'?'textos':h1==='historico'?'historico':'quadros'; if(h2){ S.txd=h2; S.txq=''; } } render(); if(S.tab==='teses'&&h1&&TESES[h1]){ destacar('tese-'+h1); return true; } if(S.tab==='biblioteca'&&S.libv==='textos'&&h3){ destacar(txId(h2,decodeURIComponent(h3))); return true; } return false; }
 window.addEventListener('hashchange', ()=>{ if(!route()) window.scrollTo(0,0); });
+/* no celular o cabeçalho some ao rolar para baixo e volta ao rolar para cima (ocupava 1/4 da tela) */
+(()=>{ let ult=0; window.addEventListener('scroll', ()=>{ const y=window.scrollY, hd=document.querySelector('header.band'); if(!hd) return; if(window.innerWidth>700){ hd.classList.remove('esconde'); ult=y; return; } if(y>ult+6&&y>160&&!hd.contains(document.activeElement)) hd.classList.add('esconde'); else if(y<ult-6||y<80) hd.classList.remove('esconde'); ult=y; }, {passive:true}); })();
 
 function setPath(obj, path, val){ const ps=path.split('.'); let o=obj; for(let k=0;k<ps.length-1;k++){ o[ps[k]]=o[ps[k]]||{}; o=o[ps[k]]; } o[ps[ps.length-1]]=val; }
 function refreshCaso(i){ if(i==='s'){ const el=$('#res-s'); if(el) el.innerHTML=resTable(simRow()); return; } const el=$('#res-'+i); if(el) el.innerHTML=resTable(S.caso.rows[i]); const tb=$('#totbar'); if(tb) tb.innerHTML=totBar(); const r=S.caso.rows[i], art=document.querySelector('.row[data-i="'+i+'"] .rtt'); if(art) art.innerHTML='<b>'+esc(r.funcao||'Função')+'</b><span>'+esc(r.empresa||'Empresa')+'</span>'; }
@@ -948,6 +953,7 @@ document.addEventListener('click', ev=>{
   if(b.dataset.caq!==undefined){ const ca=(b.closest('.epibox')?.querySelector('[data-f="d.ca"]')?.value||'').trim(); try{ if(ca&&navigator.clipboard) navigator.clipboard.writeText(ca); }catch(e){} window.open('http://caepi.mte.gov.br/internet/ConsultaCAInternet.aspx','_blank','noopener'); if(ca){ b.textContent='CA '+ca+' copiado · abrir consulta ↗'; } return; }
   if(b.dataset.rstep){ S.rstep=b.dataset.rstep; render(); const r=$('.rs'); if(r) r.scrollIntoView({block:'start'}); return; }
   if(b.dataset.rckclr){ S.rck={}; render(); return; }
+  if(b.dataset.insclr){ S.ins[b.dataset.insclr]=''; render(); const f=document.querySelector('#pinsal input[type=radio]'); if(f) f.focus(); return; }
   if(b.dataset.relink){ const row=simRow(); row.manual=false; uSync(uCalc()); render(); const f=document.getElementById('rs-d-lavg'); if(f) f.focus(); return; }
   if(b.dataset.useg){ uState()[b.dataset.useg]=b.dataset.v; render(); const f=document.querySelector('[data-useg="'+b.dataset.useg+'"][data-v="'+b.dataset.v+'"]'); if(f) f.focus(); return; }
   if(b.dataset.ursr){ S.u=null; S.li=null; render(); return; }
