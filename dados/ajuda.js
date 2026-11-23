@@ -34,6 +34,7 @@ const AJUDA_TELA = {
   'Cada agente segue sua própria regra: a comparação não soma tempos nem combina critérios.'],
  'aposentadoria/caso':[
   'A simulação aplica as regras aos períodos e dados que você digita. É uma ferramenta de consulta: não examina documentos nem a prova.',
+  'Abra "Como preencher" para o passo a passo. Use vírgula para decimais; valores fora do usual e datas trocadas aparecem com aviso embaixo do campo.',
   'Crie vários casos em "Meus casos"; exporte para guardar ou abrir em outro computador.',
   'Cada período é dividido nos marcos legais do agente; veja o resultado em "Resultado da simulação".'],
  'aposentadoria/resultado':[
