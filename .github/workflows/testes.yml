@@ -22,4 +22,4 @@ jobs:
       - name: Sintaxe dos scripts
         run: for f in dados/*.js js/*.js; do node --check "$f" || exit 1; done
       - name: Testes da lógica
-        run: node --test tests/motor.test.mjs
+        run: node --test tests/motor.test.mjs tests/referencia.test.mjs

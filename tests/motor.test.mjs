@@ -155,8 +155,11 @@ test('histórico das NRs: cabeçalhos completos e em ordem de publicação', () 
 });
 
 test('num: formato brasileiro e internacional', () => {
-  const casos = [['85,3', 85.3], ['85.3', 85.3], ['1.500', 1500], ['1.518,00', 1518], ['R$ 1.518,00', 1518], ['3.500,50', 3500.5], ['0,05', 0.05], ['480', 480], ['', null], ['abc', null], ['8a', null], [12, 12]];
+  const casos = [['85,3', 85.3], ['85.3', 85.3], ['0.500', 0.5], ['0.050', 0.05], ['1.125', 1.125], ['1.500', 1.5], ['1.518,00', 1518], ['R$ 1.518,00', 1518], ['3.500,50', 3500.5], ['0,05', 0.05], ['480', 480], ['', null], ['abc', null], ['8a', null], ['Infinity', null], [12, 12]];
   for (const [v, e] of casos) assert.equal(X.num(v), e, String(v));
+  /* milhar com ponto só quando pedido (R$, kg, litros, metros) */
+  const milhar = [['1.500', 1500], ['1.518,00', 1518], ['1,500.00', 1500], ['0.500', 0.5], ['12.000', 12000]];
+  for (const [v, e] of milhar) assert.equal(X.num(v, true), e, String(v) + ' (milhar)');
 });
 
 test('avaliar: datas trocadas, valor fora da faixa e período anterior a 1960', () => {
