@@ -9,6 +9,7 @@ const TUTORIAL = [
 const AJUDA_TELA = {
  'inicio':[
   'Use a pesquisa do topo ou escolha uma das três áreas.',
+  'Siglas sublinhadas com pontilhado (PPP, LTCAT, NEN, IBUTG, LINACH…) mostram a definição ao clicar ou tocar.',
   '"Novidades na base" mostra o que mudou na legislação e na jurisprudência, com atalho para consultar.',
   '"Meus favoritos" aparece aqui quando você favorita algum conteúdo; "Consultados recentemente" guarda as últimas fichas, anexos, teses e textos abertos.'],
  'funcao':[
