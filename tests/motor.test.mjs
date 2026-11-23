@@ -153,3 +153,21 @@ test('histórico das NRs: cabeçalhos completos e em ordem de publicação', () 
   const p1359 = H.nr15.hist.find(h => /1\.359/.test(h.port));
   assert.deepEqual(JSON.parse(JSON.stringify(p1359.onde)), ['alterado — Anexo 3']);
 });
+
+test('num: formato brasileiro e internacional', () => {
+  const casos = [['85,3', 85.3], ['85.3', 85.3], ['1.500', 1500], ['1.518,00', 1518], ['R$ 1.518,00', 1518], ['3.500,50', 3500.5], ['0,05', 0.05], ['480', 480], ['', null], ['abc', null], ['8a', null], [12, 12]];
+  for (const [v, e] of casos) assert.equal(X.num(v), e, String(v));
+});
+
+test('avaliar: datas trocadas, valor fora da faixa e período anterior a 1960', () => {
+  const base = { empresa: 'T', funcao: 'T', agente: 'ruido', tempo: 25, epi: false };
+  const trocado = X.avaliar(Object.assign({}, base, { ini: '1996-01-01', fim: '1990-01-01', d: { lavg: 90 } }), X.agente('ruido'));
+  assert.match(trocado.erro, /anterior ao início/);
+  const absurdo = X.avaliar(Object.assign({}, base, { ini: '1990-01-01', fim: '1995-12-31', d: { lavg: '870', te: 480 } }), X.agente('ruido'));
+  assert.match(absurdo.erro, /fora do usual/);
+  assert.ok(absurdo.segs.every(s => s.perito.st === 'I' && s.inss.st === 'I'));
+  const antigo = X.periodo('ruido', '1950-01-01', '1965-12-31', { lavg: 88, te: 480 });
+  assert.equal(antigo[0].fim, '1960-08-25'); assert.equal(antigo[0].perito.st, 'I');
+  assert.equal(antigo[1].ini, '1960-08-26'); assert.match(antigo[1].perito.txt, /48\.959-A/);
+  assert.equal(antigo.at(-1).ini, '1964-03-25'); assert.doesNotMatch(antigo.at(-1).perito.txt, /48\.959-A/);
+});

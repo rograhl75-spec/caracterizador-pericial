@@ -5,7 +5,12 @@ const toIso = ms => new Date(ms).toISOString().slice(0,10);
 const addDays = (s,n) => toIso(toMs(s)+n*DAY);
 const daysIncl = (a,b) => Math.round((toMs(b)-toMs(a))/DAY)+1;
 const fmtBR = s => s ? s.slice(8,10)+'/'+s.slice(5,7)+'/'+s.slice(0,4) : '';
-const num = v => { if(v===''||v===null||v===undefined) return null; const x=+String(v).trim().replace(',','.'); return (String(v).trim()===''||isNaN(x)) ? null : x; };
+/* número no formato brasileiro ou internacional: "85,3", "85.3", "1.500" (milhar), "1.518,00", "R$ 1.518,00" */
+const num = v => { if(v===''||v===null||v===undefined) return null; if(typeof v==='number') return isFinite(v)?v:null;
+  let t=String(v).trim().replace(/^R\$\s*/i,'').replace(/\s+/g,''); if(t==='') return null;
+  if(t.includes(',')) t=t.replace(/\./g,'').replace(',','.');
+  else if(/^-?\d{1,3}(\.\d{3})+$/.test(t)) t=t.replace(/\./g,'');
+  const x=+t; return isNaN(x) ? null : x; };
 const r1 = v => Math.round(v*10)/10; /* arredonda a 0,1 antes de comparar (NHO) */
 const log10 = Math.log10;
 const f1 = v => (Math.round(v*10)/10).toFixed(1).replace('.',',');
@@ -30,6 +35,9 @@ function split(ini, fim, cuts){
   return out;
 }
 const R = (st, txt) => ({st, txt});
+const LEI_3807='1960-08-26', DEC_53831='1964-03-25';
+/* faixas físicas usuais dos dados de exposição (fora delas o trecho fica em "Dados insuficientes") */
+const FAIXAS_D={lavg:[30,140,'dB(A)','Lavg'], ne3:[30,140,'dB(A)','NE'], ibutg:[0,60,'°C','IBUTG'], m:[60,1000,'W','M'], te:[1,1440,'min','Jornada'], aren:[0,30,'m/s²','aren'], vdv:[0,60,'m/s¹·⁷⁵','VDVR']};
 
 function aplicaEPI(res, row, seg, opts={}){
   if(!row.epi || seg[1] < EPI_INICIO) return res;
@@ -64,7 +72,10 @@ const brn0 = v => String(v).replace('.',',');
 function avaliar(row, agent){
   const d = row.d || {};
   const out = [];
-  if(!row.ini || !row.fim || row.fim < row.ini) return {erro:'Informe início e fim do período.', segs:[]};
+  if(!row.ini || !row.fim) return {erro:'Informe início e fim do período.', segs:[]};
+  if(row.fim < row.ini) return {erro:'O fim ('+fmtBR(row.fim)+') é anterior ao início ('+fmtBR(row.ini)+'): inverta as datas.', segs:[]};
+  /* valor fora da faixa física usual: provável erro de digitação; não enquadra até ser conferido */
+  for(const [k,[mn,mx,un,rot]] of Object.entries(FAIXAS_D)){ const v=num(d[k]); if(v!==null&&(v<mn||v>mx)){ const tx=rot+' '+String(v).replace('.',',')+' fora do usual ('+mn+' a '+mx+' '+un+'): confira a digitação.'; return {erro:tx, segs:split(row.ini,row.fim,[]).map(([a,b])=>({ini:a,fim:b,dias:daysIncl(a,b),base:'—',perito:R('I',tx),inss:R('I',tx)}))}; } }
   const e = agent.engine;
   let cuts = [];
   if(e==='ruido'){ cuts=['1997-03-06','2003-11-19','2004-01-01']; if(row.d&&row.d.epiu) cuts.push('1998-12-03'); }
@@ -75,8 +86,11 @@ function avaliar(row, agent){
   if(e==='quimico' && agent.linach && d.modo==='linach') cuts.push('2013-10-17','2014-10-08','2020-07-01');
   if(row.epi && e!=='ruido' && e!=='eletricidade' && e!=='categoria' && e!=='ate97' && e!=='vibracao') cuts.push(EPI_INICIO);
 
+  if(row.ini < LEI_3807) cuts.push(LEI_3807);
+  if(row.ini < DEC_53831) cuts.push(DEC_53831);
   for(const seg of split(row.ini, row.fim, cuts)){
     const [a,b] = seg; let p, i, base='';
+    if(b < LEI_3807){ const tx='Antes de 26/08/1960 não havia aposentadoria especial (Lei 3.807/60): trecho fora da base.'; out.push({ini:a, fim:b, dias:daysIncl(a,b), base:'—', perito:R('I',tx), inss:R('I',tx)}); continue; }
     const ate97 = b <= '1997-03-05';
 
     if(e==='ruido'){
@@ -242,6 +256,7 @@ function avaliar(row, agent){
         i=aplicaEPI(i,row,seg,{controverso:'a TNU (Tema 383) afasta o EPI nessa situação; o INSS aplica a regra geral (STJ, Tema 1090)'});
       } else { p=aplicaEPI(p,row,seg); i=aplicaEPI(i,row,seg); }
     }
+    if(b < DEC_53831 && p && i){ const nota=' Antes de 25/03/1964 vigorava o Decreto 48.959-A/60; o app aplica os quadros do Decreto 53.831/64 por referência: confira.'; p={st:p.st, txt:p.txt+nota}; i={st:i.st, txt:i.txt+nota}; }
     out.push({ini:a, fim:b, dias:daysIncl(a,b), base, perito:p, inss:i});
   }
   return {segs:out};
