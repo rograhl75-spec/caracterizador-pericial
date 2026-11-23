@@ -20,6 +20,10 @@ const AJUDA_TELA = {
   'Informe uma data para ver, agente por agente, a norma e o critério daquele dia.',
   'Os "Marcos gerais" resumem regras que valem para todos os agentes: categoria profissional, EPI, formulário, conversão e cancerígenos.',
   'Clique no nome do agente para abrir a ficha completa.'],
+ 'aposentadoria/comparar':[
+  'Escolha dois ou três agentes nos seletores; a tabela mostra cada aspecto lado a lado.',
+  'Útil para funções com mais de um agente (ex.: forneiro com ruído e calor; soldador com fumos e radiação não ionizante).',
+  'Cada agente segue sua própria regra: a comparação não soma tempos nem combina critérios.'],
  'aposentadoria/caso':[
   'A simulação aplica as regras aos períodos e dados que você digita. É uma ferramenta de consulta: não examina documentos nem a prova.',
   'Crie vários casos em "Meus casos"; exporte para guardar ou abrir em outro computador.',

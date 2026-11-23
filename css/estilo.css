@@ -609,3 +609,13 @@ details.ajuda .linkbtn{margin:0 0 12px}
 .tut h2{margin:0}
 .tut .btns{justify-content:flex-end}
 .tutdots{display:flex; gap:6px} .tutdots span{width:8px; height:8px; border-radius:50%; background:var(--line)} .tutdots span.on{background:var(--gold-line)}
+
+/* comparar agentes */
+.cmpsel{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px}
+table.cmpag{min-width:640px}
+table.cmpag th[scope=row]{width:150px; color:var(--muted); font:600 .78rem var(--f-body); text-transform:uppercase; letter-spacing:.03em; vertical-align:top}
+table.cmpag td{vertical-align:top; font-size:.88rem; min-width:200px}
+table.cmpag ul{margin:0; padding-left:16px; display:flex; flex-direction:column; gap:4px}
+table.cmpag ul.eras{list-style:none; padding:0}
+table.cmpag small{color:var(--muted)}
+table.cmpag .sit{font:600 .7rem/1 var(--f-body); padding:3px 6px; border-radius:999px}

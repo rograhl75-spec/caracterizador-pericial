@@ -36,7 +36,7 @@ function persist(){ try{ localStorage.setItem(STORE, JSON.stringify(DB)); return
 function save(){ S.caso.alterado=agora(); DB.casos[DB.ativo]=S.caso; persist(); }
 
 const TABS = [['inicio','Início'],['aposentadoria','Aposentadoria especial'],['insalubridade','Insalubridade'],['periculosidade','Periculosidade'],['teses','Teses'],['biblioteca','Biblioteca'],['perfil','Perfil e dados']];
-const AP_SUB = [['agentes','Consulta por agente','Critério, campo, metodologia, simulação e PPP'],['data','Regra na data','O que valia numa data, agente por agente'],['caso','Simulação de enquadramento','Períodos de trabalho testados contra as regras'],['resultado','Resultado da simulação','Tempo especial simulado, linha do tempo e divergências']];
+const AP_SUB = [['agentes','Consulta por agente','Critério, campo, metodologia, simulação e PPP'],['data','Regra na data','O que valia numa data, agente por agente'],['comparar','Comparar agentes','Dois ou três agentes lado a lado'],['caso','Simulação de enquadramento','Períodos de trabalho testados contra as regras'],['resultado','Resultado da simulação','Tempo especial simulado, linha do tempo e divergências']];
 
 function chip(st, short){ return '<span class="chip st-'+st+'">'+(short?st==='E'?'Especial':st==='N'?'Não':st==='C'?'Controverso':'Faltam dados':ST[st])+'</span>'; }
 
@@ -64,10 +64,10 @@ function renderInicio(){
 /* ---------- APOSENTADORIA ESPECIAL: subabas ---------- */
 function renderAposentadoria(){
   const sub=S.ap||'agentes', t=totais(S.caso);
-  const badge={agentes:AGENTS.length+' agentes', data:S.dt?brData(S.dt):'consulta', caso:S.caso.rows.length+' período(s)', resultado:fmtDias(t.perito.dias)};
+  const badge={agentes:AGENTS.length+' agentes', data:S.dt?brData(S.dt):'consulta', comparar:(S.cmpAg||CMP_PADRAO).filter(Boolean).length+' agentes', caso:S.caso.rows.length+' período(s)', resultado:fmtDias(t.perito.dias)};
   const nav='<nav class="subnav" aria-label="Aposentadoria especial">'+AP_SUB.map(([k,tit,desc],i)=>'<a href="#aposentadoria/'+k+'" class="'+(k===sub?'on':'')+'" aria-current="'+(k===sub?'page':'false')+'"><span class="sn-n">'+(i+1)+'</span><span class="sn-t"><b>'+tit+'</b><small>'+desc+'</small></span><span class="sn-b">'+esc(badge[k])+'</span></a>').join('')+'</nav>';
   const head='<section class="aphead"><div><p class="eyebrow">Previdenciário · Lei 8.213/91, arts. 57 e 58 · Decreto 3.048/99, Anexo IV</p><h2>Aposentadoria especial</h2></div>'+nav+'</section>';
-  const body = sub==='caso'?renderCaso(): sub==='resultado'?renderPainel(): sub==='data'?renderRegraData(): renderAgentes();
+  const body = sub==='caso'?renderCaso(): sub==='resultado'?renderPainel(): sub==='data'?renderRegraData(): sub==='comparar'?renderComparar(): renderAgentes();
   return head+body;
 }
 function renderPainel(){
@@ -1209,6 +1209,34 @@ document.addEventListener('click', ev=>{
 });
 document.addEventListener('keydown', ev=>{ if(ev.key==='Escape'&&document.getElementById('tutorial')) fecharTutorial(); });
 function talvezTutorial(){ if(PERFIL.aceite&&PERFIL.tour!==TUTORIAL_VERSAO) abrirTutorial(0); }
+
+/* ---------- Comparar agentes lado a lado ---------- */
+const CMP_PADRAO=['ruido','calor',''];
+const ERAS=['até 05/03/1997','06/03/1997–18/11/2003','19/11/2003–13/11/2019','após 13/11/2019'];
+function renderComparar(){
+  const sel=(S.cmpAg||CMP_PADRAO).slice(0,3); while(sel.length<3) sel.push('');
+  const ags=sel.map(id=>AGENTS.find(a=>a.id===id)).filter(Boolean);
+  const opts=v=>'<option value="">— nenhum —</option>'+[...new Set(AGENTS.map(a=>a.grupo))].map(g=>'<optgroup label="'+esc(g)+'">'+AGENTS.filter(a=>a.grupo===g).map(a=>'<option value="'+a.id+'"'+(a.id===v?' selected':'')+'>'+esc(a.nome)+'</option>').join('')+'</optgroup>').join('');
+  let h='<section class="intro"><div><p class="eyebrow">Consulta comparada</p><h2>Comparar agentes</h2><p class="muted">Escolha até três agentes para ver, lado a lado, códigos, tempo, regra de cada período, critério do INSS, nota do especialista, teses e o anexo correspondente da NR-15. Útil quando a mesma função tem mais de um agente.</p></div></section>'+
+   '<div class="libbar cmpsel">'+sel.map((v,i)=>'<label class="f" for="cmp-'+i+'"><span>Agente '+(i+1)+'</span><select id="cmp-'+i+'" data-cmpag="'+i+'">'+opts(v)+'</select></label>').join('')+'</div>';
+  if(ags.length<2) return h+'<p class="empty">Escolha pelo menos dois agentes.</p>';
+  const lista=l=>'<ul>'+l.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>';
+  const linhas=[
+   ['Grupo e tempo', a=>esc(a.grupo)+' · <b>'+a.tempo+' anos</b>'],
+   ['Códigos', a=>[a.c53.length?'53.831: '+a.c53.join(', '):'', a.c83.length?'83.080: '+a.c83.join(', '):'', a.cIV?'Anexo IV: '+a.cIV:'Fora do Anexo IV'].filter(Boolean).map(esc).join('<br>')],
+   ['Tipo de avaliação por época', a=>'<ul class="eras">'+ERAS.map((e,k)=>'<li><small>'+e+'</small> <b class="mxc mx-'+MX[a.mx[k]][1]+'">'+(a.mx[k]==='X'&&MXX[a.id]?esc(MXX[a.id].rot):MX[a.mx[k]][0])+'</b></li>').join('')+'</ul>'],
+   ['Regra por período', a=>'<ul>'+a.periodos.map(p=>'<li><small>'+esc(p[0])+'</small> '+esc(p[2])+'</li>').join('')+'</ul>'],
+   ['Critério do INSS (IN 128/2022)', a=>lista(a.inss)],
+   ['Nota do especialista', a=>lista(a.perito)],
+   ['Teses aplicáveis', a=>{ const j=(a.juris||[]).map(x=>x.slice(2)).filter(k=>TESES[k]); return j.length?'<ul>'+j.map(k=>'<li><button class="linkbtn" data-go="tese:'+k+'">'+esc(TESES[k].trib+', '+TESES[k].num)+'</button> — '+esc(TESES[k].titulo)+(TESES[k].sit!=='firmada'?' <span class="sit sit-'+TESES[k].sit+'">'+esc(sitRot(TESES[k]))+'</span>':'')+'</li>').join('')+'</ul>':'<span class="muted">—</span>'; }],
+   ['NR-15 (insalubridade)', a=>{ const m=String(a.nr15||'').match(/Anexos? (\d+[A-Z-]*)/); return esc(a.nr15||'—')+(m?' <button class="linkbtn" data-go="a15:'+m[1]+'">abrir</button>':''); }],
+   ['Ficha completa', a=>'<button class="ghost sm" data-ag="'+a.id+'">Abrir ficha</button> '+favBtn('ag:'+a.id,a.nome+' — ficha do agente')]
+  ];
+  h+='<div class="tscroll"><table class="rt cmpag"><thead><tr><th></th>'+ags.map(a=>'<th>'+esc(a.nome)+'</th>').join('')+'</tr></thead><tbody>'+
+   linhas.map(([rot,f])=>'<tr><th scope="row">'+rot+'</th>'+ags.map(a=>'<td>'+f(a)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
+  return h+'<p class="fine">Comparação de normas e critérios, para consulta. Cada agente segue sua própria regra; a presença de mais de um agente não soma tempos nem muda o critério de cada um.</p>';
+}
+document.addEventListener('change', ev=>{ const t=ev.target; if(t.dataset.cmpag!==undefined){ const s=(S.cmpAg||CMP_PADRAO).slice(0,3); while(s.length<3) s.push(''); s[+t.dataset.cmpag]=t.value; S.cmpAg=s; render(); } });
 
 /* ---------- fontes oficiais e alertas do monitor ---------- */
 const brData = d => d ? d.split('-').reverse().join('/') : '—';
