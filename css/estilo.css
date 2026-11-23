@@ -769,3 +769,47 @@ main:focus{outline:none}
 input[type=date]{min-height:2.6em}
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .agg button.on small, :root:not([data-theme="light"]) .anx button.on b{color:#E0BC55} }
 :root[data-theme="dark"] .agg button.on small, :root[data-theme="dark"] .anx button.on b{color:#E0BC55}
+/* ===== Visual (auditoria 5) ===== */
+/* V1 impressão: nada mais largo que a folha A4 (antes o navegador encolhia a página inteira) */
+.pbody table,.pbody .pt,.pbody .mx,.pbody table.rt,.pbody table.cmpag,.pbody .pt.manual,.pbody .pt.a11,.pbody .pt.cmp{min-width:0!important; width:100%; table-layout:auto}
+.pbody td,.pbody th{min-width:0!important; overflow-wrap:anywhere}
+.pbody svg.tl,.pbody svg.tlv{min-width:0!important; width:100%}
+.pbody .mono{white-space:normal}
+.sheet{overflow:hidden}
+/* V2 V3 V6 quebras e legibilidade da folha */
+.pbody h3,.pbody h4{break-after:avoid}
+.pbody .disc{break-before:avoid}
+.pbody table{background:#fff} .pbody td{background:#fff}
+.pbody td.mono{font-family:var(--f-body); font-variant-numeric:tabular-nums}
+.pbody .rep-cont{color:#777}
+.rep-cont{color:var(--muted)}
+/* V8 semântica de cores dos estados */
+:root{ --crit:#B42318; --crit-bg:#FDECEA }
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --crit:#F29B91; --crit-bg:#3A1716 } }
+:root[data-theme="dark"]{ --crit:#F29B91; --crit-bg:#3A1716 }
+.v-c{background:var(--crit-bg); border-color:var(--crit)} .v-c b{color:var(--crit)}
+.v-n{background:var(--n-bg); border-color:var(--n)} .v-n b{color:var(--n)}
+.v-i{border-style:dashed}
+.mx-l{background:transparent!important; border:1px solid var(--gold-line)}
+/* V10 botão principal no tema escuro (só os de ação principal) */
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) :is(.btns,.hero-btns,.casehead .btns,.alinks) > :is(button,a.btn,a.pri):not(.ghost):not(.printbtn):not(.linkbtn){background:var(--gold-line); color:#0A1422; border-color:var(--gold-line)} }
+:root[data-theme="dark"] :is(.btns,.hero-btns,.casehead .btns,.alinks) > :is(button,a.btn,a.pri):not(.ghost):not(.printbtn):not(.linkbtn){background:var(--gold-line); color:#0A1422; border-color:var(--gold-line)}
+/* V12 aviso com borda */
+.note.warn{border-left:3px solid var(--n); padding:6px 10px; background:var(--n-bg); border-radius:0 6px 6px 0; align-self:stretch}
+/* V14 botões das teses alinhados ao pé do cartão */
+.tese .btns{margin-top:auto; gap:6px} .tese .btns button{padding:5px 8px}
+/* V16 grade de navegação sem buraco */
+@media (min-width:1100px){ .subnav{grid-template-columns:repeat(5,minmax(0,1fr))} }
+/* V17 cartões nota × INSS da mesma largura */
+.tri{align-items:stretch} .tri > *{min-width:0}
+/* V18 sombra que indica rolagem horizontal */
+.tscroll,.scrollx{background:linear-gradient(to right,var(--surface) 30%,transparent) left/40px 100% no-repeat local, linear-gradient(to left,var(--surface) 30%,transparent) right/40px 100% no-repeat local, radial-gradient(farthest-side at 0 50%,rgba(0,0,0,.16),transparent) left/12px 100% no-repeat scroll, radial-gradient(farthest-side at 100% 50%,rgba(0,0,0,.16),transparent) right/12px 100% no-repeat scroll}
+.pbody .scrollx,.pbody .tscroll{background:none}
+/* V21 selos com a fonte do texto */
+.subnav .badge,.subnav small.mono,.sn-b{font-family:var(--f-body); font-variant-numeric:tabular-nums}
+/* V23 painéis do perfil alinhados pelo topo */
+.grid2{align-items:start}
+/* V26 complemento do rótulo em linha própria */
+.cb > span small{display:block}
+/* V27 escala de títulos */
+.aphead h2{font-size:1.6rem} .acard h3{font-size:1.15rem} .ckgrp h4,.sec16 h4,.ffun h4{font-size:1rem}
