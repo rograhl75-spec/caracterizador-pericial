@@ -49,7 +49,8 @@ const AJUDA_TELA = {
  'teses':[
   'Filtre por área, tribunal e situação. "Em aberto" reúne temas ainda em julgamento ou com embargos pendentes.',
   '"Copiar citação" leva tribunal, número, processo, ano e resumo; confira a íntegra antes de citar.',
-  '"Copiar link" abre direto a tese; "Favoritar" guarda nos seus favoritos.'],
+  '"Copiar link" abre direto a tese; "Favoritar" guarda nos seus favoritos.',
+  '"Imprimir" gera a folha de uma tese; o botão acima da lista imprime todas as teses do filtro atual.'],
  'biblioteca':[
   'Quadros dos decretos, Anexo IV, LINACH, glossário e textos de apoio, todos pesquisáveis.',
   'Escolha um quadro no seletor ou pesquise em todos de uma vez.',
