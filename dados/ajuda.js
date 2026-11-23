@@ -19,7 +19,7 @@ const AJUDA_TELA = {
   'Escolha o agente na lista ou pela pesquisa. A ficha mostra os códigos dos decretos, a regra de cada período e as teses aplicáveis.',
   'Nota do especialista e critério do INSS aparecem lado a lado: quando divergem, a ficha explica o porquê.',
   'O simulador da ficha aplica a regra a valores que você informa, para entender o critério; não substitui a avaliação do caso.',
-  'Use "Imprimir ficha" para guardar a consulta em PDF.'],
+  'Use "Imprimir ficha" para guardar a consulta em PDF e "Copiar link" para enviar a ficha a um colega ou cliente.'],
  'aposentadoria/data':[
   'Informe uma data ou clique num marco da linha do tempo para ver, agente por agente, a norma e o critério daquele dia.',
   'Escolha um agente para ver a linha do tempo das regras dele; o trecho destacado é o que vale na data escolhida.',

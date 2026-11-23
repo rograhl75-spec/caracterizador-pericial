@@ -508,7 +508,7 @@ function rsDocumentar(){
 function rsHtml(a){
   const cur=rsStep(), i=RS_STEPS.findIndex(s=>s[0]===cur);
   const body = cur==='criterio'?rsCriterio(a): cur==='campo'?rsCampo(): cur==='metodo'?rsMetodo(): cur==='simular'?rsSimular(a): rsDocumentar();
-  return '<article class="ficha rs"><header><div class="fhead"><p class="eyebrow">Físicos · em 5 passos</p><span class="btns">'+favBtn('ag:ruido','Ruído — ficha do agente')+'<button class="printbtn" data-print="ficha">Imprimir passo</button></span></div><h2>Ruído contínuo ou intermitente</h2><div class="codes"><span>53.831: 1.1.6</span><span>83.080: 1.1.5</span><span>Anexo IV: 2.0.1</span><span>25 anos</span></div></header>'+
+  return '<article class="ficha rs"><header><div class="fhead"><p class="eyebrow">Físicos · em 5 passos</p><span class="btns">'+favBtn('ag:ruido','Ruído — ficha do agente')+linkBtn('ag:ruido')+'<button class="printbtn" data-print="ficha">Imprimir passo</button></span></div><h2>Ruído contínuo ou intermitente</h2><div class="codes"><span>53.831: 1.1.6</span><span>83.080: 1.1.5</span><span>Anexo IV: 2.0.1</span><span>25 anos</span></div></header>'+
    rsNav(cur)+'<section class="rsbody"><p class="eyebrow">Passo '+(i+1)+' de 5</p><h3 class="rsq">'+RS_STEPS[i][2]+'</h3>'+body+'</section>'+rsPager(cur)+'</article>';
 }
 
@@ -519,7 +519,7 @@ function renderAgentes(){
   let list='<nav class="aglist" aria-label="Agentes"><label class="f" for="agq"><span>Filtrar agentes</span><input id="agq" type="search" data-st="agq" value="'+esc(S.agq||'')+'" placeholder="Ex.: solda, amianto, 1.0.19"></label><label class="f agsel" for="agsel"><span>Agente</span><select id="agsel" data-agsel="1">'+GRUPOS.map(g=>'<optgroup label="'+g+'">'+AGENTS.filter(x=>x.grupo===g&&vis(x)).map(x=>'<option value="'+x.id+'"'+(x.id===a.id?' selected':'')+'>'+esc(x.nome)+'</option>').join('')+'</optgroup>').join('')+'</select></label>'+GRUPOS.map(g=>{ const xs=AGENTS.filter(x=>x.grupo===g&&vis(x)); return xs.length?'<div class="agg"><p>'+g+'</p>'+xs.map(x=>'<button data-ag="'+x.id+'" class="'+(x.id===a.id?'on':'')+'" aria-pressed="'+(x.id===a.id)+'"><span>'+esc(x.nome)+'</span><small>'+esc(x.cIV?x.cIV.split(' / ')[0]:(x.c53[0]||''))+'</small></button>').join('')+'</div>':''; }).join('')+(AGENTS.some(vis)?'':'<p class="agempty">Nenhum agente encontrado.</p>')+'</nav>';
   if(a.id==='ruido') return '<div class="agwrap">'+list+rsHtml(a)+'</div>';
   const codes=[...(a.c53.length?['53.831: '+a.c53.join(', ')]:[]),...(a.c83.length?['83.080: '+a.c83.join(', ')]:[]),(a.cIV?'Anexo IV: '+a.cIV:'Fora do Anexo IV'),'NR-15: '+a.nr15];
-  let f='<article class="ficha"><header><div class="fhead"><p class="eyebrow">'+a.grupo+'</p><span class="btns">'+favBtn('ag:'+a.id,a.nome+' — ficha do agente')+'<button class="printbtn" data-print="ficha">Imprimir ficha</button></span></div><h2>'+esc(a.nome)+'</h2><div class="codes">'+codes.map(c=>'<span>'+esc(c)+'</span>').join('')+'<span>'+a.tempo+' anos</span></div></header>';
+  let f='<article class="ficha"><header><div class="fhead"><p class="eyebrow">'+a.grupo+'</p><span class="btns">'+favBtn('ag:'+a.id,a.nome+' — ficha do agente')+linkBtn('ag:'+a.id)+'<button class="printbtn" data-print="ficha">Imprimir ficha</button></span></div><h2>'+esc(a.nome)+'</h2><div class="codes">'+codes.map(c=>'<span>'+esc(c)+'</span>').join('')+'<span>'+a.tempo+' anos</span></div></header>';
   f+='<div class="mxrow">'+['até 05/03/1997','06/03/1997–18/11/2003','19/11/2003–13/11/2019','após 13/11/2019'].map((p,k)=>'<div><span>'+p+'</span><b class="mxc mx-'+MX[a.mx[k]][1]+'">'+(a.mx[k]==='X'&&MXX[a.id]?esc(MXX[a.id].rot):MX[a.mx[k]][0])+'</b></div>').join('')+'</div>'+(a.mx.includes('X')&&MXX[a.id]?'<p class="mxnote"><b>Por que "'+esc(MXX[a.id].rot)+'"?</b> '+esc(MXX[a.id].nota)+'</p>':'');
   f+='<h3>Enquadramento por período</h3><div class="scrollx"><table class="pt"><thead><tr><th>Período</th><th>Norma</th><th>Critério</th></tr></thead><tbody>'+a.periodos.map(p=>'<tr><td class="mono">'+esc(p[0])+'</td><td>'+esc(p[1])+'</td><td>'+esc(p[2])+'</td></tr>').join('')+'</tbody></table></div>';
   f+=simHtml(a);
@@ -642,7 +642,7 @@ function renderInsal(){
   let h='<section class="intro"><div><p class="eyebrow">NR-15 · Trabalhista</p><h2>Insalubridade</h2><p class="muted">Adicional de 40%, 20% ou 10% conforme o grau (item 15.2). Com mais de um agente, vale só o de grau mais elevado (item 15.3). Base: salário mínimo, salvo norma coletiva (Súmula Vinculante 4).</p></div></section>';
   h+='<div class="anx" role="tablist" aria-label="Anexos da NR-15">'+NR15.map(x=>'<button role="tab" aria-selected="'+(x===an)+'" data-a15="'+x.n+'" class="'+(x===an?'on':'')+(x.tipo==='revogado'?' off':'')+'"><b>Anexo '+x.n+(x.tipo==='revogado'?' · revogado':'')+'</b><span>'+esc(x.t)+'</span></button>').join('')+'</div>';
   const wide = an.n===11||an.n===13;
-  h+='<div class="grid2 '+(wide?'one':'wide-l')+'"><section class="panel" id="pinsal"><div class="ph"><div class="fhead"><p class="eyebrow">Anexo '+an.n+' · grau '+esc(an.g)+'</p><span class="btns">'+favBtn('a15:'+an.n,'NR-15, Anexo '+an.n+' — '+an.t)+'<button class="printbtn" data-print="insal">Imprimir ou salvar PDF</button></span></div><h3>'+esc(an.t)+'</h3><p>'+esc(an.s)+'</p></div><div class="calcbox" id="calcbox">';
+  h+='<div class="grid2 '+(wide?'one':'wide-l')+'"><section class="panel" id="pinsal"><div class="ph"><div class="fhead"><p class="eyebrow">Anexo '+an.n+' · grau '+esc(an.g)+'</p><span class="btns">'+favBtn('a15:'+an.n,'NR-15, Anexo '+an.n+' — '+an.t)+linkBtn('a15:'+an.n)+'<button class="printbtn" data-print="insal">Imprimir ou salvar PDF</button></span></div><h3>'+esc(an.t)+'</h3><p>'+esc(an.s)+'</p></div><div class="calcbox" id="calcbox">';
   if(an.tipo==='calc') h+=calcIns(an);
   else if(an.tipo==='quali' && an.n==='13-A'){ const g=insv('g13a',''); h+=icb('q13-A','Exposição ao benzeno constatada em inspeção')+isel('g13a','Grau atribuído pelo perito','',[['','Escolher…'],['máximo','Máximo'],['médio','Médio'],['mínimo','Mínimo']])+'<p class="fine">O Anexo 13-A não fixa grau. A escolha é do perito, por analogia com o Anexo 13 (hidrocarbonetos e outros compostos de carbono); a ferramenta não presume grau.</p>'+(insv('q13-A',false)&&!g?resultado(null,'médio','Escolha o grau atribuído no laudo.'):resultado(insv('q13-A',false),g||'médio','Caracterização qualitativa (Anexo 13-A).')); }
   else if(an.tipo==='quali') h+=icb('q'+an.n,'Condição constatada em inspeção (laudo qualitativo)')+resultado(insv('q'+an.n,false),an.g==='máximo'?'máximo':'médio','Caracterização qualitativa.');
@@ -714,7 +714,7 @@ function renderPeric(){
   let h='<section class="intro"><div><p class="eyebrow">NR-16 · CLT, art. 193</p><h2>Periculosidade</h2><p class="muted">Adicional de 30% sobre o salário-base, sem gratificações, prêmios ou participação nos lucros (item 16.2). O empregado pode optar pela insalubridade; os adicionais não se acumulam (art. 193, §2º; IRR Tema 17). Marque, em cada anexo, os itens da norma constatados na inspeção.</p></div></section>';
   h+='<div class="anx anx16" role="tablist" aria-label="Anexos da NR-16">'+NR16.map(x=>'<button role="tab" aria-selected="'+(x===an)+'" data-a16="'+x.id+'" class="'+(x===an?'on':'')+'"><b>'+esc(x.n)+'</b><span>'+esc(x.t)+'</span></button>').join('')+'</div>';
   const r=avaliaPeric(an);
-  h+='<div class="grid2 one"><section class="panel" id="pperic"><div class="ph"><div class="fhead"><p class="eyebrow">'+esc(an.n)+' · '+esc(an.port)+'</p><span class="btns">'+favBtn('a16:'+an.id,'NR-16, '+an.n+' — '+an.t)+'<button class="printbtn" data-print="peric">Imprimir ou salvar PDF</button></span></div><h3>'+esc(an.t)+'</h3></div>'+
+  h+='<div class="grid2 one"><section class="panel" id="pperic"><div class="ph"><div class="fhead"><p class="eyebrow">'+esc(an.n)+' · '+esc(an.port)+'</p><span class="btns">'+favBtn('a16:'+an.id,'NR-16, '+an.n+' — '+an.t)+linkBtn('a16:'+an.id)+'<button class="printbtn" data-print="peric">Imprimir ou salvar PDF</button></span></div><h3>'+esc(an.t)+'</h3></div>'+
    an.secoes.map(sec=>secHtml(an,sec)).join('')+
    '<section class="sec16"><h4>Frequência da exposição (Súmula 364'+(an.id==='a4'?' e item 3 do Anexo 4':'')+')</h4><fieldset class="fr"><legend class="sr">Frequência</legend>'+[['perm','Permanente'],['int','Intermitente'],['ev','Eventual (fortuito)'],['red','Habitual por tempo extremamente reduzido']].map(([k,t])=>'<label class="cb" for="fr-'+k+'"><input type="radio" name="fr" id="fr-'+k+'" data-per="fr" value="'+k+'"'+(pget('fr','perm')===k?' checked':'')+'><span>'+t+'</span></label>').join('')+'</fieldset></section>'+
    '<div class="pcalc">'+pin('sal','Salário-base (R$) — opcional','step="0.01"')+'</div>'+
@@ -820,19 +820,27 @@ function renderBusca(){
   }
   return h+'</div>';
 }
-let SRCH=null;
+let SRCH=null, GO_REPLACE=false;
+const slugTx=t=>String(t).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+function setHash(h){ if(GO_REPLACE){ GO_REPLACE=false; if(location.hash==='#'+h){ history.replaceState(null,'','#'+h); route(); } else location.replace('#'+h); } else location.hash=h; }
+/* link direto e permanente para qualquer conteúdo: #ir/<destino>, ex.: #ir/ag:calor, #ir/a15:3, #ir/a16:a2, #ir/funcao:soldador */
+function linkDireto(key){ const [k,v]=key.split(':'); if(k==='funcao'&&!isNaN(+v)&&FUNCOES[+v]) key='funcao:'+slugTx(FUNCOES[+v].f); return location.href.split('#')[0]+'#ir/'+key; }
+/* depois de abrir um link direto, rola até o conteúdo (no celular a ficha fica abaixo da lista) */
+function irAoConteudo(){ setTimeout(()=>{ const b=document.querySelector('main [data-golink], main .tese.alvo, main .txart.alvo'); const t=b&&(b.closest('.alvo')||b.closest('article,section')); if(!t||t.classList.contains('alvo')) return; const hd=document.querySelector('header.band'); const topo=hd&&getComputedStyle(hd).position==='sticky'?hd.getBoundingClientRect().bottom:0; window.scrollTo(0, Math.max(0, t.getBoundingClientRect().top+window.scrollY-topo-8)); },80); }
+function linkBtn(key){ return '<button class="ghost sm" data-golink="'+esc(key)+'" title="Copiar o endereço direto desta consulta">Copiar link</button>'; }
+document.addEventListener('click', ev=>{ const b=ev.target.closest('[data-golink]'); if(!b) return; copiar(linkDireto(b.dataset.golink),'Link copiado. Quem abrir vai direto a esta consulta.'); });
 function go(dest){
   const [k,v]=dest.split(':'); SRCH={tq:null,q:null,q11:null,q13:null,fromGo:true};
-  if(k==='ag'){ S.ag=v; S.ap='agentes'; location.hash='aposentadoria/agentes'; }
-  else if(k==='a11'){ S.a15=11; S.ins.sub=+v; S.ins.q11=A11[+v].n; SRCH.q11=S.ins.q11; location.hash='insalubridade'; }
-  else if(k==='a13'){ S.a15=13; S.ins.a13sel=v; S.ins.q13=''; S.ins.g13='todos'; location.hash='insalubridade'; }
-  else if(k==='a15'){ S.a15=isNaN(+v)?v:+v; location.hash='insalubridade'; }
-  else if(k==='a16'){ S.a16=v; location.hash='periculosidade'; }
-  else if(k==='funcao'){ S.fsel=+v; S.fq=''; location.hash='funcao'; }
-  else if(k==='tese'){ S.tf='todos'; S.tsit='todas'; S.tq=''; location.hash='teses/'+v; }
-  else if(k==='txt'){ location.hash='biblioteca/textos/'+v; }
-  else if(k==='lib'){ S.lib=v; S.q=S.gq||''; SRCH.q=S.q; location.hash='biblioteca'; }
-  else location.hash=k;
+  if(k==='ag'){ S.ag=v; S.ap='agentes'; setHash('aposentadoria/agentes'); }
+  else if(k==='a11'){ S.a15=11; S.ins.sub=+v; S.ins.q11=A11[+v].n; SRCH.q11=S.ins.q11; setHash('insalubridade'); }
+  else if(k==='a13'){ S.a15=13; S.ins.a13sel=v; S.ins.q13=''; S.ins.g13='todos'; setHash('insalubridade'); }
+  else if(k==='a15'){ S.a15=isNaN(+v)?v:+v; setHash('insalubridade'); }
+  else if(k==='a16'){ S.a16=v; setHash('periculosidade'); }
+  else if(k==='funcao'){ S.fsel=isNaN(+v)?(i=>i<0?S.fsel:i)(FUNCOES.findIndex(x=>slugTx(x.f)===v)):+v; S.fq=''; setHash('funcao'); }
+  else if(k==='tese'){ S.tf='todos'; S.tsit='todas'; S.tq=''; setHash('teses/'+v); }
+  else if(k==='txt'){ setHash('biblioteca/textos/'+v); }
+  else if(k==='lib'){ S.lib=v; S.q=S.gq||''; SRCH.q=S.q; setHash('biblioteca'); }
+  else setHash(k);
   if(location.hash==='#'+S.tab){ route(); }
 }
 
@@ -841,7 +849,7 @@ function render(){
   const m=$('#main');
   m.innerHTML = ajudaHtml() + (S.tab==='inicio'?renderInicio(): S.tab==='busca'?renderBusca(): S.tab==='aposentadoria'?renderAposentadoria(): S.tab==='insalubridade'?renderInsal(): S.tab==='periculosidade'?renderPeric(): S.tab==='teses'?renderTeses(): S.tab==='perfil'?renderPerfil(): S.tab==='funcao'?renderFuncao(): renderBib());
 }
-function route(){ let h=location.hash.slice(1); const LEG={agentes:'aposentadoria/agentes',painel:'aposentadoria/resultado'}; if(LEG[h]){ h=LEG[h]; history.replaceState(null,'','#'+h); } const [h0,h1,h2,h3]=h.split('/');
+function route(){ let h=location.hash.slice(1); if(h.startsWith('ir/')){ const dest=decodeURIComponent(h.slice(3)); if(/^(ag|a11|a13|a15|a16|funcao|tese|txt|lib):./.test(dest)){ GO_REPLACE=true; go(dest); irAoConteudo(); return true; } h='inicio'; } const LEG={agentes:'aposentadoria/agentes',painel:'aposentadoria/resultado'}; if(LEG[h]){ h=LEG[h]; history.replaceState(null,'','#'+h); } const [h0,h1,h2,h3]=h.split('/');
   if(SRCH){ if(SRCH.fromGo){ SRCH.fromGo=false; } else { if(SRCH.tq!==null&&S.tq===SRCH.tq) S.tq=''; if(SRCH.q!==null&&S.q===SRCH.q){ S.q=''; S.lib='todas'; } if(SRCH.q11!==null&&S.ins.q11===SRCH.q11){ S.ins.q11=''; } SRCH=null; } } S.tab = TABS.some(t=>t[0]===h0)?h0:(h0==='busca'?'busca':'inicio'); if(S.tab==='aposentadoria') S.ap = AP_SUB.some(x=>x[0]===h1)?h1:(S.ap||'agentes'); if(S.tab==='teses'&&h1&&TESES[h1]){ S.tf='todos'; S.tsit='todas'; S.tq=''; } if(S.tab==='biblioteca'){ S.libv=h1==='textos'?'textos':'quadros'; if(h2){ S.txd=h2; S.txq=''; } } render(); if(S.tab==='teses'&&h1&&TESES[h1]){ destacar('tese-'+h1); return true; } if(S.tab==='biblioteca'&&S.libv==='textos'&&h3){ destacar(txId(h2,decodeURIComponent(h3))); return true; } return false; }
 window.addEventListener('hashchange', ()=>{ if(!route()) window.scrollTo(0,0); });
 
@@ -1262,7 +1270,7 @@ function renderFuncao(){
     const n15=x.nr15.map(n=>NR15.find(z=>String(z.n)===String(n))).filter(Boolean);
     const n16=x.nr16.map(id=>NR16.find(z=>z.id===id)).filter(Boolean);
     const ts=x.teses.filter(k=>TESES[k]);
-    h+='<section class="panel ffun" id="ffun"><div class="ph"><div class="fhead"><p class="eyebrow">Função</p>'+favBtn('funcao:'+sel,'Função: '+x.f)+'</div><h3>'+esc(x.f)+'</h3>'+(x.sin&&x.sin.length?'<p class="small muted">Também: '+x.sin.map(esc).join(', ')+'</p>':'')+'</div>'+
+    h+='<section class="panel ffun" id="ffun"><div class="ph"><div class="fhead"><p class="eyebrow">Função</p>'+favBtn('funcao:'+sel,'Função: '+x.f)+linkBtn('funcao:'+sel)+'</div><h3>'+esc(x.f)+'</h3>'+(x.sin&&x.sin.length?'<p class="small muted">Também: '+x.sin.map(esc).join(', ')+'</p>':'')+'</div>'+
      '<p>'+esc(x.obs)+'</p>'+
      '<h4>Aposentadoria especial — agentes a investigar</h4>'+chips(ag,a=>'<button class="ghost sm" data-ag="'+a.id+'">'+esc(a.nome)+'</button>')+
      '<h4>Insalubridade — anexos da NR-15</h4>'+chips(n15,z=>'<button class="ghost sm" data-go="a15:'+z.n+'">Anexo '+z.n+' · '+esc(z.t)+'</button>')+
