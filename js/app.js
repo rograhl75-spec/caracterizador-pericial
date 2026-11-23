@@ -35,7 +35,7 @@ S.caso=DB.casos[DB.ativo];
 function persist(){ try{ localStorage.setItem(STORE, JSON.stringify(DB)); return true; }catch(e){ avisar('Não foi possível salvar no navegador (armazenamento cheio ou bloqueado). Exporte seus casos para não perdê-los.'); return false; } }
 function save(){ S.caso.alterado=agora(); DB.casos[DB.ativo]=S.caso; persist(); }
 
-const TABS = [['inicio','Início'],['aposentadoria','Aposentadoria especial'],['insalubridade','Insalubridade'],['periculosidade','Periculosidade'],['teses','Teses'],['biblioteca','Biblioteca'],['perfil','Perfil e dados']];
+const TABS = [['inicio','Início'],['funcao','Por função'],['aposentadoria','Aposentadoria especial'],['insalubridade','Insalubridade'],['periculosidade','Periculosidade'],['teses','Teses'],['biblioteca','Biblioteca'],['perfil','Perfil e dados']];
 const AP_SUB = [['agentes','Consulta por agente','Critério, campo, metodologia, simulação e PPP'],['data','Regra na data','O que valia numa data, agente por agente'],['comparar','Comparar agentes','Dois ou três agentes lado a lado'],['caso','Simulação de enquadramento','Períodos de trabalho testados contra as regras'],['resultado','Resultado da simulação','Tempo especial simulado, linha do tempo e divergências']];
 
 function chip(st, short){ return '<span class="chip st-'+st+'">'+(short?st==='E'?'Especial':st==='N'?'Não':st==='C'?'Controverso':'Faltam dados':ST[st])+'</span>'; }
@@ -791,6 +791,7 @@ function buildIndex(){
   NR15.forEach(x=>add('NR-15 — anexos',('Anexo '+x.n+' — '+x.t),x.s,'a15:'+x.n));
   NR16.forEach(x=>x.secoes.forEach(sec=>{ (sec.itens||[]).forEach(it=>add('NR-16 — periculosidade',x.n+' ('+x.t+') — '+it[1],sec.tit+(it[2]?' · '+it[2]:''),'a16:'+x.id)); (sec.lista||[]).forEach(it=>add('NR-16 — periculosidade',x.n+' ('+x.t+') — '+sec.tit.split(' — ')[0]+' '+it[0],it[1],'a16:'+x.id)); if(sec.txt) add('NR-16 — periculosidade',x.n+' ('+x.t+') — '+sec.tit,sec.txt,'a16:'+x.id); })); NR16_GERAL.forEach(([k,t])=>add('NR-16 — periculosidade','Item '+k,t,'a16:a2'));
   Object.entries(TESES).forEach(([k,t])=>add('Teses e súmulas',t.trib+', '+t.num+' — '+t.titulo,t.tese,'tese:'+k));
+  if(typeof FUNCOES!=='undefined') FUNCOES.forEach((x,i)=>add('Consulta por função',x.f,x.obs,'funcao:'+i,(x.sin||[]).join(' ')));
   MARCOS.forEach(m=>add('Marcos legais',fmtBR(m.d)+' — '+m.t,m.s,'aposentadoria/resultado'));
   if(typeof NOVIDADES!=='undefined') NOVIDADES.forEach(n=>add('Novidades na base',n.titulo,n.resumo,n.ir||'inicio'));
   LIBT.forEach(([k,tit])=>(LIB[k]||[]).forEach(r=>{ const row=Array.isArray(r)?r:[r]; const txt=row.filter(Boolean).join(' · '); if(/^https?:/.test(txt)) return; add('Biblioteca — '+tit, row[0].length>90?row[0].slice(0,90)+'…':row[0], row.slice(1).join(' · '), 'lib:'+k, txt); }));
@@ -823,6 +824,7 @@ function go(dest){
   else if(k==='a13'){ S.a15=13; S.ins.a13sel=v; S.ins.q13=''; S.ins.g13='todos'; location.hash='insalubridade'; }
   else if(k==='a15'){ S.a15=isNaN(+v)?v:+v; location.hash='insalubridade'; }
   else if(k==='a16'){ S.a16=v; location.hash='periculosidade'; }
+  else if(k==='funcao'){ S.fsel=+v; S.fq=''; location.hash='funcao'; }
   else if(k==='tese'){ S.tf='todos'; S.tsit='todas'; S.tq=''; location.hash='teses/'+v; }
   else if(k==='lib'){ S.lib=v; S.q=S.gq||''; SRCH.q=S.q; location.hash='biblioteca'; }
   else location.hash=k;
@@ -832,7 +834,7 @@ function go(dest){
 function render(){
   document.querySelectorAll('.tabs a').forEach(a=>a.setAttribute('aria-current', a.getAttribute('href')==='#'+S.tab?'page':'false'));
   const m=$('#main');
-  m.innerHTML = ajudaHtml() + (S.tab==='inicio'?renderInicio(): S.tab==='busca'?renderBusca(): S.tab==='aposentadoria'?renderAposentadoria(): S.tab==='insalubridade'?renderInsal(): S.tab==='periculosidade'?renderPeric(): S.tab==='teses'?renderTeses(): S.tab==='perfil'?renderPerfil(): renderBib());
+  m.innerHTML = ajudaHtml() + (S.tab==='inicio'?renderInicio(): S.tab==='busca'?renderBusca(): S.tab==='aposentadoria'?renderAposentadoria(): S.tab==='insalubridade'?renderInsal(): S.tab==='periculosidade'?renderPeric(): S.tab==='teses'?renderTeses(): S.tab==='perfil'?renderPerfil(): S.tab==='funcao'?renderFuncao(): renderBib());
 }
 function route(){ let h=location.hash.slice(1); const LEG={agentes:'aposentadoria/agentes',painel:'aposentadoria/resultado'}; if(LEG[h]){ h=LEG[h]; history.replaceState(null,'','#'+h); } const [h0,h1]=h.split('/');
   if(SRCH){ if(SRCH.fromGo){ SRCH.fromGo=false; } else { if(SRCH.tq!==null&&S.tq===SRCH.tq) S.tq=''; if(SRCH.q!==null&&S.q===SRCH.q){ S.q=''; S.lib='todas'; } if(SRCH.q11!==null&&S.ins.q11===SRCH.q11){ S.ins.q11=''; } SRCH=null; } } S.tab = TABS.some(t=>t[0]===h0)?h0:(h0==='busca'?'busca':'inicio'); if(S.tab==='aposentadoria') S.ap = AP_SUB.some(x=>x[0]===h1)?h1:(S.ap||'agentes'); if(S.tab==='teses'&&h1&&TESES[h1]){ S.tf='todos'; S.tsit='todas'; S.tq=''; } render(); if(S.tab==='teses'&&h1&&TESES[h1]) destacar('tese-'+h1); }
@@ -1163,7 +1165,7 @@ let FAV={}; try{ FAV=JSON.parse(localStorage.getItem(STORE_FAV)||'{}')||{}; }cat
 function salvarFav(){ try{ localStorage.setItem(STORE_FAV, JSON.stringify(FAV)); }catch(e){ avisar('Não foi possível salvar os favoritos no navegador.'); } }
 function favBtn(key, titulo){ const on=!!FAV[key]; return '<button class="ghost sm fav'+(on?' on':'')+'" data-fav="'+esc(key)+'" data-favt="'+esc(titulo)+'" aria-pressed="'+on+'" title="'+(on?'Remover dos favoritos':'Guardar nos favoritos')+'">'+(on?'★ Favorito':'☆ Favoritar')+'</button>'; }
 function favLista(){ return Object.entries(FAV).map(([k,v])=>Object.assign({key:k},v)).sort((x,y)=>String(y.data||'').localeCompare(String(x.data||''))); }
-const FAV_TIPO = k => ({ag:'Agente', tese:'Tese', a15:'NR-15', a16:'NR-16'}[k.split(':')[0]]||'Item');
+const FAV_TIPO = k => ({ag:'Agente', tese:'Tese', a15:'NR-15', a16:'NR-16', funcao:'Função'}[k.split(':')[0]]||'Item');
 function favoritosInicio(){
   const l=favLista(); if(!l.length) return '';
   return '<section class="isec panel favs"><div class="ihead"><h2 class="ih">Meus favoritos</h2><p class="ilead">Atalhos para o que você mais consulta. As anotações ficam só neste navegador; edite-as em <a href="#perfil">Perfil e dados</a>.</p></div><ul class="favl">'+
@@ -1237,6 +1239,41 @@ function renderComparar(){
   return h+'<p class="fine">Comparação de normas e critérios, para consulta. Cada agente segue sua própria regra; a presença de mais de um agente não soma tempos nem muda o critério de cada um.</p>';
 }
 document.addEventListener('change', ev=>{ const t=ev.target; if(t.dataset.cmpag!==undefined){ const s=(S.cmpAg||CMP_PADRAO).slice(0,3); while(s.length<3) s.push(''); s[+t.dataset.cmpag]=t.value; S.cmpAg=s; render(); } });
+
+/* ---------- Consulta por função ou atividade ---------- */
+function renderFuncao(){
+  const L=typeof FUNCOES!=='undefined'?FUNCOES:[]; const q=normTxt(S.fq||'');
+  const vis=L.map((x,i)=>[x,i]).filter(([x])=>!q||normTxt(x.f+' '+(x.sin||[]).join(' ')+' '+x.obs).includes(q));
+  const sel=Number.isInteger(S.fsel)&&L[S.fsel]?S.fsel:null;
+  let h='<section class="intro"><div><p class="eyebrow">Consulta por função ou atividade</p><h2>Por função</h2><p class="muted">Escolha uma função para ver os agentes, os anexos da NR-15 e da NR-16 e as teses que costumam ser investigados nela.</p></div></section>'+
+   '<div class="consulta-aviso" role="note"><b>Pontos a investigar, não enquadramento.</b> A mesma função pode ter exposições muito diferentes conforme a empresa, o processo e o período. O enquadramento depende da avaliação do posto de trabalho e da prova de cada caso.</div>'+
+   '<div class="libbar"><label class="f grow" for="fq"><span>Pesquisar função ou atividade</span><input id="fq" type="search" data-fq="1" value="'+esc(S.fq||'')+'" placeholder="Ex.: soldador, motoboy, enfermagem, frigorífico, gari"></label></div>';
+  h+='<div class="fgrid"><nav class="flist panel" aria-label="Funções">'+(vis.length?vis.map(([x,i])=>'<button class="fitem'+(i===sel?' on':'')+'" data-fsel="'+i+'" aria-current="'+(i===sel)+'">'+esc(x.f)+'</button>').join(''):'<p class="muted small">Nenhuma função encontrada. Tente um sinônimo ou use a pesquisa geral do topo.</p>')+'</nav>';
+  if(sel===null) h+='<section class="panel"><p class="muted">Escolha uma função na lista.</p><p class="fine">'+L.length+' funções cadastradas. Sentiu falta de alguma? A lista é ampliada nas atualizações.</p></section>';
+  else {
+    const x=L[sel];
+    const chips=(arr,fn)=>arr.length?'<div class="fchips">'+arr.map(fn).join('')+'</div>':'<p class="muted small">—</p>';
+    const ag=x.ag.map(id=>AGENTS.find(a=>a.id===id)).filter(Boolean);
+    const n15=x.nr15.map(n=>NR15.find(z=>String(z.n)===String(n))).filter(Boolean);
+    const n16=x.nr16.map(id=>NR16.find(z=>z.id===id)).filter(Boolean);
+    const ts=x.teses.filter(k=>TESES[k]);
+    h+='<section class="panel ffun" id="ffun"><div class="ph"><div class="fhead"><p class="eyebrow">Função</p>'+favBtn('funcao:'+sel,'Função: '+x.f)+'</div><h3>'+esc(x.f)+'</h3>'+(x.sin&&x.sin.length?'<p class="small muted">Também: '+x.sin.map(esc).join(', ')+'</p>':'')+'</div>'+
+     '<p>'+esc(x.obs)+'</p>'+
+     '<h4>Aposentadoria especial — agentes a investigar</h4>'+chips(ag,a=>'<button class="ghost sm" data-ag="'+a.id+'">'+esc(a.nome)+'</button>')+
+     '<h4>Insalubridade — anexos da NR-15</h4>'+chips(n15,z=>'<button class="ghost sm" data-go="a15:'+z.n+'">Anexo '+z.n+' · '+esc(z.t)+'</button>')+
+     '<h4>Periculosidade — anexos da NR-16</h4>'+chips(n16,z=>'<button class="ghost sm" data-go="a16:'+z.id+'">'+esc(z.n)+' · '+esc(z.t)+'</button>')+
+     '<h4>Teses relacionadas</h4>'+(ts.length?'<ul class="sm-list">'+ts.map(k=>'<li><button class="linkbtn" data-go="tese:'+k+'"><b>'+esc(TESES[k].trib+', '+TESES[k].num)+'</b></button> — '+esc(TESES[k].titulo)+(TESES[k].sit!=='firmada'?' <span class="sit sit-'+TESES[k].sit+'">'+esc(sitRot(TESES[k]))+'</span>':'')+'</li>').join('')+'</ul>':'<p class="muted small">—</p>')+
+     (ag.length>=2?'<p><button class="ghost sm" data-fcmp="'+sel+'">Comparar estes agentes lado a lado</button></p>':'')+
+    '</section>';
+  }
+  return h+'</div>';
+}
+document.addEventListener('input', ev=>{ const t=ev.target; if(t.dataset.fq){ S.fq=t.value; const pos=t.selectionStart; render(); const el=document.getElementById('fq'); if(el){ el.focus(); try{ el.setSelectionRange(pos,pos); }catch(e){} } } });
+document.addEventListener('click', ev=>{
+  const b=ev.target.closest('[data-fsel],[data-fcmp]'); if(!b) return;
+  if(b.dataset.fsel!==undefined){ S.fsel=+b.dataset.fsel; render(); if(window.innerWidth<760){ const p=document.getElementById('ffun'); if(p) p.scrollIntoView({block:'start'}); } }
+  else { const x=FUNCOES[+b.dataset.fcmp]; S.cmpAg=x.ag.filter(id=>AGENTS.some(a=>a.id===id&&a.id!=='categoria')).slice(0,3); location.hash='aposentadoria/comparar'; }
+});
 
 /* ---------- fontes oficiais e alertas do monitor ---------- */
 const brData = d => d ? d.split('-').reverse().join('/') : '—';

@@ -109,3 +109,15 @@ test('regra na data: ruído usa 80, 90 e 85 dB(A) nos três períodos', () => {
   const r = d => X.regraNaData(X.agente('ruido'), d)[0][2];
   assert.match(r('1996-01-01'), /80/); assert.match(r('2000-01-01'), /90/); assert.match(r('2010-01-01'), /85/);
 });
+
+test('consulta por função: todo agente, anexo e tese citados existem', () => {
+  const erros = [];
+  X.FUNCOES.forEach(f => {
+    f.ag.forEach(id => { if (!X.agente(id)) erros.push(f.f + ' → agente ' + id); });
+    f.nr15.forEach(n => { if (!X.NR15.some(z => String(z.n) === String(n))) erros.push(f.f + ' → NR-15 ' + n); });
+    f.nr16.forEach(id => { if (!X.NR16.some(z => z.id === id)) erros.push(f.f + ' → NR-16 ' + id); });
+    f.teses.forEach(k => { if (!X.TESES[k]) erros.push(f.f + ' → tese ' + k); });
+    if (!f.obs) erros.push(f.f + ' sem observação');
+  });
+  assert.deepEqual(erros, []);
+});

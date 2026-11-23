@@ -18,6 +18,7 @@ Site estático (HTML, CSS e JavaScript), sem servidor e sem banco de dados. Func
 | `dados/biblioteca.js` | Quadros dos decretos, LINACH e textos das planilhas | Raramente |
 | `dados/fontes.js` | Fontes oficiais: versão considerada no app, data da conferência e o que o robô vigia | Depois de revisar uma alteração |
 | `dados/novidades.js` | Novidades na base (o que mudou, quando e onde consultar), exibidas no Início | A cada atualização da base |
+| `dados/funcoes.js` | Consulta por função: agentes, anexos e teses a investigar em cada atividade (pontos de partida, não enquadramento) | Incluir ou ajustar funções |
 | `dados/ajuda.js` | Tutorial de boas-vindas e textos de "Como usar esta tela" de cada aba | Mudar ou incluir dicas |
 | `dados/glossario.js` | Glossário técnico e jurídico (aparece na Biblioteca e na busca) | Incluir ou ajustar termo |
 | `dados/alertas.js` | Alertas gravados pelo robô (aparecem como faixa no topo do site) | Marcar alerta como `revisado` |
