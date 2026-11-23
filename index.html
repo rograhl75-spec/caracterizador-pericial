@@ -17,13 +17,15 @@
 <link rel="icon" type="image/png" sizes="192x192" href="img/icone-192.png">
 </head>
 <body>
+<a class="skip" href="#main">Pular para o conteúdo</a>
+<div id="buscastatus" class="sr" role="status" aria-live="polite"></div>
 <noscript><p style="padding:16px;font:16px sans-serif">O Caracterizador Pericial precisa de JavaScript ativado.</p></noscript>
 <div id="velho" hidden style="padding:16px;margin:12px;border:2px solid #8B3A3A;font:16px sans-serif">Este navegador é antigo demais para o Caracterizador Pericial. Atualize para Chrome, Edge, Firefox ou Safari recentes.</div>
 
 <header class="band"><div class="wrap"><div class="brand"><img class="logo" alt="Grahl Consultoria e Treinamentos" id="logo"><h1>Caracterizador <span>Pericial</span></h1><p>Aposentadoria especial · Insalubridade · Periculosidade</p></div><div class="gsearch"><label for="gq" class="sr">Pesquisa geral</label><input id="gq" type="search" autocomplete="off" placeholder="Pesquisar em tudo: agente, substância, atividade, tese… (atalho: /)"></div><nav class="tabs" id="tabs" aria-label="Seções"></nav></div></header>
 <div id="alertas" class="wrap" hidden></div>
 <div id="novfaixa" class="wrap" hidden></div>
-<main id="main" class="wrap"></main>
+<main id="main" class="wrap" tabindex="-1"></main>
 <footer class="wrap"><p>Ferramenta de consulta técnica. Não substitui a análise do caso concreto, a inspeção do local de trabalho, a redação oficial das normas nem o juízo do profissional responsável. <span id="offline" class="offline" hidden></span> <span id="conferencia">Base normativa e jurisprudência revisadas com as fontes oficiais (veja Início).</span></p><p>Desenvolvido por Grahl Consultoria e Treinamentos · Rogério Grahl, Engenheiro Químico e de Segurança do Trabalho · grahlconsultoria.com.br</p><p><a href="termos.html" target="_blank" rel="noopener">Termos de uso</a> · <a href="privacidade.html" target="_blank" rel="noopener">Política de privacidade</a> · <a href="#perfil">Perfil e dados</a></p></footer>
 <div id="printroot" aria-hidden="true"></div>
 <div id="preview" hidden role="dialog" aria-modal="true" aria-label="Pré-visualização de impressão"><div class="pvbar"><div><b>Pré-visualização</b><span>A impressão direta não está disponível nesta janela. Use "Tentar imprimir" ou abra o Caracterizador numa aba própria do navegador.</span></div><div class="pvbtns"><button class="ghost" id="pvtry">Tentar imprimir</button><button class="pvclose">Fechar</button></div></div><div class="pvbody"></div></div>

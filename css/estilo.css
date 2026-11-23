@@ -1,7 +1,7 @@
 /* Layout: faixa institucional azul-marinho com filete dourado; conteúdo em painéis sobre fundo frio; tabelas de período como "quadros de laudo". */
 :root{
   --bg:#F2F4F7; --surface:#FFFFFF; --surface-2:#E8ECF2; --ink:#0F1C2E; --muted:#56637A; --line:#D3DAE4;
-  --band:#1E3A5F; --band-ink:#F1F4F9; --band-muted:#A9B7CC; --gold:#A97F14; --gold-line:#C9A227; --gold-soft:#F4EAD0;
+  --band:#1E3A5F; --band-ink:#F1F4F9; --band-muted:#A9B7CC; --gold:#86650F; --gold-line:#C9A227; --gold-soft:#F4EAD0;
   --e:#1C7247; --e-bg:#DFF1E6; --n:#8B3A3A; --n-bg:#F5E3E3; --c:#8F5D00; --c-bg:#FAEDCF; --i:#5A6577; --i-bg:#E6EAF0;
   --focus:#2F6FD6; --sel:#1E3A5F; --sel-ink:#F1F4F9;
   --f-disp:"Archivo","Arial Narrow",Arial,sans-serif; --f-body:"Source Sans 3","Segoe UI",Arial,sans-serif; --f-mono:"JetBrains Mono",Consolas,monospace;
@@ -105,7 +105,8 @@ table{border-collapse:collapse; width:100%}
 .f > span{font-size:.78rem; font-weight:600; color:var(--muted)}
 input,select,textarea{font:inherit; font-size:.95rem; color:var(--ink); background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:8px 10px; min-width:0; width:100%}
 input[type=checkbox],input[type=radio]{width:18px; height:18px; accent-color:var(--band); flex:none; margin:2px 0 0}
-:root:not([data-theme="light"]) input[type=checkbox]{accent-color:var(--gold)}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) input[type=checkbox]{accent-color:var(--gold)} }
+:root[data-theme="dark"] input[type=checkbox]{accent-color:var(--gold)}
 .cb{display:flex; gap:8px; align-items:flex-start; font-size:.92rem; cursor:pointer}
 button{font:600 .9rem var(--f-body); border-radius:6px; padding:9px 14px; cursor:pointer; border:1px solid var(--band); background:var(--band); color:var(--band-ink)}
 button.ghost{background:transparent; color:var(--ink); border-color:var(--line)}
@@ -192,7 +193,8 @@ fieldset.fr legend{font-size:.78rem; font-weight:600; color:var(--muted); paddin
 .filt{display:flex; gap:6px; flex-wrap:wrap}
 .filt button{background:var(--surface); color:var(--ink); border:1px solid var(--line); border-radius:999px; padding:6px 14px; font-weight:600}
 .filt button.on{background:var(--band); color:var(--band-ink); border-color:var(--band)}
-:root:not([data-theme="light"]) .filt button.on{background:var(--gold); color:#14110A; border-color:var(--gold)}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .filt button.on{background:var(--gold); color:#14110A; border-color:var(--gold)} }
+:root[data-theme="dark"] .filt button.on{background:var(--gold); color:#14110A; border-color:var(--gold)}
 .teses{display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:12px}
 .tese{background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:14px 16px; display:flex; flex-direction:column; gap:8px}
 .tese header{display:flex; gap:8px; align-items:center}
@@ -443,7 +445,7 @@ h4.sub{font-size:.95rem; margin-top:4px}
 .anx button:hover{border-color:var(--gold-line); background:var(--gold-soft)}
 .anx button.on{background:var(--sel); border-color:var(--sel); color:var(--sel-ink); box-shadow:inset 0 -4px 0 var(--gold-line)}
 .anx button.on b{color:var(--gold-line)}
-.anx button.off{opacity:.55}
+.anx button.off{color:var(--muted); text-decoration:line-through; text-decoration-color:var(--muted)}
 .calcbox > .f{max-width:520px}
 @media (min-width:1001px){ .band .wrap{display:grid; grid-template-columns:auto minmax(260px,1fr); grid-template-areas:"brand search" "tabs tabs"; column-gap:24px; align-items:center} .brand{grid-area:brand} .gsearch{grid-area:search; justify-self:end; width:100%; max-width:560px} .tabs{grid-area:tabs} .brand p{display:none} }
 @media (max-width:1000px){ .brand p{display:none} }
@@ -691,7 +693,7 @@ button.gl:focus-visible{outline:2px solid var(--focus); outline-offset:2px}
 .rdcmp .crit{display:block; margin-top:2px}
 .rdcmp hr{border:0; border-top:1px dashed var(--line); margin:6px 0}
 .rdcmp tr.muda td:first-child{box-shadow:inset 4px 0 0 var(--gold-line)}
-.mudou{display:inline-block; margin-left:6px; padding:1px 7px; border-radius:999px; font-size:.75rem; font-weight:700; background:var(--gold-line); color:#fff}
+.mudou{display:inline-block; margin-left:6px; padding:1px 7px; border-radius:999px; font-size:.75rem; font-weight:700; background:var(--gold-line); color:#0F1C2E}
 /* histórico das NRs */
 .hist td{vertical-align:top} .hist td small{display:block; color:var(--muted)}
 .hist .linkbtn{font:inherit; padding:0}
@@ -747,3 +749,23 @@ input[aria-invalid="true"]{border-color:var(--n, #b42318)!important; box-shadow:
 .tlinfo{margin:8px 0 0; padding:10px 12px; border-left:4px solid var(--gold-line); background:var(--surface-2); border-radius:6px; font-size:.9rem}
 rect.seg{cursor:pointer} rect.seg:focus{outline:none; stroke:var(--focus); stroke-width:3} rect.seg.sel{stroke:var(--ink); stroke-width:2}
 .note.warn{border-left-color:var(--n); color:var(--n)}
+/* ===== Acessibilidade (auditoria WCAG 2.2) ===== */
+:root{ --field-line:#7D8BA0 }
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --field-line:#5A7299 } }
+:root[data-theme="dark"]{ --field-line:#5A7299 }
+input,select,textarea{border-color:var(--field-line)}
+.band :focus-visible{outline-color:var(--gold-line)}
+html{scroll-padding-top:var(--hdr,120px); scroll-padding-bottom:var(--rodape,0px)}
+.skip{position:absolute; left:8px; top:-60px; z-index:100; background:var(--surface); color:var(--ink); padding:8px 14px; border:2px solid var(--gold-line); border-radius:6px; font-weight:700}
+.skip:focus{top:8px}
+main:focus{outline:none}
+#toast:not(.on){visibility:hidden; transition:opacity .2s, transform .2s, visibility 0s .2s}
+.scrollx[role=region]:focus-visible, .tscroll[role=region]:focus-visible{outline:2px solid var(--focus); outline-offset:2px}
+.tesetit{font-size:1rem; margin:0}
+@media (prefers-reduced-motion: reduce){ *{transition:none!important; animation:none!important} }
+.aglist{max-height:calc(100dvh - 170px)}
+.dl16{grid-template-columns:minmax(0,max-content) minmax(0,1fr)} .dl16 dt{overflow-wrap:anywhere}
+@media (max-width:400px){ .dl16{grid-template-columns:1fr} }
+input[type=date]{min-height:2.6em}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .agg button.on small, :root:not([data-theme="light"]) .anx button.on b{color:#E0BC55} }
+:root[data-theme="dark"] .agg button.on small, :root[data-theme="dark"] .anx button.on b{color:#E0BC55}
