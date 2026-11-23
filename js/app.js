@@ -171,6 +171,12 @@ function renderCaso(){
   const c=S.caso;
   return '<section class="intro"><div><p class="eyebrow">Simulação de enquadramento</p><h2>Aposentadoria especial por período</h2><p class="muted">Informe os períodos e os dados de exposição para ver como cada regra os trataria. Cada período é dividido nos marcos legais do agente e comparado com dois critérios: o do especialista (critério técnico da Grahl, com a fundamentação de cada ponto) e o do INSS (IN 128/2022). Fatores de conversão do art. 70 do Decreto 3.048/99, só até 13/11/2019.</p></div></section>'+
   '<div class="consulta-aviso" role="note"><b>Ferramenta de consulta.</b> A simulação aplica as regras aos dados digitados; não examina documentos, não verifica a habitualidade nem a qualidade da prova e não substitui o laudo, o parecer ou a decisão. O resultado é um ponto de partida para a análise do profissional.</div>'+
+  '<details class="comopreencher"'+(S.caso.rows.length<=1?' open':'')+'><summary>Como preencher</summary><ol>'+
+   '<li><b>Um período por vínculo e agente.</b> Se o mesmo vínculo teve dois agentes (ex.: ruído e calor), crie dois períodos com as mesmas datas.</li>'+
+   '<li><b>Datas de início e fim</b> como no CNIS, no PPP ou na CTPS. O app divide o período nos marcos legais do agente.</li>'+
+   '<li><b>Agente nocivo e dados da medição</b> como constam do PPP ou do LTCAT. Use vírgula para decimais (ex.: 85,3). Campos marcados como opcionais podem ficar vazios.</li>'+
+   '<li><b>EPI</b>: marque só se o PPP informa EPI eficaz. Para ruído, o EPI não afasta o tempo especial (STF, Tema 555).</li>'+
+   '<li>Confira os trechos de cada período e o total em <a href="#aposentadoria/resultado">Resultado da simulação</a>. Valores fora do usual aparecem com aviso em vermelho embaixo do campo.</li></ol></details>'+
   casebar()+'<div class="casehead"><label class="f wide" for="c-nome"><span>Identificação do caso</span><input id="c-nome" type="text" data-c="nome" value="'+esc(c.nome)+'"></label>'+
   '<label class="f" for="c-sexo"><span>Segurado</span><select id="c-sexo" data-c="sexo"><option value="H"'+(c.sexo!=='M'?' selected':'')+'>Homem</option><option value="M"'+(c.sexo==='M'?' selected':'')+'>Mulher</option></select></label>'+
   '<div class="btns"><button data-act="add">Adicionar período</button><button class="ghost" data-act="clr">Limpar períodos</button><button class="ghost" data-act="copy">Copiar quadro-resumo</button><button class="printbtn" data-print="caso">Imprimir simulação</button></div></div>'+
@@ -870,7 +876,7 @@ function render(){
   document.querySelectorAll('.tabs a').forEach(a=>a.setAttribute('aria-current', a.getAttribute('href')==='#'+S.tab?'page':'false'));
   const m=$('#main');
   m.innerHTML = ajudaHtml() + (S.tab==='inicio'?renderInicio(): S.tab==='busca'?renderBusca(): S.tab==='aposentadoria'?renderAposentadoria(): S.tab==='insalubridade'?renderInsal(): S.tab==='periculosidade'?renderPeric(): S.tab==='teses'?renderTeses(): S.tab==='perfil'?renderPerfil(): S.tab==='funcao'?renderFuncao(): renderBib());
-  registrarVisto(); marcarSiglas();
+  registrarVisto(); marcarSiglas(); prepararCampos(document.getElementById('main'));
 }
 function route(){ let h=location.hash.slice(1); if(h.startsWith('ir/')){ const dest=decodeURIComponent(h.slice(3)); if(destinoValido(dest)){ GO_REPLACE=true; go(dest); irAoConteudo(); return true; } h='inicio'; } const LEG={agentes:'aposentadoria/agentes',painel:'aposentadoria/resultado'}; if(LEG[h]){ h=LEG[h]; history.replaceState(null,'','#'+h); } const [h0,h1,h2,h3]=h.split('/');
   if(SRCH){ if(SRCH.fromGo){ SRCH.fromGo=false; } else { if(SRCH.tq!==null&&S.tq===SRCH.tq) S.tq=''; if(SRCH.q!==null&&S.q===SRCH.q){ S.q=''; S.lib='todas'; } if(SRCH.q11!==null&&S.ins.q11===SRCH.q11){ S.ins.q11=''; } SRCH=null; } } S.tab = TABS.some(t=>t[0]===h0)?h0:(h0==='busca'?'busca':'inicio'); if(S.tab==='aposentadoria') S.ap = AP_SUB.some(x=>x[0]===h1)?h1:(S.ap||'agentes'); if(S.tab==='teses'&&h1&&TESES[h1]){ S.tf='todos'; S.tsit='todas'; S.tq=''; } S.alvo=(S.tab==='teses'&&h1&&TESES[h1])?'tese:'+h1:(S.tab==='biblioteca'&&h1==='textos'&&h3)?'txt:'+h2+'/'+decodeURIComponent(h3):''; if(S.tab==='biblioteca'){ S.libv=h1==='textos'?'textos':h1==='historico'?'historico':'quadros'; if(h2){ S.txd=h2; S.txq=''; } } render(); if(S.tab==='teses'&&h1&&TESES[h1]){ destacar('tese-'+h1); return true; } if(S.tab==='biblioteca'&&S.libv==='textos'&&h3){ destacar(txId(h2,decodeURIComponent(h3))); return true; } return false; }
@@ -1447,6 +1453,59 @@ function renderHistorico(){
       '</section>'; });
   return h+'<p class="fine">Fonte: cabeçalho "Alterações/Atualizações" e anotações entre parênteses dos textos consolidados do MTE (NR-01 2025-I-3; NR-15 e NR-16 até a Portaria MTE 2.021/2025). "Rep." indica republicação e "Rev." segue o cabeçalho do MTE. A data da Portaria SSST 25/1994 na NR-16 (17/02/83) está assim no cabeçalho oficial. "Sem anotação" significa que o texto consolidado não indica o item alterado: consulte a portaria no DOU.</p>';
 }
+
+/* ---------- Campos de entrada: exemplo, faixa plausível e aviso ao digitar ---------- */
+/* regra pelo rótulo do campo: [padrão, mínimo, máximo, unidade, exemplo]; a primeira que casar vale */
+const REGRAS_CAMPO=[
+  [/Ajuste de vestimenta/i,-2,10,'°C','Ex.: 0,5'],
+  [/Nível de pico/i,60,160,'dB','Ex.: 120'],
+  [/NPS|dB\(A\)|Lavg|\bNEN?\b|\bNE q/i,30,140,'dB(A)','Ex.: 85,3'],
+  [/IBUTG|TE \(°C\)/i,0,60,'°C','Ex.: 27,4'],
+  [/M \(W\)|Taxa metabólica/i,60,1000,'W','Ex.: 300'],
+  [/Jornada semanal/i,1,80,'h','Ex.: 44'],
+  [/\(min\)|Tempo da linha/i,1,1440,'min','Ex.: 480 (8 h)'],
+  [/aren/i,0,30,'m/s²','Ex.: 0,9'],
+  [/VDV/i,0,60,'m/s¹·⁷⁵','Ex.: 17,5'],
+  [/R\$/,0,1e7,'R$','Ex.: 1518,00'],
+  [/% de quartzo/i,0,100,'%','Ex.: 12'],
+  [/\(m\)$|Distância/i,0,1e5,'m','Ex.: 15'],
+  [/litros|\(kg\)/i,0,1e8,'','Ex.: 250'],
+  [/Concentração|LT \(mesma|LT do Quadro|Média das amostras|Maior amostra/i,0,1e6,'','Ex.: 0,5']
+];
+const rotuloCampo=el=>{ const l=el.labels&&el.labels[0]; const sp=l&&l.querySelector('span'); return ((sp||l)?(sp||l).textContent:'')+' '+(el.getAttribute('aria-label')||''); };
+const regraCampo=el=>{ const r=rotuloCampo(el); return REGRAS_CAMPO.find(x=>x[0].test(r)); };
+const fmtNum=n=>String(n).replace('.',',');
+function avisoCampo(el, txt){
+  const id='av-'+el.id; let av=document.getElementById(id);
+  if(!txt){ if(av) av.remove(); el.removeAttribute('aria-invalid'); const db=(el.getAttribute('aria-describedby')||'').split(' ').filter(x=>x&&x!==id).join(' '); if(db) el.setAttribute('aria-describedby',db); else el.removeAttribute('aria-describedby'); return; }
+  if(!av){ av=document.createElement('small'); av.id=id; av.className='campo-aviso'; av.setAttribute('role','status'); const alvo=el.closest('label.f')||el.parentElement; alvo.appendChild(av); }
+  av.textContent=txt; el.setAttribute('aria-invalid','true');
+  const db=(el.getAttribute('aria-describedby')||'').split(' ').filter(Boolean); if(!db.includes(id)){ db.push(id); el.setAttribute('aria-describedby',db.join(' ')); }
+}
+function conferirNumero(el){
+  if(!el.id) return; const r=regraCampo(el); const v=String(el.value||'').trim();
+  if(!v){ avisoCampo(el,''); return; }
+  const x=num(v.replace(/^R\$\s*/,''));
+  if(x===null){ avisoCampo(el,'Use só números, com vírgula para decimais'+(r?' ('+r[4].replace('Ex.: ','ex.: ')+')':'')+'.'); return; }
+  if(r&&(x<r[1]||x>r[2])){ avisoCampo(el,'Valor fora do usual'+(r[3]?' para '+r[3]:'')+' (entre '+fmtNum(r[1])+' e '+fmtNum(r[2]).replace('1000000','1.000.000')+'). Confira a unidade e a digitação.'); return; }
+  avisoCampo(el,'');
+}
+function conferirDatas(el){
+  const m=el.id&&el.id.match(/^(.*)-(ini|fim)$/); if(!m) return;
+  const ini=document.getElementById(m[1]+'-ini'), fim=document.getElementById(m[1]+'-fim'); if(!ini||!fim) return;
+  const hoje=new Date().toISOString().slice(0,10);
+  avisoCampo(ini, ini.value&&ini.value<'1960-08-26'?'Antes de 26/08/1960 (Lei 3.807/60) não havia aposentadoria especial; a base não traz regras para esse período.':ini.value&&ini.value>hoje?'Data no futuro: confira o ano.':'');
+  avisoCampo(fim, fim.value&&ini.value&&fim.value<ini.value?'O fim ('+brData(fim.value)+') é anterior ao início ('+brData(ini.value)+'). Inverta as datas.':fim.value&&fim.value>hoje?'Data no futuro: a simulação considera o período informado, mas confira o ano.':'');
+}
+function prepararCampos(root){
+  (root||document).querySelectorAll('input[inputmode="decimal"]').forEach(el=>{
+    const r=regraCampo(el); if(r&&!el.placeholder) el.placeholder=r[4];
+    if(document.activeElement!==el&&/^-?\d+\.\d+$/.test(el.value)) el.value=el.value.replace('.',',');
+    conferirNumero(el); });
+  (root||document).querySelectorAll('input[type="date"]').forEach(el=>{ if(!el.min) el.min='1900-01-01'; if(!el.max) el.max='2100-12-31'; if(/-ini$/.test(el.id)) conferirDatas(el); });
+}
+document.addEventListener('input', ev=>{ const t=ev.target; setTimeout(()=>{ const el=t.id?document.getElementById(t.id):null; if(!el) return; if(el.getAttribute('inputmode')==='decimal') conferirNumero(el); if(el.type==='date') conferirDatas(el); },0); });
+document.addEventListener('change', ev=>{ const t=ev.target; setTimeout(()=>{ const el=t.id?document.getElementById(t.id):null; if(el&&el.type==='date') conferirDatas(el); prepararCampos(document.getElementById('main')); },0); });
 
 /* ---------- Textos legais navegáveis ---------- */
 function docsTexto(){

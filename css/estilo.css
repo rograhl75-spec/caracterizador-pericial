@@ -695,3 +695,9 @@ button.gl:focus-visible{outline:2px solid var(--focus); outline-offset:2px}
 /* histórico das NRs */
 .hist td{vertical-align:top} .hist td small{display:block; color:var(--muted)}
 .hist .linkbtn{font:inherit; padding:0}
+/* avisos dos campos de entrada */
+.campo-aviso{display:block; margin-top:4px; color:var(--n, #b42318); font-size:.8rem; line-height:1.35; font-weight:600}
+input[aria-invalid="true"]{border-color:var(--n, #b42318)!important; box-shadow:0 0 0 1px var(--n, #b42318)}
+.comopreencher{margin:0 0 14px; padding:10px 14px; border:1px solid var(--line); border-left:4px solid var(--gold-line); border-radius:8px; background:var(--surface)}
+.comopreencher summary{cursor:pointer; font-weight:700}
+.comopreencher ol{margin:8px 0 2px; padding-left:20px} .comopreencher li{margin:4px 0}
