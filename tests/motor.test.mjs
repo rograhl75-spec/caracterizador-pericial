@@ -121,3 +121,13 @@ test('consulta por função: todo agente, anexo e tese citados existem', () => {
   });
   assert.deepEqual(erros, []);
 });
+
+test('textos legais: NR-15 corpo, IN 128 e Lei 8.213 completos para navegação', () => {
+  const cods = X.NR15_CORPO.map(r => r[0]);
+  assert.ok(cods.includes('15.1') && cods.includes('15.2') && cods.includes('15.7'), 'itens 15.1, 15.2 e 15.7');
+  assert.equal(new Set(cods).size, cods.length, 'códigos da NR-15 sem repetição');
+  X.NR15_CORPO.forEach(([k, t]) => { assert.match(k, /^15\.\d/); assert.ok(t.length > 20, k); });
+  for (let n = 286; n <= 302; n++) assert.ok(X.IN128[String(n)] && X.IN128[String(n)][0].startsWith('Art. ' + n), 'IN 128 art. ' + n);
+  assert.match(X.LIB.txt_resumo[18], /^Art\. 57\./);
+  assert.match(X.LIB.txt_resumo[19], /^Art\. 58\./);
+});
