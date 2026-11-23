@@ -36,7 +36,7 @@ function persist(){ try{ localStorage.setItem(STORE, JSON.stringify(DB)); return
 function save(){ S.caso.alterado=agora(); DB.casos[DB.ativo]=S.caso; persist(); }
 
 const TABS = [['inicio','Início'],['aposentadoria','Aposentadoria especial'],['insalubridade','Insalubridade'],['periculosidade','Periculosidade'],['teses','Teses'],['biblioteca','Biblioteca'],['perfil','Perfil e dados']];
-const AP_SUB = [['agentes','Consulta por agente','Critério, campo, metodologia, simulação e PPP'],['caso','Análise de caso','Histórico do segurado, período a período'],['resultado','Resultado do caso','Tempo especial, linha do tempo e divergências']];
+const AP_SUB = [['agentes','Consulta por agente','Critério, campo, metodologia, simulação e PPP'],['data','Regra na data','O que valia numa data, agente por agente'],['caso','Análise de caso','Histórico do segurado, período a período'],['resultado','Resultado do caso','Tempo especial, linha do tempo e divergências']];
 
 function chip(st, short){ return '<span class="chip st-'+st+'">'+(short?st==='E'?'Especial':st==='N'?'Não':st==='C'?'Controverso':'Faltam dados':ST[st])+'</span>'; }
 
@@ -50,7 +50,7 @@ function renderInicio(){
    '<section class="isec"><div class="ihead"><h2 class="ih">Escolha a área</h2><p class="ilead">Cada área segue a sua própria legislação. A NR-15 só entra no previdenciário quando a norma do período remete a ela.</p></div>'+
    '<div class="acards">'+area('a-prev','Previdenciário · Decreto 3.048/99, Anexo IV','Aposentadoria especial','Agentes nocivos em cinco passos: critério por período, levantamento em campo, metodologia, simulação e PPP. Inclui a análise de caso do segurado.',[['aposentadoria/agentes','Consultar um agente'],['aposentadoria/caso','Analisar um caso']])+
    area('a-ins','Trabalhista · NR-15','Insalubridade','Limites e graus dos anexos da NR-15, calculadoras de ruído, calor e vibração, Quadro 1 do Anexo 11 e as listas integrais dos Anexos 13 e 14.',[['insalubridade','Abrir a NR-15']])+
-   area('a-per','Trabalhista · NR-16','Periculosidade','Todos os anexos com itens, quadros e áreas de risco, hipóteses de exclusão e frequência da exposição (Súmula 364).',[['periculosidade','Abrir a NR-16']])+'</div></section>'+
+   area('a-per','Trabalhista · NR-16','Periculosidade','Todos os anexos com itens, quadros e áreas de risco, hipóteses de exclusão e frequência da exposição (Súmula 364).',[['periculosidade','Abrir a NR-16']])+'</div></section>'+novidadesHtml()+
    '<section class="forwho"><h2 class="ih">Para quem</h2><div class="fw-grid"><div><b>Atuação</b><ul class="chips"><li>Perito judicial</li><li>Assistente técnico</li><li>Laudos extrajudiciais</li><li>Pareceres técnicos</li></ul></div><div><b>Profissão</b><ul class="chips"><li>Engenheiro de segurança do trabalho</li><li>Médico do trabalho</li><li>Técnico de segurança do trabalho</li><li>Enfermeiro do trabalho</li></ul></div></div></section>'+
    '<section class="isec"><h2 class="ih">Como usar</h2><ol class="steps"><li><b>Pesquise</b><span>Digite no campo do topo um agente, substância, atividade ou tese, inclusive por sinônimo (toluol, amianto, H2S).</span></li><li><b>Escolha a área</b><span>Aposentadoria especial, insalubridade ou periculosidade: cada uma com a sua legislação e os seus critérios por período.</span></li><li><b>Siga os passos</b><span>Critério, levantamento em campo, metodologia e simulação com os seus dados, com a nota do especialista ao lado do critério oficial.</span></li><li><b>Imprima</b><span>Gere o relatório, a ficha ou a consulta no papel timbrado, em PDF ou papel.</span></li></ol></section>'+
    '<div class="grid2"><section class="isec panel"><h2 class="ih">Base normativa</h2><ul class="blist"><li>Lei 8.213/91 e Decreto 3.048/99 (Anexo IV), com Decretos 53.831/64, 83.080/79, 2.172/97, 4.882/03, 8.123/13 e 10.410/20</li><li>IN PRES/INSS 128/2022 e alterações posteriores, até a IN 212/2026</li><li>Manual de Aposentadoria Especial do INSS (2018)</li><li>NR-15 e NR-16 atualizadas, com a Portaria MTE 2.021/2025</li><li>NHO da Fundacentro (01, 06, 09, 10 e demais) e ISO 2631/5349</li><li>LINACH (Portaria Interministerial 9/2014)</li><li>Teses do STF, STJ, TNU e súmulas e OJs do TST</li></ul><p class="fine">Datas de conferência de cada fonte na tabela abaixo. Confira sempre a redação oficial antes de citar.</p></section>'+
@@ -64,10 +64,10 @@ function renderInicio(){
 /* ---------- APOSENTADORIA ESPECIAL: subabas ---------- */
 function renderAposentadoria(){
   const sub=S.ap||'agentes', t=totais(S.caso);
-  const badge={agentes:AGENTS.length+' agentes', caso:S.caso.rows.length+' período(s)', resultado:fmtDias(t.perito.dias)};
+  const badge={agentes:AGENTS.length+' agentes', data:S.dt?brData(S.dt):'consulta', caso:S.caso.rows.length+' período(s)', resultado:fmtDias(t.perito.dias)};
   const nav='<nav class="subnav" aria-label="Aposentadoria especial">'+AP_SUB.map(([k,tit,desc],i)=>'<a href="#aposentadoria/'+k+'" class="'+(k===sub?'on':'')+'" aria-current="'+(k===sub?'page':'false')+'"><span class="sn-n">'+(i+1)+'</span><span class="sn-t"><b>'+tit+'</b><small>'+desc+'</small></span><span class="sn-b">'+esc(badge[k])+'</span></a>').join('')+'</nav>';
   const head='<section class="aphead"><div><p class="eyebrow">Previdenciário · Lei 8.213/91, arts. 57 e 58 · Decreto 3.048/99, Anexo IV</p><h2>Aposentadoria especial</h2></div>'+nav+'</section>';
-  const body = sub==='caso'?renderCaso(): sub==='resultado'?renderPainel(): renderAgentes();
+  const body = sub==='caso'?renderCaso(): sub==='resultado'?renderPainel(): sub==='data'?renderRegraData(): renderAgentes();
   return head+body;
 }
 function renderPainel(){
@@ -724,13 +724,19 @@ function renderPeric(){
 }
 
 /* ---------- TESES ---------- */
+const SIT_ROT={firmada:'Tese firmada', embargos:'Embargos pendentes', julgamento:'Em julgamento', revisao:'Em revisão'};
+const sitRot = t => t.sit==='firmada' && /Súmula|OJ/.test(t.num) ? 'Vigente' : SIT_ROT[t.sit]||'Tese firmada';
+function citacao(k){ const t=TESES[k]; return t.trib+', '+t.num+(t.ref&&t.ref!=='—'?' ('+t.ref+')':'')+(t.ano?', '+t.ano:'')+' — '+t.titulo+'. '+t.tese+' ['+sitRot(t)+'. Resumo do Caracterizador Pericial: confira a íntegra antes de citar.]'; }
 function renderTeses(){
-  const f=S.tf, tq=normTxt(S.tq||''); const items=Object.entries(TESES).filter(([k,t])=>(f==='todos'||(f==='prev'&&t.area==='prev')||(f==='trab'&&t.area==='trab')||t.trib===f)&&(!tq||normTxt(t.num+' '+t.titulo+' '+t.tese+' '+t.trib).includes(tq)));
+  const f=S.tf, fs=S.tsit||'todas', tq=normTxt(S.tq||''); const items=Object.entries(TESES).filter(([k,t])=>(f==='todos'||(f==='prev'&&t.area==='prev')||(f==='trab'&&t.area==='trab')||t.trib===f)&&(fs==='todas'||(fs==='abertas'?t.sit!=='firmada':t.sit==='firmada'))&&(!tq||normTxt(t.num+' '+t.titulo+' '+t.tese+' '+t.trib+' '+(t.ref||'')).includes(tq)));
   const usos=k=>AGENTS.filter(a=>(a.juris||[]).includes('T:'+k));
-  let h='<section class="intro"><div><p class="eyebrow">Jurisprudência</p><h2>Teses que mudam o laudo</h2><p class="muted">Resumos didáticos, sem a redação oficial. Antes de citar, confira a íntegra e verifique se houve revisão ou modulação.</p></div></section>';
-  h+='<div class="libbar"><label class="f grow" for="tq"><span>Pesquisar nas teses</span><input id="tq" type="search" data-st="tq" value="'+esc(S.tq||'')+'" placeholder="Ex.: EPI, ruído, vigilante, Súmula 364"></label></div>';
+  const nAbertas=Object.values(TESES).filter(t=>t.sit!=='firmada').length;
+  let h='<section class="intro"><div><p class="eyebrow">Jurisprudência</p><h2>Teses que mudam a análise</h2><p class="muted">Resumos para consulta, sem a redação oficial. Antes de citar, confira a íntegra e verifique se houve revisão ou modulação. A etiqueta mostra a situação em '+brData((FONTES_OK.find(x=>x.id==='stj')||{}).conferido||'')+'.</p></div></section>';
+  h+='<div class="libbar"><label class="f grow" for="tq"><span>Pesquisar nas teses</span><input id="tq" type="search" data-st="tq" value="'+esc(S.tq||'')+'" placeholder="Ex.: EPI, ruído, vigilante, Súmula 364, REsp 2.082.072"></label></div>';
   h+='<div class="filt">'+[['todos','Todas'],['prev','Previdenciário'],['trab','Trabalhista'],['STF','STF'],['STJ','STJ'],['TNU','TNU'],['TST','TST']].map(([k,t])=>'<button data-tf="'+k+'" class="'+(f===k?'on':'')+'">'+t+'</button>').join('')+'</div>';
-  h+='<div class="teses">'+items.map(([k,t])=>{ const u=usos(k); return '<article class="tese"><header><span class="trib t-'+t.trib+'">'+t.trib+'</span><b>'+esc(t.num)+'</b>'+(t.ano?'<span class="ano">'+t.ano+'</span>':'')+'</header><h4>'+esc(t.titulo)+'</h4><p>'+esc(t.tese)+'</p>'+(t.ref&&t.ref!=='—'?'<p class="ref">'+esc(t.ref)+'</p>':'')+(u.length?'<p class="uso">Fichas: '+u.map(a=>'<a href="#aposentadoria/agentes" data-ag="'+a.id+'">'+esc(a.nome)+'</a>').join(', ')+'</p>':'')+'</article>'; }).join('')+'</div>';
+  h+='<div class="filt">'+[['todas','Qualquer situação'],['firmadas','Firmadas e vigentes'],['abertas','Em aberto ('+nAbertas+')']].map(([k,t])=>'<button data-tsit="'+k+'" class="'+(fs===k?'on':'')+'">'+t+'</button>').join('')+'</div>';
+  h+='<p class="muted small">'+items.length+' resultado(s).</p>';
+  h+='<div class="teses">'+items.map(([k,t])=>{ const u=usos(k); return '<article class="tese" id="tese-'+k+'"><header><span class="trib t-'+t.trib+'">'+t.trib+'</span><b>'+esc(t.num)+'</b>'+(t.ano?'<span class="ano">'+t.ano+'</span>':'')+'<span class="sit sit-'+t.sit+'">'+esc(sitRot(t))+'</span></header><h4>'+esc(t.titulo)+'</h4><p>'+esc(t.tese)+'</p>'+(t.ref&&t.ref!=='—'?'<p class="ref">'+esc(t.ref)+'</p>':'')+(u.length?'<p class="uso">Fichas: '+u.map(a=>'<a href="#aposentadoria/agentes" data-ag="'+a.id+'">'+esc(a.nome)+'</a>').join(', ')+'</p>':'')+'<div class="btns"><button class="ghost sm" data-cite="'+k+'">Copiar citação</button><button class="ghost sm" data-tlink="'+k+'">Copiar link</button></div></article>'; }).join('')+'</div>';
   return h;
 }
 
@@ -744,6 +750,7 @@ const LIBT = [
  ['d83080_II','Decreto 83.080/79 — Anexo II (grupos profissionais)',['Código','Atividade profissional','Tempo']],
  ['linach','LINACH — Grupo 1 (Portaria Interministerial 9/2014)',['Agente','CAS']],
  ['linach_manual','LINACH — considerações do Manual de Aposentadoria Especial (INSS, 2018)',['Texto']],
+ ['glossario','Glossário técnico e jurídico',['Termo','Definição']],
  ['ag_cancer','Cancerígenos do Anexo IV × LINACH',['Agente do Anexo IV','Código','LINACH Grupo 1','CAS']],
  ['aq_quant','Químicos do Anexo IV com limite (NR-15, Anexo 11/12)',['Agente','Valor teto','Absorção pela pele','ppm','mg/m³']],
  ['aq_qual','Químicos do Anexo IV de avaliação qualitativa',['Agente']],
@@ -784,6 +791,7 @@ function buildIndex(){
   NR16.forEach(x=>x.secoes.forEach(sec=>{ (sec.itens||[]).forEach(it=>add('NR-16 — periculosidade',x.n+' ('+x.t+') — '+it[1],sec.tit+(it[2]?' · '+it[2]:''),'a16:'+x.id)); (sec.lista||[]).forEach(it=>add('NR-16 — periculosidade',x.n+' ('+x.t+') — '+sec.tit.split(' — ')[0]+' '+it[0],it[1],'a16:'+x.id)); if(sec.txt) add('NR-16 — periculosidade',x.n+' ('+x.t+') — '+sec.tit,sec.txt,'a16:'+x.id); })); NR16_GERAL.forEach(([k,t])=>add('NR-16 — periculosidade','Item '+k,t,'a16:a2'));
   Object.entries(TESES).forEach(([k,t])=>add('Teses e súmulas',t.trib+', '+t.num+' — '+t.titulo,t.tese,'tese:'+k));
   MARCOS.forEach(m=>add('Marcos legais',fmtBR(m.d)+' — '+m.t,m.s,'aposentadoria/resultado'));
+  if(typeof NOVIDADES!=='undefined') NOVIDADES.forEach(n=>add('Novidades na base',n.titulo,n.resumo,n.ir||'inicio'));
   LIBT.forEach(([k,tit])=>(LIB[k]||[]).forEach(r=>{ const row=Array.isArray(r)?r:[r]; const txt=row.filter(Boolean).join(' · '); if(/^https?:/.test(txt)) return; add('Biblioteca — '+tit, row[0].length>90?row[0].slice(0,90)+'…':row[0], row.slice(1).join(' · '), 'lib:'+k, txt); }));
   return E;
 }
@@ -794,7 +802,10 @@ function renderBusca(){
   let h='<section class="intro"><div><p class="eyebrow">Pesquisa geral</p><h2>'+(q.length>=2?'Resultados para "'+esc(q)+'"':'Pesquise em todas as abas')+'</h2><p class="muted">Agentes nocivos, Anexos 11, 13 e 14 da NR-15, NR-16, teses, marcos legais e a biblioteca de decretos. Use mais de uma palavra para refinar.</p></div></section>';
   if(terms.length===0||q.length<2) return h+'<div class="chips">'+['tolueno','solda','martelete','coleta de lixo','caldeira','frentista','galvanoplastia','benzeno','EPI'].map(x=>'<button class="ghost sm" data-gq="'+x+'">'+x+'</button>').join('')+'</div>';
   IDX = IDX || buildIndex();
-  const hits=IDX.filter(e=>terms.every(t=>e.n.includes(t)));
+  /* primeiro as palavras que começam pelo termo (NEN não casa com "permanente"); se nada, busca em qualquer parte */
+  const inicio=terms.map(t=>new RegExp('(^|[^a-z0-9])'+t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));
+  let hits=IDX.filter(e=>inicio.every(re=>re.test(e.n)));
+  if(!hits.length) hits=IDX.filter(e=>terms.every(t=>e.n.includes(t)));
   if(!hits.length) return h+'<p class="empty">Nada encontrado. Tente um sinônimo (ex.: "toluol", "amianto") ou uma palavra só.</p>';
   const groups={}; hits.forEach(e=>(groups[e.sec]=groups[e.sec]||[]).push(e));
   h+='<p class="muted small">'+hits.length+' resultado(s) em '+Object.keys(groups).length+' seção(ões).</p><div class="sres">';
@@ -811,7 +822,7 @@ function go(dest){
   else if(k==='a13'){ S.a15=13; S.ins.a13sel=v; S.ins.q13=''; S.ins.g13='todos'; location.hash='insalubridade'; }
   else if(k==='a15'){ S.a15=isNaN(+v)?v:+v; location.hash='insalubridade'; }
   else if(k==='a16'){ S.a16=v; location.hash='periculosidade'; }
-  else if(k==='tese'){ S.tf='todos'; S.tq=TESES[v].num; SRCH.tq=S.tq; location.hash='teses'; }
+  else if(k==='tese'){ S.tf='todos'; S.tsit='todas'; S.tq=''; location.hash='teses/'+v; }
   else if(k==='lib'){ S.lib=v; S.q=S.gq||''; SRCH.q=S.q; location.hash='biblioteca'; }
   else location.hash=k;
   if(location.hash==='#'+S.tab){ route(); }
@@ -823,7 +834,7 @@ function render(){
   m.innerHTML = S.tab==='inicio'?renderInicio(): S.tab==='busca'?renderBusca(): S.tab==='aposentadoria'?renderAposentadoria(): S.tab==='insalubridade'?renderInsal(): S.tab==='periculosidade'?renderPeric(): S.tab==='teses'?renderTeses(): S.tab==='perfil'?renderPerfil(): renderBib();
 }
 function route(){ let h=location.hash.slice(1); const LEG={agentes:'aposentadoria/agentes',painel:'aposentadoria/resultado'}; if(LEG[h]){ h=LEG[h]; history.replaceState(null,'','#'+h); } const [h0,h1]=h.split('/');
-  if(SRCH){ if(SRCH.fromGo){ SRCH.fromGo=false; } else { if(SRCH.tq!==null&&S.tq===SRCH.tq) S.tq=''; if(SRCH.q!==null&&S.q===SRCH.q){ S.q=''; S.lib='todas'; } if(SRCH.q11!==null&&S.ins.q11===SRCH.q11){ S.ins.q11=''; } SRCH=null; } } S.tab = TABS.some(t=>t[0]===h0)?h0:(h0==='busca'?'busca':'inicio'); if(S.tab==='aposentadoria') S.ap = AP_SUB.some(x=>x[0]===h1)?h1:(S.ap||'agentes'); render(); }
+  if(SRCH){ if(SRCH.fromGo){ SRCH.fromGo=false; } else { if(SRCH.tq!==null&&S.tq===SRCH.tq) S.tq=''; if(SRCH.q!==null&&S.q===SRCH.q){ S.q=''; S.lib='todas'; } if(SRCH.q11!==null&&S.ins.q11===SRCH.q11){ S.ins.q11=''; } SRCH=null; } } S.tab = TABS.some(t=>t[0]===h0)?h0:(h0==='busca'?'busca':'inicio'); if(S.tab==='aposentadoria') S.ap = AP_SUB.some(x=>x[0]===h1)?h1:(S.ap||'agentes'); if(S.tab==='teses'&&h1&&TESES[h1]){ S.tf='todos'; S.tsit='todas'; S.tq=''; } render(); if(S.tab==='teses'&&h1&&TESES[h1]) destacar('tese-'+h1); }
 window.addEventListener('hashchange', ()=>{ route(); window.scrollTo(0,0); });
 
 function setPath(obj, path, val){ const ps=path.split('.'); let o=obj; for(let k=0;k<ps.length-1;k++){ o[ps[k]]=o[ps[k]]||{}; o=o[ps[k]]; } o[ps[ps.length-1]]=val; }
@@ -888,6 +899,9 @@ document.addEventListener('click', ev=>{
   if(b.dataset.a16){ S.a16=b.dataset.a16; render(); return; }
   if(b.dataset.perclr){ Object.keys(S.per).forEach(k=>{ if(k.startsWith(b.dataset.perclr+':')) delete S.per[k]; }); render(); return; }
   if(b.dataset.tf){ S.tf=b.dataset.tf; render(); return; }
+  if(b.dataset.tsit){ S.tsit=b.dataset.tsit; render(); return; }
+  if(b.dataset.cite){ copiar(citacao(b.dataset.cite),'Citação copiada.'); return; }
+  if(b.dataset.tlink){ copiar(location.href.split('#')[0]+'#teses/'+b.dataset.tlink,'Link da tese copiado.'); return; }
   if(b.dataset.npsAdd){ const rows=insv('nps',[[88,240],[92,120],[80,120]]).map(r=>r.slice()); rows.push([85,60]); S.ins.nps=rows; render(); return; }
   if(b.dataset.npsDel){ const rows=insv('nps',[[88,240],[92,120],[80,120]]).map(r=>r.slice()); if(rows.length>1) rows.pop(); S.ins.nps=rows; render(); return; }
 });
@@ -1075,6 +1089,53 @@ document.addEventListener('click', ev=>{
     else { try{ [STORE,STORE_PERFIL,'caracterizador:v1'].forEach(x=>localStorage.removeItem(x)); }catch(e){} location.reload(); }
   }
 });
+
+/* ---------- utilitários de consulta: copiar e destacar ---------- */
+function copiar(txt, ok){
+  const fim=()=>avisar(ok||'Copiado.');
+  try{ if(navigator.clipboard&&window.isSecureContext){ navigator.clipboard.writeText(txt).then(fim,()=>copiarAntigo(txt,fim)); return; } }catch(e){}
+  copiarAntigo(txt,fim);
+}
+function copiarAntigo(txt,fim){ const t=document.createElement('textarea'); t.value=txt; t.style.position='fixed'; t.style.opacity='0'; document.body.appendChild(t); t.select(); try{ document.execCommand('copy'); fim(); }catch(e){ avisar('Não foi possível copiar automaticamente.'); } t.remove(); }
+function destacar(id){ const el=document.getElementById(id); if(!el) return; el.classList.add('alvo'); el.scrollIntoView({block:'start'}); setTimeout(()=>el.classList.remove('alvo'),2600); }
+
+/* ---------- Regra na data: o que valia numa data, agente por agente ---------- */
+function marcosNaData(d){
+  const L=[];
+  L.push(d<='1995-04-28' ? ['Categoria profissional','Admitido o enquadramento por categoria (Decretos 53.831/64 e 83.080/79).'] : ['Categoria profissional','Só por exposição efetiva a agente nocivo (Lei 9.032/95, desde 29/04/1995).']);
+  L.push(d<'1997-03-06' ? ['Lista de agentes','Quadros dos Decretos 53.831/64 e 83.080/79.'] : ['Lista de agentes','Anexo IV do Decreto 2.172/97 e, desde 07/05/1999, do Decreto 3.048/99.']);
+  if(d>='1996-10-14') L.push(['Laudo técnico','Formulário emitido com base em laudo técnico (MP 1.523/96, desde 14/10/1996).']);
+  L.push(d>='1998-12-03' ? ['EPI','A informação de EPI eficaz é considerada (Lei 9.732/98; STJ, Tema 1090), exceto para ruído (STF, Tema 555) e cancerígenos da LINACH.'] : ['EPI','Informação de EPI não é considerada para períodos até 02/12/1998.']);
+  L.push(d<'2004-01-01' ? ['Formulário','Formulários anteriores ao PPP (SB-40, DISES BE 5235, DSS-8030, DIRBEN-8030).'] : d<'2023-01-01' ? ['Formulário','PPP em papel (obrigatório desde 01/01/2004).'] : ['Formulário','PPP eletrônico pelo eSocial (evento S-2240), desde 01/01/2023.']);
+  L.push(d<='2019-11-13' ? ['Conversão em tempo comum','Permitida (fatores do art. 70 do Decreto 3.048/99).'] : ['Conversão em tempo comum','Vedada para períodos após 13/11/2019 (EC 103/2019, art. 25, §2º).']);
+  if(d>='2013-10-17') L.push(['Cancerígenos',d<'2020-07-01'?'Grupo 1 da LINACH: avaliação qualitativa; EPI não descaracteriza (Decreto 8.123/13).':'Grupo 1 da LINACH: avaliação qualitativa; medidas de controle que eliminem a nocividade podem descaracterizar (Decreto 10.410/20).']);
+  return L;
+}
+function renderRegraData(){
+  const d=S.dt||new Date().toISOString().slice(0,10);
+  const grupos=[...new Set(AGENTS.map(a=>a.grupo))];
+  let h='<section class="intro"><div><p class="eyebrow">Consulta por data</p><h2>Qual regra valia em '+brData(d)+'?</h2><p class="muted">Escolha uma data para ver, agente por agente, a norma e o critério do período, além dos marcos gerais que valiam naquele dia. É uma consulta à legislação: a análise do caso concreto continua com o profissional.</p></div></section>'+
+   '<div class="libbar"><label class="f" for="rd-data"><span>Data</span><input id="rd-data" type="date" data-rd="1" value="'+d+'" min="1960-01-01"></label><div class="btns">'+[['1996-12-31','31/12/1996'],['2000-06-30','30/06/2000'],['2003-12-01','01/12/2003'],['2015-06-30','30/06/2015'],['2021-06-30','30/06/2021']].map(([v,t])=>'<button class="ghost sm" data-rdset="'+v+'">'+t+'</button>').join('')+'</div></div>'+
+   '<section class="panel"><div class="ph"><h3>Marcos gerais em '+brData(d)+'</h3></div><dl class="dl16 small">'+marcosNaData(d).map(([k,t])=>'<dt>'+esc(k)+'</dt><dd>'+esc(t)+'</dd>').join('')+'</dl></section>';
+  grupos.forEach(g=>{
+    h+='<section class="panel rdg"><div class="ph"><h3>'+esc(g)+'</h3></div><div class="tscroll"><table class="rt"><thead><tr><th>Agente</th><th>Norma do período</th><th>Critério</th></tr></thead><tbody>'+
+     AGENTS.filter(a=>a.grupo===g).map(a=>{ const r=regraNaData(a,d); return '<tr><td><a href="#aposentadoria/agentes" data-ag="'+a.id+'">'+esc(a.nome)+'</a></td>'+(r.length?'<td>'+r.map(p=>esc(p[1])+'<small>'+esc(p[0])+'</small>').join('')+'</td><td>'+r.map(p=>esc(p[2])).join('<br>')+'</td>':'<td colspan="2" class="muted">Sem regra própria registrada para esta data; veja a ficha.</td>')+'</tr>'; }).join('')+
+     '</tbody></table></div></section>';
+  });
+  return h+'<p class="fine">Datas-limite conforme as fichas dos agentes. Situações de transição e divergências entre o critério do INSS e o técnico estão detalhadas em cada ficha.</p>';
+}
+document.addEventListener('change', ev=>{ const t=ev.target; if(t.dataset.rd&&t.value){ S.dt=t.value; render(); const el=document.getElementById('rd-data'); if(el) el.focus(); } });
+document.addEventListener('click', ev=>{ const b=ev.target.closest('[data-rdset]'); if(b){ S.dt=b.dataset.rdset; render(); } });
+
+/* ---------- Novidades da base ---------- */
+const NOV_OK = typeof NOVIDADES!=='undefined' ? NOVIDADES.slice().sort((x,y)=>y.data.localeCompare(x.data)) : [];
+const AREA_ROT={prev:'Previdenciário', trab:'Trabalhista', ambos:'Previdenciário e trabalhista'};
+function novItem(n){ return '<li class="nov"><span class="small">'+esc(AREA_ROT[n.area]||'')+(n.evento&&n.evento!=='—'?' · fato em '+esc(n.evento):'')+'</span><b>'+esc(n.titulo)+'</b><span>'+esc(n.resumo)+'</span>'+(n.ir?'<button class="linkbtn small" data-go="'+esc(n.ir)+'">Consultar →</button>':'')+'</li>'; }
+function novidadesHtml(){
+  if(!NOV_OK.length) return '';
+  const ult=NOV_OK[0].data, ini=NOV_OK.slice(0,4), resto=NOV_OK.slice(4);
+  return '<section class="isec panel novs"><div class="ihead"><h2 class="ih">Novidades na base</h2><p class="ilead">Atualizado em '+brData(ult)+'. Normas e decisões que entraram no app, com o caminho para consultar.</p></div><ul class="novl">'+ini.map(novItem).join('')+'</ul>'+(resto.length?'<details><summary>Ver mais '+resto.length+' novidade(s)</summary><ul class="novl">'+resto.map(novItem).join('')+'</ul></details>':'')+'</section>';
+}
 
 /* ---------- fontes oficiais e alertas do monitor ---------- */
 const brData = d => d ? d.split('-').reverse().join('/') : '—';

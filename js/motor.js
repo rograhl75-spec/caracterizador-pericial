@@ -272,3 +272,13 @@ function amd(dias){
   const a=Math.floor(dias/365), r=dias-a*365, m=Math.floor(r/30), dd=r-m*30;
   return {a,m,d:dd};
 }
+
+/* Regra na data: faixas de vigência dos períodos das fichas ('até …', 'a partir de …', '… a …') */
+const isoBR = s => { const m=String(s).match(/(\d{2})\/(\d{2})\/(\d{4})/); return m?m[3]+'-'+m[2]+'-'+m[1]:null; };
+function faixa(rot){
+  const ds=(String(rot).match(/\d{2}\/\d{2}\/\d{4}/g)||[]).map(isoBR);
+  if(/^até/i.test(rot)) return [null, ds[0]];
+  if(/^a partir de/i.test(rot)) return [ds[0], null];
+  return [ds[0]||null, ds[1]||null];
+}
+function regraNaData(a, d){ return (a.periodos||[]).filter(p=>{ const [i,f]=faixa(p[0]); return (!i||d>=i)&&(!f||d<=f); }); }

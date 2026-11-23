@@ -17,6 +17,8 @@ Site estático (HTML, CSS e JavaScript), sem servidor e sem banco de dados. Func
 | `dados/in128-artigos.js` | Texto literal da IN 128/2022 (arts. 286–302) | Nova IN alterando esses artigos |
 | `dados/biblioteca.js` | Quadros dos decretos, LINACH e textos das planilhas | Raramente |
 | `dados/fontes.js` | Fontes oficiais: versão considerada no app, data da conferência e o que o robô vigia | Depois de revisar uma alteração |
+| `dados/novidades.js` | Novidades na base (o que mudou, quando e onde consultar), exibidas no Início | A cada atualização da base |
+| `dados/glossario.js` | Glossário técnico e jurídico (aparece na Biblioteca e na busca) | Incluir ou ajustar termo |
 | `dados/alertas.js` | Alertas gravados pelo robô (aparecem como faixa no topo do site) | Marcar alerta como `revisado` |
 | `scripts/monitor.mjs` | Robô que verifica as fontes oficiais todo dia | Incluir ou ajustar fonte vigiada (em `fontes.js`) |
 | `js/motor.js` | Regras de enquadramento por período (cálculos) | Mudar critério de cálculo |
@@ -34,6 +36,13 @@ A ordem de carregamento dos scripts no `index.html` importa: dados primeiro, dep
 4. Endereço: `https://SEU-USUARIO.github.io/caracterizador-pericial`.
 
 Para atualizar, edite o arquivo no próprio GitHub (ícone de lápis) ou envie a nova versão por cima. O site atualiza em um ou dois minutos.
+
+## Recursos de consulta
+
+- **Regra na data** (Aposentadoria especial): escolha uma data e veja, agente por agente, a norma e o critério do período, com os marcos gerais (categoria profissional, EPI, formulário, conversão, cancerígenos).
+- **Teses:** etiqueta de situação (firmada, embargos pendentes, em julgamento, em revisão), filtro por situação, "Copiar citação" e "Copiar link" (endereço `#teses/<código>`). A situação de cada tese fica em `SITUACAO_TESE`, em `dados/normas-base.js`.
+- **Novidades na base** (Início) e **Glossário** (Biblioteca), ambos pesquisáveis na busca geral.
+- **Busca geral:** prioriza palavras que começam pelo termo digitado; só procura no meio das palavras se não houver resultado.
 
 ## Casos, perfil e privacidade
 
