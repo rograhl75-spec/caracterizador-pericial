@@ -50,7 +50,7 @@ function renderInicio(){
    '<section class="isec"><div class="ihead"><h2 class="ih">Escolha a área</h2><p class="ilead">Cada área segue a sua própria legislação. A NR-15 só entra no previdenciário quando a norma do período remete a ela.</p></div>'+
    '<div class="acards">'+area('a-prev','Previdenciário · Decreto 3.048/99, Anexo IV','Aposentadoria especial','Agentes nocivos em cinco passos: critério por período, levantamento em campo, metodologia, simulação e PPP. Inclui a simulação de enquadramento por período.',[['aposentadoria/agentes','Consultar um agente'],['aposentadoria/caso','Simular períodos']])+
    area('a-ins','Trabalhista · NR-15','Insalubridade','Limites e graus dos anexos da NR-15, calculadoras de ruído, calor e vibração, Quadro 1 do Anexo 11 e as listas integrais dos Anexos 13 e 14.',[['insalubridade','Abrir a NR-15']])+
-   area('a-per','Trabalhista · NR-16','Periculosidade','Todos os anexos com itens, quadros e áreas de risco, hipóteses de exclusão e frequência da exposição (Súmula 364).',[['periculosidade','Abrir a NR-16']])+'</div></section>'+novidadesHtml()+
+   area('a-per','Trabalhista · NR-16','Periculosidade','Todos os anexos com itens, quadros e áreas de risco, hipóteses de exclusão e frequência da exposição (Súmula 364).',[['periculosidade','Abrir a NR-16']])+'</div></section>'+favoritosInicio()+novidadesHtml()+
    '<section class="forwho"><h2 class="ih">Para quem</h2><div class="fw-grid"><div><b>Atuação</b><ul class="chips"><li>Perito judicial</li><li>Assistente técnico</li><li>Laudos extrajudiciais</li><li>Pareceres técnicos</li></ul></div><div><b>Profissão</b><ul class="chips"><li>Engenheiro de segurança do trabalho</li><li>Médico do trabalho</li><li>Técnico de segurança do trabalho</li><li>Enfermeiro do trabalho</li></ul></div></div></section>'+
    '<section class="isec"><h2 class="ih">Como usar</h2><ol class="steps"><li><b>Pesquise</b><span>Digite no campo do topo um agente, substância, atividade ou tese, inclusive por sinônimo (toluol, amianto, H2S).</span></li><li><b>Escolha a área</b><span>Aposentadoria especial, insalubridade ou periculosidade: cada uma com a sua legislação e os seus critérios por período.</span></li><li><b>Siga os passos</b><span>Critério, levantamento em campo, metodologia e simulação com os seus dados, com a nota do especialista ao lado do critério oficial.</span></li><li><b>Imprima</b><span>Gere o relatório, a ficha ou a consulta no papel timbrado, em PDF ou papel.</span></li></ol></section>'+
    '<div class="grid2"><section class="isec panel"><h2 class="ih">Base normativa</h2><ul class="blist"><li>Lei 8.213/91 e Decreto 3.048/99 (Anexo IV), com Decretos 53.831/64, 83.080/79, 2.172/97, 4.882/03, 8.123/13 e 10.410/20</li><li>IN PRES/INSS 128/2022 e alterações posteriores, até a IN 212/2026</li><li>Manual de Aposentadoria Especial do INSS (2018)</li><li>NR-15 e NR-16 atualizadas, com a Portaria MTE 2.021/2025</li><li>NHO da Fundacentro (01, 06, 09, 10 e demais) e ISO 2631/5349</li><li>LINACH (Portaria Interministerial 9/2014)</li><li>Teses do STF, STJ, TNU e súmulas e OJs do TST</li></ul><p class="fine">Datas de conferência de cada fonte na tabela abaixo. Confira sempre a redação oficial antes de citar.</p></section>'+
@@ -508,7 +508,7 @@ function rsDocumentar(){
 function rsHtml(a){
   const cur=rsStep(), i=RS_STEPS.findIndex(s=>s[0]===cur);
   const body = cur==='criterio'?rsCriterio(a): cur==='campo'?rsCampo(): cur==='metodo'?rsMetodo(): cur==='simular'?rsSimular(a): rsDocumentar();
-  return '<article class="ficha rs"><header><div class="fhead"><p class="eyebrow">Físicos · em 5 passos</p><button class="printbtn" data-print="ficha">Imprimir passo</button></div><h2>Ruído contínuo ou intermitente</h2><div class="codes"><span>53.831: 1.1.6</span><span>83.080: 1.1.5</span><span>Anexo IV: 2.0.1</span><span>25 anos</span></div></header>'+
+  return '<article class="ficha rs"><header><div class="fhead"><p class="eyebrow">Físicos · em 5 passos</p><span class="btns">'+favBtn('ag:ruido','Ruído — ficha do agente')+'<button class="printbtn" data-print="ficha">Imprimir passo</button></span></div><h2>Ruído contínuo ou intermitente</h2><div class="codes"><span>53.831: 1.1.6</span><span>83.080: 1.1.5</span><span>Anexo IV: 2.0.1</span><span>25 anos</span></div></header>'+
    rsNav(cur)+'<section class="rsbody"><p class="eyebrow">Passo '+(i+1)+' de 5</p><h3 class="rsq">'+RS_STEPS[i][2]+'</h3>'+body+'</section>'+rsPager(cur)+'</article>';
 }
 
@@ -519,7 +519,7 @@ function renderAgentes(){
   let list='<nav class="aglist" aria-label="Agentes"><label class="f" for="agq"><span>Filtrar agentes</span><input id="agq" type="search" data-st="agq" value="'+esc(S.agq||'')+'" placeholder="Ex.: solda, amianto, 1.0.19"></label><label class="f agsel" for="agsel"><span>Agente</span><select id="agsel" data-agsel="1">'+GRUPOS.map(g=>'<optgroup label="'+g+'">'+AGENTS.filter(x=>x.grupo===g&&vis(x)).map(x=>'<option value="'+x.id+'"'+(x.id===a.id?' selected':'')+'>'+esc(x.nome)+'</option>').join('')+'</optgroup>').join('')+'</select></label>'+GRUPOS.map(g=>{ const xs=AGENTS.filter(x=>x.grupo===g&&vis(x)); return xs.length?'<div class="agg"><p>'+g+'</p>'+xs.map(x=>'<button data-ag="'+x.id+'" class="'+(x.id===a.id?'on':'')+'" aria-pressed="'+(x.id===a.id)+'"><span>'+esc(x.nome)+'</span><small>'+esc(x.cIV?x.cIV.split(' / ')[0]:(x.c53[0]||''))+'</small></button>').join('')+'</div>':''; }).join('')+(AGENTS.some(vis)?'':'<p class="agempty">Nenhum agente encontrado.</p>')+'</nav>';
   if(a.id==='ruido') return '<div class="agwrap">'+list+rsHtml(a)+'</div>';
   const codes=[...(a.c53.length?['53.831: '+a.c53.join(', ')]:[]),...(a.c83.length?['83.080: '+a.c83.join(', ')]:[]),(a.cIV?'Anexo IV: '+a.cIV:'Fora do Anexo IV'),'NR-15: '+a.nr15];
-  let f='<article class="ficha"><header><div class="fhead"><p class="eyebrow">'+a.grupo+'</p><button class="printbtn" data-print="ficha">Imprimir ficha</button></div><h2>'+esc(a.nome)+'</h2><div class="codes">'+codes.map(c=>'<span>'+esc(c)+'</span>').join('')+'<span>'+a.tempo+' anos</span></div></header>';
+  let f='<article class="ficha"><header><div class="fhead"><p class="eyebrow">'+a.grupo+'</p><span class="btns">'+favBtn('ag:'+a.id,a.nome+' — ficha do agente')+'<button class="printbtn" data-print="ficha">Imprimir ficha</button></span></div><h2>'+esc(a.nome)+'</h2><div class="codes">'+codes.map(c=>'<span>'+esc(c)+'</span>').join('')+'<span>'+a.tempo+' anos</span></div></header>';
   f+='<div class="mxrow">'+['até 05/03/1997','06/03/1997–18/11/2003','19/11/2003–13/11/2019','após 13/11/2019'].map((p,k)=>'<div><span>'+p+'</span><b class="mxc mx-'+MX[a.mx[k]][1]+'">'+(a.mx[k]==='X'&&MXX[a.id]?esc(MXX[a.id].rot):MX[a.mx[k]][0])+'</b></div>').join('')+'</div>'+(a.mx.includes('X')&&MXX[a.id]?'<p class="mxnote"><b>Por que "'+esc(MXX[a.id].rot)+'"?</b> '+esc(MXX[a.id].nota)+'</p>':'');
   f+='<h3>Enquadramento por período</h3><div class="scrollx"><table class="pt"><thead><tr><th>Período</th><th>Norma</th><th>Critério</th></tr></thead><tbody>'+a.periodos.map(p=>'<tr><td class="mono">'+esc(p[0])+'</td><td>'+esc(p[1])+'</td><td>'+esc(p[2])+'</td></tr>').join('')+'</tbody></table></div>';
   f+=simHtml(a);
@@ -642,7 +642,7 @@ function renderInsal(){
   let h='<section class="intro"><div><p class="eyebrow">NR-15 · Trabalhista</p><h2>Insalubridade</h2><p class="muted">Adicional de 40%, 20% ou 10% conforme o grau (item 15.2). Com mais de um agente, vale só o de grau mais elevado (item 15.3). Base: salário mínimo, salvo norma coletiva (Súmula Vinculante 4).</p></div></section>';
   h+='<div class="anx" role="tablist" aria-label="Anexos da NR-15">'+NR15.map(x=>'<button role="tab" aria-selected="'+(x===an)+'" data-a15="'+x.n+'" class="'+(x===an?'on':'')+(x.tipo==='revogado'?' off':'')+'"><b>Anexo '+x.n+(x.tipo==='revogado'?' · revogado':'')+'</b><span>'+esc(x.t)+'</span></button>').join('')+'</div>';
   const wide = an.n===11||an.n===13;
-  h+='<div class="grid2 '+(wide?'one':'wide-l')+'"><section class="panel" id="pinsal"><div class="ph"><div class="fhead"><p class="eyebrow">Anexo '+an.n+' · grau '+esc(an.g)+'</p><button class="printbtn" data-print="insal">Imprimir ou salvar PDF</button></div><h3>'+esc(an.t)+'</h3><p>'+esc(an.s)+'</p></div><div class="calcbox" id="calcbox">';
+  h+='<div class="grid2 '+(wide?'one':'wide-l')+'"><section class="panel" id="pinsal"><div class="ph"><div class="fhead"><p class="eyebrow">Anexo '+an.n+' · grau '+esc(an.g)+'</p><span class="btns">'+favBtn('a15:'+an.n,'NR-15, Anexo '+an.n+' — '+an.t)+'<button class="printbtn" data-print="insal">Imprimir ou salvar PDF</button></span></div><h3>'+esc(an.t)+'</h3><p>'+esc(an.s)+'</p></div><div class="calcbox" id="calcbox">';
   if(an.tipo==='calc') h+=calcIns(an);
   else if(an.tipo==='quali' && an.n==='13-A'){ const g=insv('g13a',''); h+=icb('q13-A','Exposição ao benzeno constatada em inspeção')+isel('g13a','Grau atribuído pelo perito','',[['','Escolher…'],['máximo','Máximo'],['médio','Médio'],['mínimo','Mínimo']])+'<p class="fine">O Anexo 13-A não fixa grau. A escolha é do perito, por analogia com o Anexo 13 (hidrocarbonetos e outros compostos de carbono); a ferramenta não presume grau.</p>'+(insv('q13-A',false)&&!g?resultado(null,'médio','Escolha o grau atribuído no laudo.'):resultado(insv('q13-A',false),g||'médio','Caracterização qualitativa (Anexo 13-A).')); }
   else if(an.tipo==='quali') h+=icb('q'+an.n,'Condição constatada em inspeção (laudo qualitativo)')+resultado(insv('q'+an.n,false),an.g==='máximo'?'máximo':'médio','Caracterização qualitativa.');
@@ -714,7 +714,7 @@ function renderPeric(){
   let h='<section class="intro"><div><p class="eyebrow">NR-16 · CLT, art. 193</p><h2>Periculosidade</h2><p class="muted">Adicional de 30% sobre o salário-base, sem gratificações, prêmios ou participação nos lucros (item 16.2). O empregado pode optar pela insalubridade; os adicionais não se acumulam (art. 193, §2º; IRR Tema 17). Marque, em cada anexo, os itens da norma constatados na inspeção.</p></div></section>';
   h+='<div class="anx anx16" role="tablist" aria-label="Anexos da NR-16">'+NR16.map(x=>'<button role="tab" aria-selected="'+(x===an)+'" data-a16="'+x.id+'" class="'+(x===an?'on':'')+'"><b>'+esc(x.n)+'</b><span>'+esc(x.t)+'</span></button>').join('')+'</div>';
   const r=avaliaPeric(an);
-  h+='<div class="grid2 one"><section class="panel" id="pperic"><div class="ph"><div class="fhead"><p class="eyebrow">'+esc(an.n)+' · '+esc(an.port)+'</p><button class="printbtn" data-print="peric">Imprimir ou salvar PDF</button></div><h3>'+esc(an.t)+'</h3></div>'+
+  h+='<div class="grid2 one"><section class="panel" id="pperic"><div class="ph"><div class="fhead"><p class="eyebrow">'+esc(an.n)+' · '+esc(an.port)+'</p><span class="btns">'+favBtn('a16:'+an.id,'NR-16, '+an.n+' — '+an.t)+'<button class="printbtn" data-print="peric">Imprimir ou salvar PDF</button></span></div><h3>'+esc(an.t)+'</h3></div>'+
    an.secoes.map(sec=>secHtml(an,sec)).join('')+
    '<section class="sec16"><h4>Frequência da exposição (Súmula 364'+(an.id==='a4'?' e item 3 do Anexo 4':'')+')</h4><fieldset class="fr"><legend class="sr">Frequência</legend>'+[['perm','Permanente'],['int','Intermitente'],['ev','Eventual (fortuito)'],['red','Habitual por tempo extremamente reduzido']].map(([k,t])=>'<label class="cb" for="fr-'+k+'"><input type="radio" name="fr" id="fr-'+k+'" data-per="fr" value="'+k+'"'+(pget('fr','perm')===k?' checked':'')+'><span>'+t+'</span></label>').join('')+'</fieldset></section>'+
    '<div class="pcalc">'+pin('sal','Salário-base (R$) — opcional','step="0.01"')+'</div>'+
@@ -737,7 +737,7 @@ function renderTeses(){
   h+='<div class="filt">'+[['todos','Todas'],['prev','Previdenciário'],['trab','Trabalhista'],['STF','STF'],['STJ','STJ'],['TNU','TNU'],['TST','TST']].map(([k,t])=>'<button data-tf="'+k+'" class="'+(f===k?'on':'')+'">'+t+'</button>').join('')+'</div>';
   h+='<div class="filt">'+[['todas','Qualquer situação'],['firmadas','Firmadas e vigentes'],['abertas','Em aberto ('+nAbertas+')']].map(([k,t])=>'<button data-tsit="'+k+'" class="'+(fs===k?'on':'')+'">'+t+'</button>').join('')+'</div>';
   h+='<p class="muted small">'+items.length+' resultado(s).</p>';
-  h+='<div class="teses">'+items.map(([k,t])=>{ const u=usos(k); return '<article class="tese" id="tese-'+k+'"><header><span class="trib t-'+t.trib+'">'+t.trib+'</span><b>'+esc(t.num)+'</b>'+(t.ano?'<span class="ano">'+t.ano+'</span>':'')+'<span class="sit sit-'+t.sit+'">'+esc(sitRot(t))+'</span></header><h4>'+esc(t.titulo)+'</h4><p>'+esc(t.tese)+'</p>'+(t.ref&&t.ref!=='—'?'<p class="ref">'+esc(t.ref)+'</p>':'')+(u.length?'<p class="uso">Fichas: '+u.map(a=>'<a href="#aposentadoria/agentes" data-ag="'+a.id+'">'+esc(a.nome)+'</a>').join(', ')+'</p>':'')+'<div class="btns"><button class="ghost sm" data-cite="'+k+'">Copiar citação</button><button class="ghost sm" data-tlink="'+k+'">Copiar link</button></div></article>'; }).join('')+'</div>';
+  h+='<div class="teses">'+items.map(([k,t])=>{ const u=usos(k); return '<article class="tese" id="tese-'+k+'"><header><span class="trib t-'+t.trib+'">'+t.trib+'</span><b>'+esc(t.num)+'</b>'+(t.ano?'<span class="ano">'+t.ano+'</span>':'')+'<span class="sit sit-'+t.sit+'">'+esc(sitRot(t))+'</span></header><h4>'+esc(t.titulo)+'</h4><p>'+esc(t.tese)+'</p>'+(t.ref&&t.ref!=='—'?'<p class="ref">'+esc(t.ref)+'</p>':'')+(u.length?'<p class="uso">Fichas: '+u.map(a=>'<a href="#aposentadoria/agentes" data-ag="'+a.id+'">'+esc(a.nome)+'</a>').join(', ')+'</p>':'')+'<div class="btns">'+favBtn('tese:'+k,t.trib+', '+t.num+' — '+t.titulo)+'<button class="ghost sm" data-cite="'+k+'">Copiar citação</button><button class="ghost sm" data-tlink="'+k+'">Copiar link</button></div></article>'; }).join('')+'</div>';
   return h;
 }
 
@@ -979,7 +979,7 @@ document.addEventListener('keydown', ev=>{ if(ev.key==='Escape'){ const p=$('#pr
 
 /* ---------- casos: abrir, novo, duplicar, excluir, exportar, importar ---------- */
 function avisar(msg){ let t=document.getElementById('toast'); if(!t){ t=document.createElement('div'); t.id='toast'; t.setAttribute('role','status'); document.body.appendChild(t); } t.textContent=msg; t.classList.add('on'); clearTimeout(avisar._t); avisar._t=setTimeout(()=>t.classList.remove('on'),4200); }
-const dataBR = iso => iso ? new Date(iso).toLocaleDateString('pt-BR') : '';
+const dataBR = iso => { const d=iso?new Date(iso):null; return d&&!isNaN(d)?d.toLocaleDateString('pt-BR'):''; };
 function casebar(){
   const l=casosOrdenados();
   return '<section class="casebar panel" aria-label="Meus casos"><label class="f grow" for="c-sel"><span>Meus casos ('+l.length+')</span><select id="c-sel" data-casesel="1">'+
@@ -995,7 +995,7 @@ function baixar(nome, obj){ const blob=new Blob([JSON.stringify(obj,null,1)],{ty
 const nomeArq = s => String(s||'caso').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^\w-]+/g,'-').replace(/^-+|-+$/g,'').slice(0,60)||'caso';
 const PACOTE = (tipo, extra) => Object.assign({app:'caracterizador-pericial', formato:1, tipo, exportado:agora()}, extra);
 function exportarCaso(){ baixar('caso-'+nomeArq(S.caso.nome)+'.json', PACOTE('casos',{casos:[S.caso]})); }
-function exportarTudo(){ baixar('caracterizador-backup-'+agora().slice(0,10)+'.json', PACOTE('backup',{casos:casosOrdenados(), perfil:perfilSemImagens()})); }
+function exportarTudo(){ baixar('caracterizador-backup-'+agora().slice(0,10)+'.json', PACOTE('backup',{casos:casosOrdenados(), perfil:perfilSemImagens(), favoritos:FAV})); }
 function importarArquivo(file){
   const rd=new FileReader();
   rd.onload=()=>{ try{
@@ -1004,6 +1004,7 @@ function importarArquivo(file){
       if(!lista||!lista.length) throw new Error('arquivo sem casos');
       let primeiro=null;
       lista.forEach(c=>{ const id=(c.id&&!DB.casos[c.id])?c.id:novoId(); DB.casos[id]=Object.assign(limpaCaso(JSON.parse(JSON.stringify(c))),{id,alterado:c.alterado||agora()}); primeiro=primeiro||id; });
+      if(o.tipo==='backup'&&o.favoritos&&typeof o.favoritos==='object'){ FAV=Object.assign({},FAV,o.favoritos); salvarFav(); }
       if(o.tipo==='backup'&&o.perfil&&typeof o.perfil==='object'){ const p=perfil(); PERFIL=Object.assign({},o.perfil,{a4v:p.a4v||'',a4h:p.a4h||''}); salvarPerfil(); }
       DB.ativo=primeiro; S.caso=DB.casos[primeiro]; persist(); render();
       avisar(lista.length+(lista.length>1?' casos importados.':' caso importado.'));
@@ -1033,9 +1034,10 @@ function renderPerfil(){
    [['grahl','Timbrado padrão do Caracterizador'],['proprio','Meu timbrado (imagem)'],['simples','Cabeçalho simples com meus dados']].map(([k,t])=>'<label class="cb" for="tb-'+k+'"><input type="radio" name="tb" id="tb-'+k+'" data-pf="timbrado" value="'+k+'"'+(tb===k?' checked':'')+'><span>'+t+'</span></label>').join('')+'</fieldset>'+
    (tb==='proprio'?'<div class="tbimgs">'+img('a4v','A4 em pé','usado nas fichas e consultas')+img('a4h','A4 deitado','usado no relatório do caso')+'</div><p class="fine">Use a página A4 inteira (cabeçalho em cima, rodapé embaixo e o meio em branco), em PNG ou JPG. A imagem é reduzida para caber no navegador.</p>':'')+
    '<div class="sigprev"><span class="small">Assinatura nos relatórios</span><b>'+(assinaturaTxt().map(esc).join('<br>')||'— preencha nome, profissão e registro —')+'</b></div>'+
+  '<div class="ph"><h3>Favoritos e anotações</h3></div>'+favoritosPerfil()+
   '</section><aside class="panel"><div class="ph"><h3>Meus dados</h3></div><p class="small">'+nCasos+(nCasos>1?' casos salvos':' caso salvo')+' neste navegador.</p>'+
    '<div class="btns col"><button class="ghost" data-cs="backup">Baixar backup completo</button><label class="ghost filebtn" for="pf-restore">Restaurar backup<input id="pf-restore" type="file" accept=".json,application/json" data-pfrestore="1"></label><button class="ghost danger" data-cs="wipe">Apagar todos os meus dados</button></div>'+
-   '<p class="fine">O backup inclui todos os casos e o perfil (sem as imagens do timbrado). Apagar remove casos, perfil e preferências deste navegador, sem possibilidade de recuperação.</p>'+
+   '<p class="fine">O backup inclui todos os casos, o perfil (sem as imagens do timbrado) e os favoritos com anotações. Apagar remove casos, perfil e preferências deste navegador, sem possibilidade de recuperação.</p>'+
    '<div class="ph"><h3>Usar sem internet</h3></div>'+instalarHtml()+'<div class="ph"><h3>Documentos</h3></div><ul class="blist"><li><a href="termos.html" target="_blank" rel="noopener">Termos de uso ↗</a></li><li><a href="privacidade.html" target="_blank" rel="noopener">Política de privacidade ↗</a></li></ul>'+
    (p.aceite?'<p class="fine">Termos aceitos em '+dataBR(p.aceite.data)+' (versão '+esc(p.aceite.versao)+').</p>':'')+
   '</aside></div>';
@@ -1087,7 +1089,7 @@ document.addEventListener('click', ev=>{
   else if(k==='del'||k==='wipe'){
     if(!b.dataset.armed){ b.dataset.armed='1'; const orig=b.textContent; b.textContent= k==='del'?'Toque de novo para excluir':'Toque de novo para apagar tudo'; setTimeout(()=>{ if(b.isConnected){ delete b.dataset.armed; b.textContent=orig; } },3500); return; }
     if(k==='del') excluirCaso();
-    else { try{ [STORE,STORE_PERFIL,'caracterizador:v1'].forEach(x=>localStorage.removeItem(x)); }catch(e){} location.reload(); }
+    else { try{ [STORE,STORE_PERFIL,'caracterizador:v1','caracterizador:favoritos','caracterizador:novidades-vistas'].forEach(x=>localStorage.removeItem(x)); }catch(e){} location.reload(); }
   }
 });
 
@@ -1154,6 +1156,33 @@ function novidadesHtml(){
   const nn=NOV_NOVAS().length;
   return '<section class="isec panel novs" id="novidades"><div class="ihead"><h2 class="ih">Novidades na base</h2><p class="ilead">Atualizado em '+brData(ult)+'. Normas e decisões que entraram no app, com o caminho para consultar.'+(nn?' <b>'+nn+' nova(s) desde a sua última visita.</b> <button class="linkbtn" data-novok="1">Marcar como vistas</button>':'')+'</p></div><ul class="novl">'+ini.map(novItem).join('')+'</ul>'+(resto.length?'<details><summary>Ver mais '+resto.length+' novidade(s)</summary><ul class="novl">'+resto.map(novItem).join('')+'</ul></details>':'')+'</section>';
 }
+
+/* ---------- favoritos e anotações pessoais (ficam só no navegador) ---------- */
+const STORE_FAV='caracterizador:favoritos';
+let FAV={}; try{ FAV=JSON.parse(localStorage.getItem(STORE_FAV)||'{}')||{}; }catch(e){ FAV={}; }
+function salvarFav(){ try{ localStorage.setItem(STORE_FAV, JSON.stringify(FAV)); }catch(e){ avisar('Não foi possível salvar os favoritos no navegador.'); } }
+function favBtn(key, titulo){ const on=!!FAV[key]; return '<button class="ghost sm fav'+(on?' on':'')+'" data-fav="'+esc(key)+'" data-favt="'+esc(titulo)+'" aria-pressed="'+on+'" title="'+(on?'Remover dos favoritos':'Guardar nos favoritos')+'">'+(on?'★ Favorito':'☆ Favoritar')+'</button>'; }
+function favLista(){ return Object.entries(FAV).map(([k,v])=>Object.assign({key:k},v)).sort((x,y)=>String(y.data||'').localeCompare(String(x.data||''))); }
+const FAV_TIPO = k => ({ag:'Agente', tese:'Tese', a15:'NR-15', a16:'NR-16'}[k.split(':')[0]]||'Item');
+function favoritosInicio(){
+  const l=favLista(); if(!l.length) return '';
+  return '<section class="isec panel favs"><div class="ihead"><h2 class="ih">Meus favoritos</h2><p class="ilead">Atalhos para o que você mais consulta. As anotações ficam só neste navegador; edite-as em <a href="#perfil">Perfil e dados</a>.</p></div><ul class="favl">'+
+   l.slice(0,8).map(f=>'<li><span class="chip st-I">'+FAV_TIPO(f.key)+'</span><button class="linkbtn" data-go="'+esc(f.key)+'">'+esc(f.titulo)+'</button>'+(f.nota?'<span class="small">'+esc(f.nota.length>140?f.nota.slice(0,140)+'…':f.nota)+'</span>':'')+'</li>').join('')+'</ul>'+(l.length>8?'<p class="fine">e mais '+(l.length-8)+' em Perfil e dados.</p>':'')+'</section>';
+}
+function favoritosPerfil(){
+  const l=favLista();
+  if(!l.length) return '<p class="small">Nenhum favorito ainda. Use o botão "☆ Favoritar" nas fichas de agentes, nas teses e nos anexos da NR-15 e da NR-16.</p>';
+  return '<ul class="favl edit">'+l.map(f=>'<li><div class="favh"><span class="chip st-I">'+FAV_TIPO(f.key)+'</span><button class="linkbtn" data-go="'+esc(f.key)+'">'+esc(f.titulo)+'</button><button class="ghost sm" data-favdel="'+esc(f.key)+'">Remover</button></div><label class="f" for="fn-'+esc(f.key.replace(':','-'))+'"><span>Minha anotação</span><textarea id="fn-'+esc(f.key.replace(':','-'))+'" rows="2" data-favnota="'+esc(f.key)+'" placeholder="Ex.: usar no quesito 3; conferir embargos">'+esc(f.nota||'')+'</textarea></label></li>').join('')+'</ul>';
+}
+function atualizarBotoesFav(key){ document.querySelectorAll('[data-fav]').forEach(b=>{ if(b.dataset.fav===key){ const tmp=document.createElement('div'); tmp.innerHTML=favBtn(key,b.dataset.favt); b.replaceWith(tmp.firstChild); } }); }
+document.addEventListener('click', ev=>{
+  const b=ev.target.closest('[data-fav],[data-favdel]'); if(!b) return;
+  if(b.dataset.favdel){ delete FAV[b.dataset.favdel]; salvarFav(); render(); avisar('Removido dos favoritos.'); return; }
+  const k=b.dataset.fav;
+  if(FAV[k]){ delete FAV[k]; avisar('Removido dos favoritos.'); } else { FAV[k]={titulo:b.dataset.favt, nota:'', data:agora()}; avisar('Guardado nos favoritos. Anotações em Perfil e dados.'); }
+  salvarFav(); atualizarBotoesFav(k);
+});
+document.addEventListener('input', ev=>{ const t=ev.target; if(t.dataset.favnota&&FAV[t.dataset.favnota]){ FAV[t.dataset.favnota].nota=t.value; salvarFav(); } });
 
 /* ---------- fontes oficiais e alertas do monitor ---------- */
 const brData = d => d ? d.split('-').reverse().join('/') : '—';
