@@ -49,6 +49,7 @@ Para atualizar, edite o arquivo no próprio GitHub (ícone de lápis) ou envie a
 - **Consultados recentemente** (Início): as 10 últimas fichas, anexos, funções, teses e textos legais abertos, guardados só no navegador (`caracterizador:recentes`), com botão Limpar.
 - **Siglas explicadas no texto:** a primeira ocorrência de cada sigla do glossário em cada tela (PPP, LTCAT, NEN, IBUTG, LINACH, EPI…) fica sublinhada e abre a definição ao clicar. O mapa sigla → termo é `SIGLAS`, em `js/app.js`; textos legais literais não são marcados.
 - **Ver também:** no fim da ficha do agente e dos anexos da NR-15 e da NR-16, atalhos para os anexos, agentes e funções relacionados. As ligações vêm do campo `nr15` de cada agente (`dados/normas-base.js`) e dos campos `ag`, `nr15` e `nr16` de `dados/funcoes.js`.
+- **Impressão de teses e textos legais:** cada tese tem "Imprimir"; acima da lista, "Imprimir estas N teses" imprime o filtro atual. Nos textos legais navegáveis, "Imprimir este texto" imprime o documento (ou só os itens encontrados, se houver filtro). Usa o mesmo timbrado das fichas.
 - **Links diretos:** fichas de agentes, anexos da NR-15 e da NR-16 e funções têm "Copiar link". O endereço `#ir/<destino>` abre direto o conteúdo (ex.: `#ir/ag:calor`, `#ir/a15:3`, `#ir/a16:a2`, `#ir/funcao:soldador`); as funções usam o nome, não a posição na lista.
 - **Busca geral:** prioriza palavras que começam pelo termo digitado; só procura no meio das palavras se não houver resultado.
 

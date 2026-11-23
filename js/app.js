@@ -736,8 +736,8 @@ function renderTeses(){
   h+='<div class="libbar"><label class="f grow" for="tq"><span>Pesquisar nas teses</span><input id="tq" type="search" data-st="tq" value="'+esc(S.tq||'')+'" placeholder="Ex.: EPI, ruído, vigilante, Súmula 364, REsp 2.082.072"></label></div>';
   h+='<div class="filt">'+[['todos','Todas'],['prev','Previdenciário'],['trab','Trabalhista'],['STF','STF'],['STJ','STJ'],['TNU','TNU'],['TST','TST']].map(([k,t])=>'<button data-tf="'+k+'" class="'+(f===k?'on':'')+'">'+t+'</button>').join('')+'</div>';
   h+='<div class="filt">'+[['todas','Qualquer situação'],['firmadas','Firmadas e vigentes'],['abertas','Em aberto ('+nAbertas+')']].map(([k,t])=>'<button data-tsit="'+k+'" class="'+(fs===k?'on':'')+'">'+t+'</button>').join('')+'</div>';
-  h+='<p class="muted small">'+items.length+' resultado(s).</p>';
-  h+='<div class="teses">'+items.map(([k,t])=>{ const u=usos(k); return '<article class="tese" id="tese-'+k+'"><header><span class="trib t-'+t.trib+'">'+t.trib+'</span><b>'+esc(t.num)+'</b>'+(t.ano?'<span class="ano">'+t.ano+'</span>':'')+'<span class="sit sit-'+t.sit+'">'+esc(sitRot(t))+'</span></header><h4>'+esc(t.titulo)+'</h4><p>'+esc(t.tese)+'</p>'+(t.ref&&t.ref!=='—'?'<p class="ref">'+esc(t.ref)+'</p>':'')+(u.length?'<p class="uso">Fichas: '+u.map(a=>'<a href="#aposentadoria/agentes" data-ag="'+a.id+'">'+esc(a.nome)+'</a>').join(', ')+'</p>':'')+'<div class="btns">'+favBtn('tese:'+k,t.trib+', '+t.num+' — '+t.titulo)+'<button class="ghost sm" data-cite="'+k+'">Copiar citação</button><button class="ghost sm" data-tlink="'+k+'">Copiar link</button></div></article>'; }).join('')+'</div>';
+  h+='<div class="resbar"><p class="muted small">'+items.length+' resultado(s).</p>'+(items.length?'<button class="printbtn" data-print="teses">Imprimir '+(items.length===1?'esta tese':'estas '+items.length+' teses')+'</button>':'')+'</div>';
+  h+='<div class="teses">'+items.map(([k,t])=>{ const u=usos(k); return '<article class="tese" id="tese-'+k+'"><header><span class="trib t-'+t.trib+'">'+t.trib+'</span><b>'+esc(t.num)+'</b>'+(t.ano?'<span class="ano">'+t.ano+'</span>':'')+'<span class="sit sit-'+t.sit+'">'+esc(sitRot(t))+'</span></header><h4>'+esc(t.titulo)+'</h4><p>'+esc(t.tese)+'</p>'+(t.ref&&t.ref!=='—'?'<p class="ref">'+esc(t.ref)+'</p>':'')+(u.length?'<p class="uso">Fichas: '+u.map(a=>'<a href="#aposentadoria/agentes" data-ag="'+a.id+'">'+esc(a.nome)+'</a>').join(', ')+'</p>':'')+'<div class="btns">'+favBtn('tese:'+k,t.trib+', '+t.num+' — '+t.titulo)+'<button class="ghost sm" data-cite="'+k+'">Copiar citação</button><button class="ghost sm" data-tlink="'+k+'">Copiar link</button><button class="ghost sm" data-print="tese:'+k+'">Imprimir</button></div></article>'; }).join('')+'</div>';
   return h;
 }
 
@@ -940,7 +940,8 @@ function fallbackCopy(txt,b){ let ta=document.getElementById('copyarea'); if(!ta
 const hoje = () => new Date().toLocaleDateString('pt-BR');
 function freeze(node){
   const c=node.cloneNode(true);
-  c.querySelectorAll('.printbtn, .btns, button, .a11wrap, .fine.a11n').forEach(e=>e.remove());
+  c.querySelectorAll('button.gl').forEach(b=>b.replaceWith(document.createTextNode(b.textContent)));
+  c.querySelectorAll('.printbtn, .btns, button, .a11wrap, .fine.a11n, .vtb, .txidx, .txdocs').forEach(e=>e.remove());
   c.querySelectorAll('table.t16 tbody tr').forEach(tr=>{ const i=tr.querySelector('input'); if(i && !i.checked) tr.remove(); });
   c.querySelectorAll('table.t16').forEach(tb=>{ if(!tb.querySelector('tbody tr')){ const p=document.createElement('p'); p.className='muted small'; p.textContent='Nenhum item marcado.'; tb.replaceWith(p); } });
   c.querySelectorAll('.sec16 details').forEach(d=>d.remove());
@@ -968,7 +969,7 @@ function reportCaso(){
 /* uma linha da tabela externa por bloco: o cabeçalho e o rodapé do timbrado se repetem sem sobrepor o conteúdo */
 function splitRows(html){
   const tmp=document.createElement('div'); tmp.innerHTML=html; const out=[];
-  const keep=el=>/^(TABLE|P|H1|H2|H3|H4|UL|OL|DL|IMG|LABEL)$/.test(el.tagName)||el.matches('.verdict,.kv,.f,.cb,.opt,.lt,.iso,.tri,.mxrow,.codes');
+  const keep=el=>/^(TABLE|P|H1|H2|H3|H4|UL|OL|DL|IMG|LABEL)$/.test(el.tagName)||el.matches('.verdict,.kv,.f,.cb,.opt,.lt,.iso,.tri,.mxrow,.codes,header:has(> .trib)');
   const walk=node=>{ for(const ch of Array.from(node.childNodes)){ if(ch.nodeType===3){ if(ch.textContent.trim()) out.push(ch.textContent); continue; } if(ch.nodeType!==1) continue; if(!keep(ch) && ch.children.length>1) walk(ch); else out.push(ch.outerHTML); } };
   walk(tmp);
   return out.map(x=>'<tr><td class="pbody">'+x+'</td></tr>').join('');
@@ -978,6 +979,9 @@ function printOut(kind){
   if(kind==='caso'){ html=reportCaso(); ori='landscape'; }
   else if(kind==='ficha'){ const f=$('.ficha'); html='<p class="meta">Ficha de agente nocivo · emitida em '+hoje()+'</p>'+freeze(f); }
   else if(kind==='insal'){ html='<h1>Insalubridade — NR-15</h1><p class="meta">Consulta emitida em '+hoje()+'</p>'+freeze($('#pinsal')); }
+  else if(kind.startsWith('tese:')){ const el=document.getElementById('tese-'+kind.slice(5)); if(!el) return; html='<h1>Jurisprudência — consulta</h1><p class="meta">Resumo para consulta, emitido em '+hoje()+'. Confira a íntegra e a situação atual antes de citar.</p>'+freeze(el)+'<p class="meta"><b>Citação:</b> '+esc(citacao(kind.slice(5)))+'</p>'; }
+  else if(kind==='teses'){ const l=[...document.querySelectorAll('.teses .tese')]; if(!l.length) return; html='<h1>Jurisprudência — '+l.length+' tese(s)</h1><p class="meta">Seleção conforme os filtros da tela, emitida em '+hoje()+'. Resumos para consulta; confira a íntegra e a situação atual antes de citar.</p>'+l.map(freeze).join('<hr>'); }
+  else if(kind==='txtdoc'){ let d=$('.txdoc'); if(!d) return; d=d.cloneNode(true); d.querySelectorAll('label.f').forEach(e=>e.remove()); html='<h1>Texto legal — consulta</h1><p class="meta">Reprodução para consulta, emitida em '+hoje()+'. Confira a redação na fonte oficial antes de citar.</p>'+freeze(d); }
   else if(kind==='peric'){ html='<h1>Periculosidade — NR-16</h1><p class="meta">Consulta emitida em '+hoje()+'</p>'+freeze($('#pperic')); }
   const root=$('#printroot');
   const TB=timbradoPara(ori);
@@ -1424,7 +1428,7 @@ function renderTextos(){
   const q=(S.txq||'').trim(), nq=normTxt(q);
   const itens=nq?doc.itens.filter(it=>normTxt(it.rot+' '+it.pars.join(' ')).includes(nq)):doc.itens;
   let h='<nav class="txdocs" aria-label="Documentos">'+DOCS_TX.map(x=>'<a class="txchip'+(x.id===doc.id?' on':'')+'" href="#biblioteca/textos/'+x.id+'"'+(x.id===doc.id?' aria-current="page"':'')+'>'+esc(x.curto)+'</a>').join('')+'</nav>';
-  h+='<section class="panel txdoc"><div class="ph"><h3>'+esc(doc.tit)+'</h3><p class="muted small">'+esc(doc.nota)+' <a href="'+esc(doc.fonte)+'" target="_blank" rel="noopener">Fonte oficial</a></p></div>';
+  h+='<section class="panel txdoc"><div class="ph"><div class="fhead"><h3>'+esc(doc.tit)+'</h3><button class="printbtn" data-print="txtdoc">'+(q?'Imprimir os itens encontrados':'Imprimir este texto')+'</button></div><p class="muted small">'+esc(doc.nota)+' <a href="'+esc(doc.fonte)+'" target="_blank" rel="noopener">Fonte oficial</a></p></div>';
   h+='<label class="f" for="tx-q"><span>Procurar neste texto</span><input id="tx-q" type="search" value="'+esc(q)+'" placeholder="Ex.: permanente, EPI, laudo" data-txq="1"></label>';
   h+='<div class="txidx" aria-label="Índice">'+doc.itens.map(it=>'<a href="#biblioteca/textos/'+doc.id+'/'+esc(it.id)+'">'+esc(it.rot.replace(/^(Art\.|Item) ?/,''))+'</a>').join('')+'</div>';
   h+=itens.length?itens.map(it=>'<article class="txart" id="'+txId(doc.id,it.id)+'"><header><b>'+esc(it.rot)+'</b><div class="btns">'+favBtn('txt:'+doc.id+'/'+it.id,it.cit)+'<button class="ghost sm" data-txcite="'+doc.id+'|'+esc(it.id)+'">Copiar citação</button><button class="ghost sm" data-txlink="'+doc.id+'|'+esc(it.id)+'">Copiar link</button></div></header>'+it.pars.map(p=>'<p>'+hl(p,q)+'</p>').join('')+'</article>').join(''):'<p class="empty">Nada encontrado para "'+esc(q)+'" neste texto.</p>';
