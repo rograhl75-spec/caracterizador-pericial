@@ -582,3 +582,8 @@ button.linkbtn{background:none; border:none; padding:0; color:var(--ink); text-d
 .tese header .ano{margin-left:0}
 .consulta-aviso{background:var(--i-bg); color:var(--ink); border-left:4px solid var(--i); border-radius:6px; padding:10px 14px; font-size:.88rem; margin-bottom:14px}
 .offline{font-weight:600}
+#novfaixa{margin-top:12px}
+.novfaixa{display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; background:var(--e-bg); border-left:4px solid var(--e); border-radius:8px; padding:10px 14px; font-size:.9rem; color:var(--ink)}
+.nov.nova{border-left-color:var(--e)}
+.nov .chip{align-self:flex-start}
+.novs,.tese,.alvo{scroll-margin-top:130px}
