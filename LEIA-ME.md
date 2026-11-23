@@ -92,3 +92,12 @@ Teste local: `node scripts/monitor.mjs --dry` (não grava nada).
 ## Observação
 
 Ferramenta de apoio técnico. Não substitui a análise do caso concreto nem a redação oficial das normas.
+
+## Segurança e desempenho
+
+- **Arquivos importados** (backup ou caso) são validados: ids, datas, tempos, campos de medição, favoritos e perfil passam por listas de campos e tamanhos; o aceite dos termos e as imagens não são importados. Se algum dado salvo travar uma tela, aparece um aviso com saída, nunca a tela em branco.
+- **CSP** no `index.html`: scripts só do próprio site; estilos e fontes também do Google Fonts. Links de alertas do robô só para sites oficiais em https (`gov.br`, `jus.br`, `leg.br`).
+- **Robô (GitHub Actions)**: actions fixadas por SHA, SDK do Claude com versão travada (`scripts/package-lock.json`, `npm ci --ignore-scripts`), token de escrita só no passo de gravação; Dependabot avisa de atualizações (`.github/dependabot.yml`).
+- **Service worker**: em conexão lenta usa a cópia local e atualiza o cache quando a resposta chega.
+- **Navegador antigo** (sem ES2020): `js/compat.js` mostra um aviso em vez da tela em branco.
+- Relatórios completos em `docs/auditorias/`.

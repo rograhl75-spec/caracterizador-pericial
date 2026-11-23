@@ -19,15 +19,23 @@ const plural=(n,um,varios)=>Number(n).toLocaleString('pt-BR')+' '+(n===1?um:vari
 let S = {gq:'', agq:'', tq:'', tab:'inicio', caso:JSON.parse(JSON.stringify(EXEMPLO)), ag:'ruido', a15:1, a16:'a2', tf:'todos', lib:'d3048_IV', q:'', ins:{}, per:{}};
 /* ===== Casos salvos (vários) — ficam só neste navegador ===== */
 const STORE='caracterizador:v2', STORE_PERFIL='caracterizador:perfil';
-let DB={ativo:null, casos:{}};
+const decodificar=x=>{ try{ return decodeURIComponent(x); }catch(e){ return x; } };
+/* links externos só para sites oficiais em https (governo, justiça, legislativo) */
+const safeUrl=u=>{ try{ const x=new URL(u); return x.protocol==='https:'&&/(^|\.)(gov\.br|jus\.br|leg\.br|mte\.gov\.br)$/.test(x.hostname)?x.href:''; }catch(e){ return ''; } };
+let DB={ativo:null, casos:Object.create(null)};
+/* ids e dados vindos do navegador ou de arquivos importados são validados: um arquivo forjado não pode poluir objetos nem travar a tela */
+const idOk=s=>typeof s==='string'&&/^[a-z0-9]{4,40}$/i.test(s);
+const txtOk=(v,n=300)=>typeof v==='string'?v.slice(0,n):(typeof v==='number'?String(v):'');
+const dataOk=v=>typeof v==='string'&&/^\d{4}-\d\d-\d\d$/.test(v)?v:'';
+function dOk(d){ const o={}; if(!d||typeof d!=='object'||Array.isArray(d)) return o; for(const [k,v] of Object.entries(d)){ if(!/^[a-z][a-z0-9]{0,15}$/i.test(k)) continue; if(k==='nps'&&v&&typeof v==='object'){ const n={}; Object.entries(v).slice(0,50).forEach(([j,r])=>{ if(/^\d+$/.test(j)&&Array.isArray(r)) n[j]=r.slice(0,2).map(x=>txtOk(x,20)); }); o.nps=n; } else if(typeof v==='boolean') o[k]=v; else if(typeof v==='string'||typeof v==='number') o[k]=txtOk(v,60); } return o; }
 const novoId=()=>'c'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 const agora=()=>new Date().toISOString();
-function limpaCaso(c){ c=c||{}; c.nome=c.nome||'Caso sem nome'; c.sexo=c.sexo==='M'?'M':'H'; c.rows=(Array.isArray(c.rows)?c.rows:[]).filter(r=>r&&AGENTS.some(a=>a.id===r.agente)); Object.keys(c).forEach(k=>{ if(/^\d+$/.test(k)) delete c[k]; }); /* chaves numéricas gravadas por engano pela tabela de NPS (versões anteriores) */ return c; }
+function limpaCaso(c){ c=(c&&typeof c==='object'&&!Array.isArray(c))?c:{}; c.nome=txtOk(c.nome,200)||'Caso sem nome'; c.sexo=c.sexo==='M'?'M':'H'; c.rows=(Array.isArray(c.rows)?c.rows:[]).filter(r=>r&&typeof r==='object'&&AGENTS.some(a=>a.id===r.agente)).slice(0,200).map(r=>{ const ag=AGENTS.find(a=>a.id===r.agente); return {empresa:txtOk(r.empresa), funcao:txtOk(r.funcao), ini:dataOk(r.ini), fim:dataOk(r.fim), agente:r.agente, tempo:[15,20,25].includes(+r.tempo)?+r.tempo:ag.tempo, epi:r.epi===true, d:dOk(r.d)}; }); if(typeof c.alterado!=='string') delete c.alterado; Object.keys(c).forEach(k=>{ if(/^\d+$/.test(k)) delete c[k]; }); /* chaves numéricas gravadas por engano pela tabela de NPS (versões anteriores) */ return c; }
 try{
   const raw=localStorage.getItem(STORE);
-  if(raw){ const o=JSON.parse(raw); if(o&&o.casos&&typeof o.casos==='object') DB=o; }
+  if(raw){ const o=JSON.parse(raw); if(o&&o.casos&&typeof o.casos==='object'){ const cs=Object.create(null); Object.keys(o.casos).forEach(k=>{ if(idOk(k)&&Object.prototype.hasOwnProperty.call(o.casos,k)) cs[k]=o.casos[k]; }); DB={ativo:idOk(o.ativo)?o.ativo:null, casos:cs}; } }
   else { const v1=localStorage.getItem('caracterizador:v1'); /* migração do formato antigo (um caso só) */
-    if(v1){ const o=JSON.parse(v1); if(o&&o.caso&&Array.isArray(o.caso.rows)){ const id=novoId(); DB={ativo:id,casos:{[id]:Object.assign(o.caso,{id,alterado:agora()})}}; } } }
+    if(v1){ const o=JSON.parse(v1); if(o&&o.caso&&Array.isArray(o.caso.rows)){ const id=novoId(); DB={ativo:id,casos:Object.assign(Object.create(null),{[id]:Object.assign(o.caso,{id,alterado:agora()})})}; } } }
 }catch(e){}
 Object.keys(DB.casos).forEach(id=>{ DB.casos[id]=limpaCaso(DB.casos[id]); DB.casos[id].id=id; });
 function casosOrdenados(){ return Object.values(DB.casos).sort((x,y)=>String(y.alterado||'').localeCompare(String(x.alterado||''))); }
@@ -816,7 +824,9 @@ const LIBT = [
  ['txt_regressivas','Ações regressivas do INSS — fundamentos',['Texto']],
  ['txt_legcompl','Legislação complementar do Decreto 53.831/64',['Texto']]
 ];
-function hl(s,q){ s=esc(s); if(!q) return s; const re=new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'); return s.replace(re,'<mark>$1</mark>'); }
+/* destaca no texto puro e só depois escapa: o termo nunca casa dentro de <mark> ou de entidades */
+function marcar(s,res){ s=String(s??''); res=res.filter(Boolean); if(!res.length) return esc(s); const iv=[]; res.forEach(re=>{ re.lastIndex=0; let m; while((m=re.exec(s))){ if(!m[0]){ re.lastIndex++; continue; } iv.push([m.index,m.index+m[0].length]); } }); if(!iv.length) return esc(s); iv.sort((a,b)=>a[0]-b[0]); const u=[]; iv.forEach(x=>{ const l=u[u.length-1]; if(l&&x[0]<=l[1]) l[1]=Math.max(l[1],x[1]); else u.push(x.slice()); }); let o='', p=0; u.forEach(([a,b])=>{ o+=esc(s.slice(p,a))+'<mark>'+esc(s.slice(a,b))+'</mark>'; p=b; }); return o+esc(s.slice(p)); }
+function hl(s,q){ if(!q) return esc(s); return marcar(s,[new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi')]); }
 function cellHtml(v,q){ v=String(v||''); if(/^https?:\/\//.test(v)) return '<a href="'+esc(v)+'" target="_blank" rel="noopener">'+esc(v.replace(/^https?:\/\/(www\.)?/,'').slice(0,60))+'…</a>'; return hl(v,q); }
 function renderBib(){
   const vis='<nav class="subtabs" aria-label="Biblioteca"><a href="#biblioteca"'+(S.libv!=='textos'&&S.libv!=='historico'?' class="on" aria-current="page"':'')+'>Quadros e tabelas</a><a href="#biblioteca/textos"'+(S.libv==='textos'?' class="on" aria-current="page"':'')+'>Textos legais navegáveis</a>'+(typeof HISTORICO_NR!=='undefined'?'<a href="#biblioteca/historico"'+(S.libv==='historico'?' class="on" aria-current="page"':'')+'>Histórico das NRs</a>':'')+'</nav>';
@@ -871,7 +881,7 @@ function buildIndex(){
   return E;
 }
 function snippet(s,terms){ const n=normTxt(s); let i=-1; for(const t of terms){ i=n.indexOf(t); if(i>=0) break; } if(i<0||s.length<180) return s; const a=Math.max(0,i-60); return (a?'…':'')+s.slice(a,a+180)+'…'; }
-function hlTerms(s,terms){ let h=esc(s); terms.forEach(t=>{ if(t.length<2) return; const src=esc(s); /* destaque sem acento */ const re=new RegExp('('+t.split('').map(c=>({a:'[aáàâã]',e:'[eéê]',i:'[ií]',o:'[oóôõ]',u:'[uúü]',c:'[cç]'}[c]||c.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'))).join('')+')','gi'); h=h.replace(re,'<mark>$1</mark>'); }); return h; }
+function hlTerms(s,terms){ /* destaque sem acento */ return marcar(s, terms.filter(t=>t.length>=2).map(t=>new RegExp(t.split('').map(c=>({a:'[aáàâã]',e:'[eéê]',i:'[ií]',o:'[oóôõ]',u:'[uúü]',c:'[cç]'}[c]||c.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'))).join(''),'gi'))); }
 const AREAS_BUSCA=[['ferr','Ferramentas'],['prev','Aposentadoria especial'],['funcao','Funções'],['nr15','NR-15'],['nr16','NR-16'],['teses','Teses'],['textos','Textos legais'],['bib','Biblioteca'],['nov','Novidades']];
 function areaBusca(sec){ return /^Ferramentas/.test(sec)?'ferr': /^Aposentadoria|^Marcos/.test(sec)?'prev': /^Consulta por função/.test(sec)?'funcao': /^NR-15/.test(sec)?'nr15': /^NR-16/.test(sec)?'nr16': /^Teses/.test(sec)?'teses': /^Textos legais/.test(sec)?'textos': /^Biblioteca/.test(sec)?'bib':'nov'; }
 document.addEventListener('click', ev=>{ const b=ev.target.closest('[data-gf]'); if(!b) return; S.gf=b.dataset.gf; render(); const f=document.querySelector('.gfilt [data-gf="'+S.gf+'"]'); if(f) f.focus(); });
@@ -935,15 +945,16 @@ function go(dest){
   if(location.hash==='#'+S.tab){ route(); }
 }
 
-function render(){
+function render(){ try{ renderInterno(); }catch(e){ console.error(e); const m=document.getElementById('main'); if(m) m.innerHTML='<section class="panel"><h2>Não foi possível mostrar esta tela</h2><p>Algum dado salvo neste navegador parece inválido (por exemplo, um caso importado). Abra outro caso ou volte ao Início.</p><p><a href="#inicio">Ir ao Início</a> · <button class="ghost sm" data-cs="novo">Criar um caso novo</button></p></section>'; } }
+function renderInterno(){
   const focoAntes=document.activeElement&&document.activeElement.id;
   document.querySelectorAll('.tabs a').forEach(a=>a.setAttribute('aria-current', a.getAttribute('href')==='#'+S.tab?'page':'false'));
   const m=$('#main');
   m.innerHTML = ajudaHtml() + (S.tab==='inicio'?renderInicio(): S.tab==='busca'?renderBusca(): S.tab==='aposentadoria'?renderAposentadoria(): S.tab==='insalubridade'?renderInsal(): S.tab==='periculosidade'?renderPeric(): S.tab==='teses'?renderTeses(): S.tab==='perfil'?renderPerfil(): S.tab==='funcao'?renderFuncao(): renderBib());
   registrarVisto(); marcarSiglas(); prepararCampos(document.getElementById('main'), focoAntes);
 }
-function route(){ let h=location.hash.slice(1); if(h.startsWith('ir/')){ const dest=decodeURIComponent(h.slice(3)); if(destinoValido(dest)){ GO_REPLACE=true; go(dest); irAoConteudo(); return true; } h='inicio'; } const LEG={agentes:'aposentadoria/agentes',painel:'aposentadoria/resultado'}; if(LEG[h]){ h=LEG[h]; history.replaceState(null,'','#'+h); } const [h0,h1,h2,h3]=h.split('/');
-  if(SRCH){ if(SRCH.fromGo){ SRCH.fromGo=false; } else { if(SRCH.tq!==null&&S.tq===SRCH.tq) S.tq=''; if(SRCH.q!==null&&S.q===SRCH.q){ S.q=''; S.lib='todas'; } if(SRCH.q11!==null&&S.ins.q11===SRCH.q11){ S.ins.q11=''; } SRCH=null; } } S.tab = TABS.some(t=>t[0]===h0)?h0:(h0==='busca'?'busca':'inicio'); if(S.tab==='aposentadoria') S.ap = AP_SUB.some(x=>x[0]===h1)?h1:(S.ap||'agentes'); if(S.tab==='teses'&&h1&&TESES[h1]){ S.tf='todos'; S.tsit='todas'; S.tq=''; } S.alvo=(S.tab==='teses'&&h1&&TESES[h1])?'tese:'+h1:(S.tab==='biblioteca'&&h1==='textos'&&h3)?'txt:'+h2+'/'+decodeURIComponent(h3):''; if(S.tab==='biblioteca'){ S.libv=h1==='textos'?'textos':h1==='historico'?'historico':'quadros'; if(h2){ S.txd=h2; S.txq=''; } } render(); if(S.tab==='teses'&&h1&&TESES[h1]){ destacar('tese-'+h1); return true; } if(S.tab==='biblioteca'&&S.libv==='textos'&&h3){ destacar(txId(h2,decodeURIComponent(h3))); return true; } return false; }
+function route(){ let h=location.hash.slice(1); if(h.startsWith('ir/')){ const dest=decodificar(h.slice(3)); if(destinoValido(dest)){ GO_REPLACE=true; go(dest); irAoConteudo(); return true; } h='inicio'; } const LEG={agentes:'aposentadoria/agentes',painel:'aposentadoria/resultado'}; if(LEG[h]){ h=LEG[h]; history.replaceState(null,'','#'+h); } const [h0,h1,h2,h3]=h.split('/');
+  if(SRCH){ if(SRCH.fromGo){ SRCH.fromGo=false; } else { if(SRCH.tq!==null&&S.tq===SRCH.tq) S.tq=''; if(SRCH.q!==null&&S.q===SRCH.q){ S.q=''; S.lib='todas'; } if(SRCH.q11!==null&&S.ins.q11===SRCH.q11){ S.ins.q11=''; } SRCH=null; } } S.tab = TABS.some(t=>t[0]===h0)?h0:(h0==='busca'?'busca':'inicio'); if(S.tab==='aposentadoria') S.ap = AP_SUB.some(x=>x[0]===h1)?h1:(S.ap||'agentes'); if(S.tab==='teses'&&h1&&TESES[h1]){ S.tf='todos'; S.tsit='todas'; S.tq=''; } S.alvo=(S.tab==='teses'&&h1&&TESES[h1])?'tese:'+h1:(S.tab==='biblioteca'&&h1==='textos'&&h3)?'txt:'+h2+'/'+decodificar(h3):''; if(S.tab==='biblioteca'){ S.libv=h1==='textos'?'textos':h1==='historico'?'historico':'quadros'; if(h2){ S.txd=h2; S.txq=''; } } render(); if(S.tab==='teses'&&h1&&TESES[h1]){ destacar('tese-'+h1); return true; } if(S.tab==='biblioteca'&&S.libv==='textos'&&h3){ destacar(txId(h2,decodificar(h3))); return true; } return false; }
 window.addEventListener('hashchange', ()=>{ if(!route()) window.scrollTo(0,0); });
 /* no celular o cabeçalho some ao rolar para baixo e volta ao rolar para cima (ocupava 1/4 da tela) */
 (()=>{ let ult=0; window.addEventListener('scroll', ()=>{ const y=window.scrollY, hd=document.querySelector('header.band'); if(!hd) return; if(window.innerWidth>700){ hd.classList.remove('esconde'); ult=y; return; } if(y>ult+6&&y>160&&!hd.contains(document.activeElement)) hd.classList.add('esconde'); else if(y<ult-6||y<80) hd.classList.remove('esconde'); ult=y; }, {passive:true}); })();
@@ -979,7 +990,7 @@ document.addEventListener('input', ev=>{
   if(t.dataset.nps!==undefined){ const rows=insv('nps',[[88,240],[92,120],[80,120]]).map(r=>r.slice()); rows[+t.dataset.nps][+t.dataset.col]=t.value; S.ins.nps=rows; const id=t.getAttribute('aria-label'), cp=CARET; render(); const el=document.querySelector('[aria-label="'+id+'"]'); if(el){ el.focus(); try{ const L=el.value.length, p=(cp===null||cp>L)?L:cp; el.setSelectionRange(p,p); }catch(e){} } return; }
   if(t.dataset.per!==undefined){ S.per[t.dataset.per]= t.type==='checkbox'?t.checked:t.value; const id=t.id; render(); refocus(id); return; }
   if(t.dataset.st){ S[t.dataset.st]=t.value; const id=t.id; render(); refocus(id); return; }
-  if(t.dataset.q){ S.q=t.value; render(); refocus('lib-q'); return; }
+  if(t.dataset.q){ S.q=t.value; clearTimeout(window.__libq); window.__libq=setTimeout(()=>{ render(); refocus('lib-q'); },220); return; }
   if(t.dataset.lib){ S.lib=t.value; render(); return; }
   if(t.dataset.agsel){ S.ag=t.value; render(); return; }
 });
@@ -994,7 +1005,7 @@ document.addEventListener('click', ev=>{
   if(b.dataset.a11clr){ delete S.ins.sub; delete S.ins.un; render(); return; }
   if(b.dataset.npsr!==undefined||b.dataset.npsx!==undefined){ const k=b.dataset.npsr??b.dataset.npsx, row=k==='s'?simRow():S.caso.rows[+k]; row.d=row.d||{}; const o=row.d.nps||(row.d.nps={}); const n=Object.keys(o).length; if(b.dataset.npsr!==undefined){ o[Math.max(n,1)]={0:'',1:''}; if(!n) o[0]={0:'',1:''}; } else if(n>1) delete o[n-1]; if(k!=='s') save(); render(); return; }
   if(b.dataset.simuse){ const r=JSON.parse(JSON.stringify(simRow())); r.empresa=''; r.funcao='Simulação — '+agById(r.agente).nome; S.caso.rows.push(r); save(); b.textContent='Incluído no caso'; b.disabled=true; const box=b.closest('.simbox'); if(box&&!box.querySelector('.goto-caso')){ const a=document.createElement('a'); a.className='goto-caso'; a.href='#aposentadoria/caso'; a.textContent='Período incluído. Ver na simulação →'; box.querySelector('.fhead').after(a); } setTimeout(()=>{ if(b.isConnected){ b.textContent='Incluir na simulação'; b.disabled=false; } },2000); return; }
-  if(b.dataset.caq!==undefined){ const ca=(b.closest('.epibox')?.querySelector('[data-f="d.ca"]')?.value||'').trim(); try{ if(ca&&navigator.clipboard) navigator.clipboard.writeText(ca); }catch(e){} window.open('http://caepi.mte.gov.br/internet/ConsultaCAInternet.aspx','_blank','noopener'); if(ca){ b.textContent='CA '+ca+' copiado · abrir consulta ↗'; } return; }
+  if(b.dataset.caq!==undefined){ const ca=(b.closest('.epibox')?.querySelector('[data-f="d.ca"]')?.value||'').trim(); try{ if(ca&&navigator.clipboard) navigator.clipboard.writeText(ca); }catch(e){} window.open('https://caepi.mte.gov.br/internet/ConsultaCAInternet.aspx','_blank','noopener'); if(ca){ b.textContent='CA '+ca+' copiado · abrir consulta ↗'; } return; }
   if(b.dataset.rstep){ S.rstep=b.dataset.rstep; render(); const r=$('.rs'); if(r) r.scrollIntoView({block:'start'}); return; }
   if(b.dataset.rckclr){ S.rck={}; render(); return; }
   if(b.dataset.insclr){ S.ins[b.dataset.insclr]=''; render(); const f=document.querySelector('#pinsal input[type=radio]'); if(f) f.focus(); return; }
@@ -1115,7 +1126,7 @@ function casebar(){
    '</select></label><div class="btns"><button class="ghost sm" data-cs="novo">Novo caso</button><button class="ghost sm" data-cs="dup">Duplicar</button><button class="ghost sm" data-cs="exp">Exportar caso</button><button class="ghost sm" data-cs="imp">Importar</button><button class="ghost sm danger" data-cs="del">Excluir caso</button></div>'+
    '<p class="fine">Os casos ficam salvos só neste navegador; nada é enviado a servidor. Exporte para guardar uma cópia ou abrir em outro computador.</p></section>';
 }
-function abrirCaso(id){ if(!DB.casos[id]) return; DB.ativo=id; S.caso=DB.casos[id]; persist(); render(); }
+function abrirCaso(id){ if(!idOk(id)||!DB.casos[id]) return; DB.ativo=id; S.caso=DB.casos[id]; persist(); render(); }
 function novoCaso(base){ const id=novoId(); DB.casos[id]=Object.assign(limpaCaso(base||{nome:'Novo caso',sexo:'H',rows:[]}),{id,alterado:agora()}); abrirCaso(id); avisar('Caso criado: '+DB.casos[id].nome); }
 function duplicarCaso(){ const c=JSON.parse(JSON.stringify(S.caso)); c.nome=(c.nome||'Caso')+' (cópia)'; novoCaso(c); }
 function excluirCaso(){ const nome=S.caso.nome; delete DB.casos[DB.ativo]; const l=casosOrdenados(); if(l.length){ DB.ativo=l[0].id; S.caso=l[0]; persist(); render(); avisar('Caso excluído: '+nome); } else { DB.ativo=null; novoCaso(); } }
@@ -1125,15 +1136,18 @@ const PACOTE = (tipo, extra) => Object.assign({app:'caracterizador-pericial', fo
 function exportarCaso(){ baixar('caso-'+nomeArq(S.caso.nome)+'.json', PACOTE('casos',{casos:[S.caso]})); }
 function exportarTudo(){ baixar('caracterizador-backup-'+agora().slice(0,10)+'.json', PACOTE('backup',{casos:casosOrdenados(), perfil:perfilSemImagens(), favoritos:FAV})); }
 function importarArquivo(file){
+  if(file&&file.size>20*1024*1024){ avisar('Arquivo grande demais (mais de 20 MB) para um backup do Caracterizador.'); return; }
   const rd=new FileReader();
   rd.onload=()=>{ try{
       const o=JSON.parse(rd.result);
+      if(!o||typeof o!=='object') throw new Error('formato');
       const lista = Array.isArray(o.casos)?o.casos : (o.caso?[o.caso] : (Array.isArray(o.rows)?[o]:null));
       if(!lista||!lista.length) throw new Error('arquivo sem casos');
       let primeiro=null;
-      let repetidos=0; lista.forEach(c=>{ if(c.id&&DB.casos[c.id]&&(DB.casos[c.id].alterado||'')===(c.alterado||'')){ repetidos++; primeiro=primeiro||c.id; return; } const id=(c.id&&!DB.casos[c.id])?c.id:novoId(); DB.casos[id]=Object.assign(limpaCaso(JSON.parse(JSON.stringify(c))),{id,alterado:c.alterado||agora()}); primeiro=primeiro||id; });
-      if(o.tipo==='backup'&&o.favoritos&&typeof o.favoritos==='object'){ FAV=Object.assign({},FAV,o.favoritos); salvarFav(); }
-      if(o.tipo==='backup'&&o.perfil&&typeof o.perfil==='object'&&(!PERFIL.nome||PERFIL.nome===o.perfil.nome||confirm('O backup tem o perfil de '+(o.perfil.nome||'outra pessoa')+'. Substituir o perfil atual ('+PERFIL.nome+')?'))){ const p=perfil(); PERFIL=Object.assign({},o.perfil,{a4v:p.a4v||'',a4h:p.a4h||''}); salvarPerfil(); }
+      let repetidos=0; lista.forEach(c=>{ if(!c||typeof c!=='object') return; if(!idOk(c.id)) c.id=''; if(c.id&&DB.casos[c.id]&&(DB.casos[c.id].alterado||'')===(c.alterado||'')){ repetidos++; primeiro=primeiro||c.id; return; } const id=(c.id&&!DB.casos[c.id])?c.id:novoId(); DB.casos[id]=Object.assign(limpaCaso(JSON.parse(JSON.stringify(c))),{id,alterado:c.alterado||agora()}); primeiro=primeiro||id; });
+      if(o.tipo==='backup'&&o.favoritos&&typeof o.favoritos==='object'){ FAV=Object.assign({},FAV,favLimpo(o.favoritos)); salvarFav(); }
+      if(o.tipo==='backup'&&o.perfil&&typeof o.perfil==='object'&&(!PERFIL.nome||PERFIL.nome===o.perfil.nome||confirm('O backup tem o perfil de '+(o.perfil.nome||'outra pessoa')+'. Substituir o perfil atual ('+PERFIL.nome+')?'))){ const p=perfil(), np={}; ['nome','prof','registro','contato','cidade'].forEach(k=>{ np[k]=txtOk(o.perfil[k],200); }); np.timbrado=['grahl','proprio','simples'].includes(o.perfil.timbrado)?o.perfil.timbrado:(p.timbrado||'simples'); PERFIL=Object.assign({},p,np); salvarPerfil(); } /* aceite dos termos e imagens não vêm do arquivo */
+      if(!primeiro) throw new Error('sem casos válidos');
       DB.ativo=primeiro; S.caso=DB.casos[primeiro]; persist(); render();
       const novos=lista.length-repetidos; avisar((novos?novos+(novos>1?' casos importados':' caso importado'):'Nenhum caso novo')+(repetidos?'; '+repetidos+' já estava'+(repetidos>1?'m':'')+' aqui e não foi duplicado':'')+'.');
     }catch(e){ avisar('Arquivo inválido: use um arquivo exportado pelo Caracterizador Pericial (.json).'); } };
@@ -1170,10 +1184,10 @@ function renderPerfil(){
    (p.aceite?'<p class="fine">Termos aceitos em '+dataBR(p.aceite.data)+' (versão '+esc(p.aceite.versao)+').</p>':'')+
   '</aside></div>';
 }
-function reduzImagem(file, larguraMax, cb){
+function reduzImagem(file, larguraMax, cb, alturaMax){ alturaMax=alturaMax||(larguraMax>=1700?1240:1754); /* A4 em 150 dpi: retrato 1240×1754, paisagem 1754×1240 */
   if(!/^image\/(png|jpeg)$/.test(file.type)){ avisar('Use uma imagem PNG ou JPG.'); return; }
   const rd=new FileReader();
-  rd.onload=()=>{ const im=new Image(); im.onload=()=>{ const k=Math.min(1,larguraMax/im.width), c=document.createElement('canvas'); c.width=Math.round(im.width*k); c.height=Math.round(im.height*k); const g=c.getContext('2d'); g.fillStyle='#fff'; g.fillRect(0,0,c.width,c.height); g.drawImage(im,0,0,c.width,c.height); cb(c.toDataURL('image/jpeg',0.82)); }; im.onerror=()=>avisar('Não foi possível ler a imagem.'); im.src=rd.result; };
+  rd.onload=()=>{ const im=new Image(); im.onload=()=>{ const k=Math.min(1,larguraMax/im.width,alturaMax/im.height), c=document.createElement('canvas'); c.width=Math.round(im.width*k); c.height=Math.round(im.height*k); const g=c.getContext('2d'); g.fillStyle='#fff'; g.fillRect(0,0,c.width,c.height); g.drawImage(im,0,0,c.width,c.height); cb(c.toDataURL('image/jpeg',0.82)); }; im.onerror=()=>avisar('Não foi possível ler a imagem.'); im.src=rd.result; };
   rd.readAsDataURL(file);
 }
 /* timbrado e cabeçalho usados na impressão */
@@ -1341,7 +1355,9 @@ function recentesInicio(){
 document.addEventListener('click', ev=>{ if(ev.target.closest('[data-reclimpar]')){ REC=[]; try{ localStorage.removeItem(STORE_REC); }catch(e){} render(); } });
 
 const STORE_FAV='caracterizador:favoritos';
-let FAV={}; try{ FAV=JSON.parse(localStorage.getItem(STORE_FAV)||'{}')||{}; }catch(e){ FAV={}; }
+/* favoritos: só chaves de destino conhecidas e textos simples (um arquivo importado não pode trocar o protótipo nem travar o Início) */
+function favLimpo(o){ const r={}; if(!o||typeof o!=='object') return r; for(const [k,v] of Object.entries(o)){ if(!/^(ag|tese|a15|a16|funcao|txt|hist):[\w./:-]{1,80}$/.test(k)||!v||typeof v!=='object') continue; r[k]={titulo:txtOk(v.titulo,300)||k, nota:txtOk(v.nota,2000), data:txtOk(v.data,40)}; } return r; }
+let FAV={}; try{ FAV=favLimpo(JSON.parse(localStorage.getItem(STORE_FAV)||'{}')); }catch(e){ FAV={}; }
 function salvarFav(){ try{ localStorage.setItem(STORE_FAV, JSON.stringify(FAV)); }catch(e){ avisar('Não foi possível salvar os favoritos no navegador.'); } }
 function favBtn(key, titulo){ const on=!!FAV[key]; return '<button class="ghost sm fav'+(on?' on':'')+'" data-fav="'+esc(key)+'" data-favt="'+esc(titulo)+'" aria-pressed="'+on+'" title="'+(on?'Remover dos favoritos':'Guardar nos favoritos')+'">'+(on?'★ Favorito':'☆ Favoritar')+'</button>'; }
 function favLista(){ return Object.entries(FAV).map(([k,v])=>Object.assign({key:k},v)).sort((x,y)=>String(y.data||'').localeCompare(String(x.data||''))); }
@@ -1699,7 +1715,7 @@ function renderAlertas(){
   if(!ALERTAS_PEND.length){ el.hidden=true; return; }
   el.hidden=false;
   el.innerHTML='<details class="alerta"><summary><b>'+ALERTAS_PEND.length+(ALERTAS_PEND.length>1?' alterações':' alteração')+' em fontes oficiais aguardando revisão.</b> Os dados afetados podem estar desatualizados.</summary><ul>'+
-   ALERTAS_PEND.map(a=>'<li><span class="small">'+brData(a.data)+' · '+esc(fonteNome(a.fonte))+'</span><br><a href="'+esc(a.url)+'" target="_blank" rel="noopener">'+esc(a.titulo)+' ↗</a>'+(a.nota?'<br><span class="small">'+esc(a.nota)+'</span>':'')+'</li>').join('')+'</ul></details>';
+   ALERTAS_PEND.map(a=>{ const f=FONTES.find(x=>x.id===a.fonte), u=safeUrl(a.url)||safeUrl(f&&f.url||''), t=String(a.titulo||'').replace(/[\u0000-\u001f\u202a-\u202e\u2066-\u2069]/g,' ').slice(0,160); return '<li><span class="small">'+brData(a.data)+' · '+esc(fonteNome(a.fonte))+'</span><br>'+(u?'<a href="'+esc(u)+'" target="_blank" rel="noopener">'+esc(t)+' ↗</a>':esc(t))+(a.nota?'<br><span class="small">'+esc(a.nota)+'</span>':'')+'</li>'; }).join('')+'</ul></details>';
 }
 (function(){
   const c=document.getElementById('conferencia'); if(!c||!FONTES_OK.length) return;
@@ -1733,4 +1749,4 @@ document.addEventListener('click', ev=>{ const b=ev.target.closest('[data-cs="in
 
 document.getElementById('logo').src=BRAND.logo;
 document.getElementById('tabs').innerHTML = TABS.map(([k,t])=>'<a href="#'+k+'">'+t+'</a>').join('');
-route();
+route();window.__appOk=true; /* js/compat.js mostra aviso se o app não chegou até aqui */

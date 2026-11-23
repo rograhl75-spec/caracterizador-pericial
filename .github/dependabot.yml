@@ -1,0 +1,11 @@
+# Avisa (por pull request) quando houver atualização das actions e do SDK usado pelo robô.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+  - package-ecosystem: npm
+    directory: /scripts
+    schedule:
+      interval: monthly

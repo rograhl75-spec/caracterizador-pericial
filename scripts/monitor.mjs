@@ -54,11 +54,15 @@ const semTags = s => entidades(s.replace(/<script[\s\S]*?<\/script>|<style[\s\S]
 const normUrl = (h, base) => {
   try {
     const u = new URL(entidades(h), base);
+    /* só links https de sites oficiais (governo, justiça, legislativo): javascript:, data: e domínios de terceiros são descartados */
+    if (u.protocol !== 'https:' || !/(^|\.)(gov\.br|jus\.br|leg\.br)$/.test(u.hostname)) return null;
     u.hash = ''; u.search = '';
     return u.href.replace(/\/(view|@@download\/file)$/, '').replace(/\/$/, '');
   } catch { return null; }
 };
 
+/* título vindo de página externa: sem caracteres de controle ou de direção de texto, sem quebras, até 200 caracteres */
+const limpaTitulo = t => String(t || '').replace(/[\u0000-\u001f\u007f\u202a-\u202e\u2066-\u2069]/g, ' ').replace(/[@`*_\[\]<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, 200);
 const HOSTS_FORA = new Set();
 async function baixar(url, tentativas = 2) {
   const host = new URL(url).host;
@@ -135,7 +139,7 @@ async function verificar(f) {
       if (!algum) throw new Error('nenhuma das URLs respondeu');
       if (!links.size && cfg.modo !== 'dou') throw new Error('nenhum documento encontrado: o formato da página pode ter mudado');
       const antes = new Set(st.links || []);
-      if (st.links) for (const [href, texto] of links) if (!antes.has(href)) novos.push({ tipo: 'novo-documento', titulo: texto || href.split('/').pop(), url: href });
+      if (st.links) for (const [href, texto] of links) if (!antes.has(href)) novos.push({ tipo: 'novo-documento', titulo: limpaTitulo(texto || href.split('/').pop()), url: href });
       /* guarda a união: um link que some e volta não gera alerta repetido */
       st.links = [...new Set([...(st.links || []), ...links.keys()])].sort();
     }
