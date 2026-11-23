@@ -108,7 +108,7 @@ function timelineSVG(){
   const y0=+segs.reduce((m,s)=>s.ini<m?s.ini:m,'9999').slice(0,4), y1=+segs.reduce((m,s)=>s.fim>m?s.fim:m,'0000').slice(0,4)+1;
   const W=1000, L=92, Rr=16, x=d=>{ const ms=toMs(d), a=Date.UTC(y0,0,1), b=Date.UTC(y1,0,1); return L+(ms-a)/(b-a)*(W-L-Rr); };
   const H=190, lanes=[['perito','Especialista',64],['inss','INSS',112]];
-  let g='<svg class="tl" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Linha do tempo dos períodos analisados">';
+  let g='<svg class="tl" viewBox="0 0 '+W+' '+H+'" role="group" aria-label="Linha do tempo dos períodos analisados">';
   const step=(y1-y0)>24?5:(y1-y0)>12?2:1;
   for(let y=y0;y<=y1;y++){ const xx=x(y+'-01-01'); if((y-y0)%step===0){ g+='<line class="grid" x1="'+xx+'" x2="'+xx+'" y1="44" y2="140"/><text class="tick" x="'+xx+'" y="160" text-anchor="middle">'+y+'</text>'; } }
   const mk=[['1997-03-05','05/03/1997'],['2003-11-18','18/11/2003'],['2019-11-13','EC 103']];
@@ -702,7 +702,7 @@ function a13Lista(){
 function renderInsal(){
   const an=NR15.find(x=>String(x.n)===String(S.a15))||NR15[0];
   let h='<section class="intro"><div><p class="eyebrow">NR-15 · Trabalhista</p><h2>Insalubridade</h2><p class="muted">Adicional de 40%, 20% ou 10% conforme o grau (item 15.2). Com mais de um agente, vale só o de grau mais elevado (item 15.3). Base: salário mínimo, salvo norma coletiva (Súmula Vinculante 4).</p></div></section>';
-  h+='<div class="anx" role="tablist" aria-label="Anexos da NR-15">'+NR15.map(x=>'<button role="tab" aria-selected="'+(x===an)+'" data-a15="'+x.n+'" class="'+(x===an?'on':'')+(x.tipo==='revogado'?' off':'')+'"><b>Anexo '+x.n+(x.tipo==='revogado'?' · revogado':'')+'</b><span>'+esc(x.t)+'</span></button>').join('')+'</div>';
+  h+='<div class="anx" role="group" aria-label="Anexos da NR-15">'+NR15.map(x=>'<button aria-pressed="'+(x===an)+'" data-a15="'+x.n+'" class="'+(x===an?'on':'')+(x.tipo==='revogado'?' off':'')+'"><b>Anexo '+x.n+(x.tipo==='revogado'?' · revogado':'')+'</b><span>'+esc(x.t)+'</span></button>').join('')+'</div>';
   const wide = an.n===11||an.n===13;
   h+='<div class="grid2 '+(wide?'one':'wide-l')+'"><section class="panel" id="pinsal"><div class="ph"><div class="fhead"><p class="eyebrow">Anexo '+an.n+' · grau '+esc(an.g)+'</p><span class="btns">'+favBtn('a15:'+an.n,'NR-15, Anexo '+an.n+' — '+an.t)+linkBtn('a15:'+an.n)+'<button class="printbtn" data-print="insal">Imprimir / PDF</button></span></div><h3>'+esc(an.t)+'</h3><p>'+esc(an.s)+'</p></div><div class="calcbox" id="calcbox">';
   if(an.tipo==='calc') h+=calcIns(an);
@@ -775,7 +775,7 @@ function avaliaPeric(an){
 function renderPeric(){
   const an=NR16.find(x=>x.id===S.a16)||NR16[0], sal=num(pget('sal',''),true);
   let h='<section class="intro"><div><p class="eyebrow">NR-16 · CLT, art. 193</p><h2>Periculosidade</h2><p class="muted">Adicional de 30% sobre o salário-base, sem gratificações, prêmios ou participação nos lucros (item 16.2). O empregado pode optar pela insalubridade; os adicionais não se acumulam (art. 193, §2º; IRR Tema 17). Marque, em cada anexo, os itens da norma constatados na inspeção.</p></div></section>';
-  h+='<div class="anx anx16" role="tablist" aria-label="Anexos da NR-16">'+NR16.map(x=>'<button role="tab" aria-selected="'+(x===an)+'" data-a16="'+x.id+'" class="'+(x===an?'on':'')+'"><b>'+esc(x.n)+'</b><span>'+esc(x.t)+'</span></button>').join('')+'</div>';
+  h+='<div class="anx anx16" role="group" aria-label="Anexos da NR-16">'+NR16.map(x=>'<button aria-pressed="'+(x===an)+'" data-a16="'+x.id+'" class="'+(x===an?'on':'')+'"><b>'+esc(x.n)+'</b><span>'+esc(x.t)+'</span></button>').join('')+'</div>';
   const r=avaliaPeric(an);
   h+='<div class="grid2 one"><section class="panel" id="pperic"><div class="ph"><div class="fhead"><p class="eyebrow">'+esc(an.n)+' · '+esc(an.port)+'</p><span class="btns">'+favBtn('a16:'+an.id,'NR-16, '+an.n+' — '+an.t)+linkBtn('a16:'+an.id)+'<button class="printbtn" data-print="peric">Imprimir / PDF</button></span></div><h3>'+esc(an.t)+'</h3></div>'+
    an.secoes.map(sec=>secHtml(an,sec)).join('')+
@@ -801,7 +801,7 @@ function renderTeses(){
   h+='<div class="filt">'+[['todos','Todas'],['prev','Previdenciário'],['trab','Trabalhista'],['STF','STF'],['STJ','STJ'],['TNU','TNU'],['TST','TST']].map(([k,t])=>'<button data-tf="'+k+'" class="'+(f===k?'on':'')+'">'+t+'</button>').join('')+'</div>';
   h+='<div class="filt">'+[['todas','Qualquer situação'],['firmadas','Firmadas e vigentes'],['abertas','Em aberto ('+nAbertas+')']].map(([k,t])=>'<button data-tsit="'+k+'" class="'+(fs===k?'on':'')+'">'+t+'</button>').join('')+'</div>';
   h+='<div class="resbar"><p class="muted small">'+plural(items.length,'resultado','resultados')+'.</p>'+(items.length?'<button class="printbtn" data-print="teses">Imprimir '+(items.length===1?'esta tese':'estas '+items.length+' teses')+'</button>':'')+'</div>';
-  h+='<div class="teses">'+items.map(([k,t])=>{ const u=usos(k); return '<article class="tese" id="tese-'+k+'"><header><span class="trib t-'+t.trib+'">'+t.trib+'</span><b>'+esc(t.num)+'</b>'+(t.ano?'<span class="ano">'+t.ano+'</span>':'')+'<span class="sit sit-'+t.sit+'">'+esc(sitRot(t))+'</span></header><h4>'+esc(t.titulo)+'</h4><p>'+esc(t.tese)+'</p>'+(t.ref&&t.ref!=='—'?'<p class="ref">'+esc(t.ref)+'</p>':'')+(u.length?'<p class="uso">Fichas: '+u.map(a=>'<a href="#aposentadoria/agentes" data-ag="'+a.id+'">'+esc(a.nome)+'</a>').join(', ')+'</p>':'')+'<div class="btns">'+favBtn('tese:'+k,t.trib+', '+t.num+' — '+t.titulo)+'<button class="ghost sm" data-cite="'+k+'">Copiar citação</button><button class="ghost sm" data-tlink="'+k+'">Copiar link</button><button class="ghost sm" data-print="tese:'+k+'">Imprimir</button></div></article>'; }).join('')+'</div>';
+  h+='<div class="teses">'+items.map(([k,t])=>{ const u=usos(k); return '<article class="tese" id="tese-'+k+'"><header><span class="trib t-'+t.trib+'">'+t.trib+'</span><b>'+esc(t.num)+'</b>'+(t.ano?'<span class="ano">'+t.ano+'</span>':'')+'<span class="sit sit-'+t.sit+'">'+esc(sitRot(t))+'</span></header><h3 class="tesetit">'+esc(t.titulo)+'</h3><p>'+esc(t.tese)+'</p>'+(t.ref&&t.ref!=='—'?'<p class="ref">'+esc(t.ref)+'</p>':'')+(u.length?'<p class="uso">Fichas: '+u.map(a=>'<a href="#aposentadoria/agentes" data-ag="'+a.id+'">'+esc(a.nome)+'</a>').join(', ')+'</p>':'')+'<div class="btns">'+favBtn('tese:'+k,t.trib+', '+t.num+' — '+t.titulo)+'<button class="ghost sm" data-cite="'+k+'">Copiar citação</button><button class="ghost sm" data-tlink="'+k+'">Copiar link</button><button class="ghost sm" data-print="tese:'+k+'">Imprimir</button></div></article>'; }).join('')+'</div>';
   return h;
 }
 
@@ -945,18 +945,25 @@ function go(dest){
   if(location.hash==='#'+S.tab){ route(); }
 }
 
-function render(){ try{ renderInterno(); }catch(e){ console.error(e); const m=document.getElementById('main'); if(m) m.innerHTML='<section class="panel"><h2>Não foi possível mostrar esta tela</h2><p>Algum dado salvo neste navegador parece inválido (por exemplo, um caso importado). Abra outro caso ou volte ao Início.</p><p><a href="#inicio">Ir ao Início</a> · <button class="ghost sm" data-cs="novo">Criar um caso novo</button></p></section>'; } }
+const TITULOS={inicio:'Início', funcao:'Por função', aposentadoria:'Aposentadoria especial', insalubridade:'Insalubridade (NR-15)', periculosidade:'Periculosidade (NR-16)', teses:'Teses', biblioteca:'Biblioteca', perfil:'Perfil e dados', busca:'Pesquisa'};
+/* assinatura do controle com foco, para devolvê-lo depois que a tela é redesenhada (o innerHTML recria os botões) */
+function assinaturaFoco(){ const ae=document.activeElement, m=document.getElementById('main'); if(!ae||ae===document.body||!m||!m.contains(ae)) return null; if(ae.id) return '#'+CSS.escape(ae.id); for(const at of ae.getAttributeNames()){ if(/^data-(a15|a16|ag|tf|tsit|lib|cs|act|rdcmp|useg|gf|fsel|tlset|tlinfo|go|v)$/.test(at)) return ae.tagName.toLowerCase()+'['+at+'="'+CSS.escape(ae.getAttribute(at))+'"]'+(ae.dataset.v&&at!=='data-v'?'[data-v="'+CSS.escape(ae.dataset.v)+'"]':''); } return null; }
+function render(){ const sig=assinaturaFoco(); try{ renderInterno(); }catch(e){ console.error(e); const m=document.getElementById('main'); if(m) m.innerHTML='<section class="panel"><h2>Não foi possível mostrar esta tela</h2><p>Algum dado salvo neste navegador parece inválido (por exemplo, um caso importado). Abra outro caso ou volte ao Início.</p><p><a href="#inicio">Ir ao Início</a> · <button class="ghost sm" data-cs="novo">Criar um caso novo</button></p></section>'; }
+  document.title=(TITULOS[S.tab]?TITULOS[S.tab]+' — ':'')+'Caracterizador Pericial';
+  if(sig&&(document.activeElement===document.body||!document.activeElement)){ try{ const el=document.querySelector(sig); if(el) el.focus({preventScroll:true}); }catch(e){} } }
 function renderInterno(){
   const focoAntes=document.activeElement&&document.activeElement.id;
   document.querySelectorAll('.tabs a').forEach(a=>a.setAttribute('aria-current', a.getAttribute('href')==='#'+S.tab?'page':'false'));
   const m=$('#main');
   m.innerHTML = ajudaHtml() + (S.tab==='inicio'?renderInicio(): S.tab==='busca'?renderBusca(): S.tab==='aposentadoria'?renderAposentadoria(): S.tab==='insalubridade'?renderInsal(): S.tab==='periculosidade'?renderPeric(): S.tab==='teses'?renderTeses(): S.tab==='perfil'?renderPerfil(): S.tab==='funcao'?renderFuncao(): renderBib());
-  registrarVisto(); marcarSiglas(); prepararCampos(document.getElementById('main'), focoAntes);
+  registrarVisto(); marcarSiglas(); prepararCampos(document.getElementById('main'), focoAntes); prepararRegioes(document.getElementById('main')); if(S.tab==='busca'){ const st=document.getElementById('buscastatus'), n=document.querySelectorAll('.sres .hit').length; if(st){ clearTimeout(render._bs); render._bs=setTimeout(()=>{ st.textContent=(S.gq||'').trim().length>=2?(n?n+' resultados para '+S.gq:'Nada encontrado para '+S.gq):''; },500); } }
 }
 function route(){ let h=location.hash.slice(1); if(h.startsWith('ir/')){ const dest=decodificar(h.slice(3)); if(destinoValido(dest)){ GO_REPLACE=true; go(dest); irAoConteudo(); return true; } h='inicio'; } const LEG={agentes:'aposentadoria/agentes',painel:'aposentadoria/resultado'}; if(LEG[h]){ h=LEG[h]; history.replaceState(null,'','#'+h); } const [h0,h1,h2,h3]=h.split('/');
   if(SRCH){ if(SRCH.fromGo){ SRCH.fromGo=false; } else { if(SRCH.tq!==null&&S.tq===SRCH.tq) S.tq=''; if(SRCH.q!==null&&S.q===SRCH.q){ S.q=''; S.lib='todas'; } if(SRCH.q11!==null&&S.ins.q11===SRCH.q11){ S.ins.q11=''; } SRCH=null; } } S.tab = TABS.some(t=>t[0]===h0)?h0:(h0==='busca'?'busca':'inicio'); if(S.tab==='aposentadoria') S.ap = AP_SUB.some(x=>x[0]===h1)?h1:(S.ap||'agentes'); if(S.tab==='teses'&&h1&&TESES[h1]){ S.tf='todos'; S.tsit='todas'; S.tq=''; } S.alvo=(S.tab==='teses'&&h1&&TESES[h1])?'tese:'+h1:(S.tab==='biblioteca'&&h1==='textos'&&h3)?'txt:'+h2+'/'+decodificar(h3):''; if(S.tab==='biblioteca'){ S.libv=h1==='textos'?'textos':h1==='historico'?'historico':'quadros'; if(h2){ S.txd=h2; S.txq=''; } } render(); if(S.tab==='teses'&&h1&&TESES[h1]){ destacar('tese-'+h1); return true; } if(S.tab==='biblioteca'&&S.libv==='textos'&&h3){ destacar(txId(h2,decodificar(h3))); return true; } return false; }
 window.addEventListener('hashchange', ()=>{ if(!route()) window.scrollTo(0,0); });
 /* no celular o cabeçalho some ao rolar para baixo e volta ao rolar para cima (ocupava 1/4 da tela) */
+/* altura real do cabeçalho fixo e do aviso de termos: o foco nunca fica escondido atrás deles */
+(()=>{ const at=()=>{ const h=document.querySelector('header.band'), t=document.getElementById('termos'); document.documentElement.style.setProperty('--hdr',((h&&getComputedStyle(h).position==='sticky'&&!h.classList.contains('esconde'))?h.offsetHeight+8:8)+'px'); document.documentElement.style.setProperty('--rodape',(t?t.offsetHeight+8:0)+'px'); }; window.addEventListener('resize',at); window.addEventListener('scroll',()=>requestAnimationFrame(at),{passive:true}); document.addEventListener('click',()=>setTimeout(at,50)); setTimeout(at,300); })();
 (()=>{ let ult=0; window.addEventListener('scroll', ()=>{ const y=window.scrollY, hd=document.querySelector('header.band'); if(!hd) return; if(window.innerWidth>700){ hd.classList.remove('esconde'); ult=y; return; } if(y>ult+6&&y>160&&!hd.contains(document.activeElement)) hd.classList.add('esconde'); else if(y<ult-6||y<80) hd.classList.remove('esconde'); ult=y; }, {passive:true}); })();
 
 function setPath(obj, path, val){ const ps=path.split('.'); let o=obj; for(let k=0;k<ps.length-1;k++){ o[ps[k]]=o[ps[k]]||{}; o=o[ps[k]]; } o[ps[ps.length-1]]=val; }
@@ -1005,7 +1012,7 @@ document.addEventListener('click', ev=>{
   if(b.dataset.a11clr){ delete S.ins.sub; delete S.ins.un; render(); return; }
   if(b.dataset.npsr!==undefined||b.dataset.npsx!==undefined){ const k=b.dataset.npsr??b.dataset.npsx, row=k==='s'?simRow():S.caso.rows[+k]; row.d=row.d||{}; const o=row.d.nps||(row.d.nps={}); const n=Object.keys(o).length; if(b.dataset.npsr!==undefined){ o[Math.max(n,1)]={0:'',1:''}; if(!n) o[0]={0:'',1:''}; } else if(n>1) delete o[n-1]; if(k!=='s') save(); render(); return; }
   if(b.dataset.simuse){ const r=JSON.parse(JSON.stringify(simRow())); r.empresa=''; r.funcao='Simulação — '+agById(r.agente).nome; S.caso.rows.push(r); save(); b.textContent='Incluído no caso'; b.disabled=true; const box=b.closest('.simbox'); if(box&&!box.querySelector('.goto-caso')){ const a=document.createElement('a'); a.className='goto-caso'; a.href='#aposentadoria/caso'; a.textContent='Período incluído. Ver na simulação →'; box.querySelector('.fhead').after(a); } setTimeout(()=>{ if(b.isConnected){ b.textContent='Incluir na simulação'; b.disabled=false; } },2000); return; }
-  if(b.dataset.caq!==undefined){ const ca=(b.closest('.epibox')?.querySelector('[data-f="d.ca"]')?.value||'').trim(); try{ if(ca&&navigator.clipboard) navigator.clipboard.writeText(ca); }catch(e){} window.open('https://caepi.mte.gov.br/internet/ConsultaCAInternet.aspx','_blank','noopener'); if(ca){ b.textContent='CA '+ca+' copiado · abrir consulta ↗'; } return; }
+  if(b.dataset.caq!==undefined){ const ca=(b.closest('.epibox')?.querySelector('[data-f="d.ca"]')?.value||'').trim(); if(ca) copiar(ca,'CA '+ca+' copiado: cole na consulta do MTE.'); window.open('https://caepi.mte.gov.br/internet/ConsultaCAInternet.aspx','_blank','noopener'); return; }
   if(b.dataset.rstep){ S.rstep=b.dataset.rstep; render(); const r=$('.rs'); if(r) r.scrollIntoView({block:'start'}); return; }
   if(b.dataset.rckclr){ S.rck={}; render(); return; }
   if(b.dataset.insclr){ S.ins[b.dataset.insclr]=''; render(); const f=document.querySelector('#pinsal input[type=radio]'); if(f) f.focus(); return; }
@@ -1017,7 +1024,7 @@ document.addEventListener('click', ev=>{
   if(b.dataset.simrst){ const ant=S.sim&&S.sim[S.ag]?JSON.parse(JSON.stringify(S.sim[S.ag])):null, ag=S.ag; delete S.sim[S.ag]; render(); if(ant) avisar('Exemplo restaurado.', {acao:'Desfazer', fn:()=>{ S.sim[ag]=ant; render(); }}); return; }
   if(b.dataset.del!==undefined){ const i=+b.dataset.del, rem=S.caso.rows.splice(i,1)[0]; save(); render(); DESFAZER={i,row:rem};
     avisar('Período '+String(i+1).padStart(2,'0')+' removido.', {acao:'Desfazer', fn:()=>{ if(!DESFAZER) return; S.caso.rows.splice(Math.min(DESFAZER.i,S.caso.rows.length),0,DESFAZER.row); const k=DESFAZER.i; DESFAZER=null; save(); render(); const el=document.getElementById('r'+k+'-empresa'); if(el) el.focus(); }});
-    const prox=document.getElementById('r'+Math.min(i,S.caso.rows.length-1)+'-empresa')||document.querySelector('[data-act="add"]'); if(prox) prox.focus(); return; }
+    const tb=document.querySelector('#toast .toastbtn'); if(tb) tb.focus(); else { const prox=document.getElementById('r'+Math.min(i,S.caso.rows.length-1)+'-empresa')||document.querySelector('[data-act="add"]'); if(prox) prox.focus(); } return; }
   if(b.dataset.act==='add'){ const last=S.caso.rows[S.caso.rows.length-1]; S.caso.rows.push({empresa:'',funcao:'',ini:last&&last.fim?addDays(last.fim,1):'', fim:'', agente:'ruido', tempo:25, epi:false, d:{te:480}}); save(); render(); const k=S.caso.rows.length-1, r=document.querySelectorAll('.row'); if(r.length) r[r.length-1].scrollIntoView({behavior:'smooth',block:'start'}); const f=document.getElementById('r'+k+'-empresa'); if(f) f.focus({preventScroll:true}); return; }
   if(b.dataset.act==='ex'){ novoCaso(JSON.parse(JSON.stringify(EXEMPLO))); return; }
   if(b.dataset.act==='clr'){ if(b.dataset.armed){ S.caso.rows=[]; save(); render(); } else { b.dataset.armed='1'; b.textContent='Toque de novo para limpar'; setTimeout(()=>{ if(b.isConnected){ delete b.dataset.armed; b.textContent='Limpar períodos'; } },3000); } return; }
@@ -1115,9 +1122,14 @@ document.addEventListener('keydown', ev=>{ if(ev.key==='Escape'){ const p=$('#pr
 /* ---------- casos: abrir, novo, duplicar, excluir, exportar, importar ---------- */
 let DESFAZER=null;
 /* aviso curto no rodapé; com {acao, fn} mostra um botão (ex.: Desfazer) por 8 s */
-function avisar(msg, op){ let t=document.getElementById('toast'); if(!t){ t=document.createElement('div'); t.id='toast'; t.setAttribute('role','status'); document.body.appendChild(t); }
-  t.textContent=msg; if(op&&op.acao){ const b=document.createElement('button'); b.type='button'; b.className='toastbtn'; b.textContent=op.acao; b.onclick=()=>{ t.classList.remove('on'); op.fn(); }; t.appendChild(document.createTextNode(' ')); t.appendChild(b); }
-  t.classList.add('on'); clearTimeout(avisar._t); avisar._t=setTimeout(()=>t.classList.remove('on'), op&&op.acao?8000:4200); }
+/* com ação (Desfazer): fica 12 s, pausa enquanto o mouse ou o foco estão no aviso, e também funciona com Ctrl+Z */
+let ACAO_TOAST=null;
+function fecharToast(){ const t=document.getElementById('toast'); if(t&&t.contains(document.activeElement)){ const v=document.querySelector('[data-act="add"]')||document.getElementById('main'); if(v) v.focus({preventScroll:true}); } if(t){ t.classList.remove('on'); t.querySelectorAll('button').forEach(b=>b.remove()); } ACAO_TOAST=null; }
+function avisar(msg, op){ let t=document.getElementById('toast'); if(!t){ t=document.createElement('div'); t.id='toast'; t.setAttribute('role','status'); document.body.appendChild(t); t.addEventListener('mouseenter',()=>clearTimeout(avisar._t)); t.addEventListener('focusin',()=>clearTimeout(avisar._t)); t.addEventListener('mouseleave',()=>{ if(ACAO_TOAST) avisar._t=setTimeout(fecharToast,6000); }); }
+  t.textContent=msg; ACAO_TOAST=null;
+  if(op&&op.acao){ ACAO_TOAST=op.fn; const b=document.createElement('button'); b.type='button'; b.className='toastbtn'; b.textContent=op.acao+' (Ctrl+Z)'; b.onclick=()=>{ const f=ACAO_TOAST; fecharToast(); if(f) f(); }; t.appendChild(document.createTextNode(' ')); t.appendChild(b); }
+  t.classList.add('on'); clearTimeout(avisar._t); avisar._t=setTimeout(op&&op.acao?fecharToast:()=>t.classList.remove('on'), op&&op.acao?12000:4200); }
+document.addEventListener('keydown', ev=>{ if(ACAO_TOAST&&(ev.ctrlKey||ev.metaKey)&&!ev.shiftKey&&ev.key.toLowerCase()==='z'&&!/INPUT|TEXTAREA/.test(document.activeElement.tagName)){ ev.preventDefault(); const f=ACAO_TOAST; fecharToast(); f(); } });
 const dataBR = iso => { const d=iso?new Date(iso):null; return d&&!isNaN(d)?d.toLocaleDateString('pt-BR'):''; };
 function casebar(){
   const l=casosOrdenados();
@@ -1204,9 +1216,9 @@ function blocoAssinatura(){ const l=assinaturaTxt(); if(!l.length) return ''; re
 const TERMOS_VERSAO='2026-11';
 function avisoTermos(){
   if(PERFIL.aceite&&PERFIL.aceite.versao===TERMOS_VERSAO) return;
-  const d=document.createElement('div'); d.id='termos'; d.setAttribute('role','dialog'); d.setAttribute('aria-label','Termos de uso');
-  d.innerHTML='<div class="wrap"><p>O Caracterizador Pericial é uma ferramenta de apoio técnico. Os resultados não substituem a análise do caso concreto nem o juízo do profissional que assina o laudo ou a peça. Os dados que você digita ficam só neste navegador. Ao continuar, você concorda com os <a href="termos.html" target="_blank" rel="noopener">Termos de uso</a> e a <a href="privacidade.html" target="_blank" rel="noopener">Política de privacidade</a>.</p><button data-cs="aceito">Concordo</button></div>';
-  document.body.appendChild(d);
+  const d=document.createElement('div'); d.id='termos'; d.setAttribute('role','region'); d.setAttribute('aria-label','Termos de uso');
+  d.innerHTML='<div class="wrap"><p>O Caracterizador Pericial é uma ferramenta de consulta técnica. Os resultados não substituem a análise do caso concreto nem o juízo do profissional responsável. Os dados que você digita ficam só neste navegador. Ao continuar, você concorda com os <a href="termos.html" target="_blank" rel="noopener">Termos de uso</a> e a <a href="privacidade.html" target="_blank" rel="noopener">Política de privacidade</a>.</p><button data-cs="aceito">Concordo</button></div>';
+  document.body.insertBefore(d, document.body.firstChild); /* primeiro na ordem do teclado */
 }
 
 document.addEventListener('change', ev=>{
@@ -1393,12 +1405,12 @@ function ajudaHtml(){
 function abrirTutorial(i){
   if(typeof TUTORIAL==='undefined') return;
   let d=document.getElementById('tutorial');
-  if(!d){ d=document.createElement('div'); d.id='tutorial'; d.setAttribute('role','dialog'); d.setAttribute('aria-modal','true'); d.setAttribute('aria-label','Tutorial de boas-vindas'); document.body.appendChild(d); }
+  if(!d){ abrirTutorial._volta=document.activeElement; ['header.band','#main','footer','#alertas','#novfaixa','#termos'].forEach(q=>{ const e=document.querySelector(q); if(e) e.inert=true; }); d=document.createElement('div'); d.id='tutorial'; d.setAttribute('role','dialog'); d.setAttribute('aria-modal','true'); d.setAttribute('aria-label','Tutorial de boas-vindas'); document.body.appendChild(d); }
   const p=TUTORIAL[i], ult=i===TUTORIAL.length-1;
   d.innerHTML='<div class="tut"><p class="eyebrow">Boas-vindas · passo '+(i+1)+' de '+TUTORIAL.length+'</p><h2>'+esc(p.t)+'</h2><p>'+esc(p.d)+'</p><div class="tutdots">'+TUTORIAL.map((_,k)=>'<span class="'+(k===i?'on':'')+'"></span>').join('')+'</div><div class="btns"><button class="ghost" data-tutfim="1">Pular</button>'+(i>0?'<button class="ghost" data-tutir="'+(i-1)+'">Anterior</button>':'')+'<button data-tut'+(ult?'fim':'ir')+'="'+(ult?'1':i+1)+'">'+(ult?'Começar a usar':'Próximo')+'</button></div></div>';
   const bt=d.querySelector('[data-tutir="'+(i+1)+'"],[data-tutfim]:last-child'); if(bt) bt.focus();
 }
-function fecharTutorial(){ const d=document.getElementById('tutorial'); if(d) d.remove(); PERFIL.tour=TUTORIAL_VERSAO; salvarPerfil(); }
+function fecharTutorial(){ const d=document.getElementById('tutorial'); if(d) d.remove(); ['header.band','#main','footer','#alertas','#novfaixa','#termos'].forEach(q=>{ const e=document.querySelector(q); if(e) e.inert=false; }); const v=abrirTutorial._volta; if(v&&v.isConnected&&v!==document.body) v.focus(); else { const g=document.getElementById('gq'); if(g) g.focus(); } PERFIL.tour=TUTORIAL_VERSAO; salvarPerfil(); }
 document.addEventListener('click', ev=>{
   const b=ev.target.closest('[data-tour],[data-tutir],[data-tutfim]'); if(!b) return;
   if(b.dataset.tour!==undefined) abrirTutorial(0);
@@ -1520,19 +1532,22 @@ function marcarSiglas(){
     n.parentNode.replaceChild(frag,n);
   });
 }
-function fecharGl(){ const p=document.getElementById('glpop'); if(p) p.remove(); }
+let GL_GATILHO=null;
+function fecharGl(volta){ const p=document.getElementById('glpop'); if(p) p.remove(); if(GL_GATILHO){ GL_GATILHO.setAttribute('aria-expanded','false'); if(volta&&GL_GATILHO.isConnected) GL_GATILHO.focus(); GL_GATILHO=null; } }
 document.addEventListener('click', ev=>{
   const b=ev.target.closest('.gl'); if(ev.target.closest('#glpop')&&!ev.target.closest('[data-glver]')) return;
   if(ev.target.closest('[data-glver]')){ fecharGl(); S.q=ev.target.closest('[data-glver]').dataset.glver; S.lib='glossario'; S.libv='quadros'; location.hash='biblioteca'; return; }
   fecharGl(); if(!b) return;
   const g=glDef(b.dataset.gl); if(!g) return;
-  const pop=document.createElement('div'); pop.id='glpop'; pop.setAttribute('role','dialog'); pop.setAttribute('aria-label','Definição de '+g.t);
+  const pop=document.createElement('div'); pop.id='glpop'; pop.setAttribute('role','dialog'); pop.setAttribute('aria-label','Definição de '+g.t); pop.tabIndex=-1; GL_GATILHO=b; b.setAttribute('aria-expanded','true'); b.setAttribute('aria-controls','glpop');
   pop.innerHTML='<b>'+esc(g.t)+'</b><p>'+esc(g.d)+'</p><button class="linkbtn" data-glver="'+esc(b.dataset.gl)+'">Ver no glossário</button>';
   document.body.appendChild(pop);
   const r=b.getBoundingClientRect(), pw=Math.min(340, window.innerWidth-24);
   pop.style.width=pw+'px'; pop.style.left=Math.max(12, Math.min(window.innerWidth-pw-12, r.left+window.scrollX))+'px'; pop.style.top=(r.bottom+window.scrollY+6)+'px';
+  pop.focus({preventScroll:true});
 });
-document.addEventListener('keydown', ev=>{ if(ev.key==='Escape') fecharGl(); });
+document.addEventListener('keydown', ev=>{ if(ev.key==='Escape'&&document.getElementById('glpop')) fecharGl(true); });
+document.addEventListener('focusout', ev=>{ const p=document.getElementById('glpop'); if(p&&ev.target.closest&&ev.target.closest('#glpop')&&!(ev.relatedTarget&&p.contains(ev.relatedTarget))) setTimeout(()=>{ const q=document.getElementById('glpop'); if(q&&!q.contains(document.activeElement)) fecharGl(); },0); });
 window.addEventListener('hashchange', fecharGl);
 
 /* ---------- Histórico das NRs (portarias de alteração) ---------- */
@@ -1606,7 +1621,8 @@ function conferirDatas(el){
 }
 /* navegador em outro idioma mostra a data como mm/dd/aaaa: confirma a leitura em dia/mês/ano */
 const LOCAL_BR=(()=>{ try{ return /^pt/i.test(Intl.DateTimeFormat().resolvedOptions().locale||navigator.language||''); }catch(e){ return true; } })();
-function notaData(el){ if(LOCAL_BR) return; notaCampo(el, dataValida(el.value)?'Lida como '+brData(el.value)+' (dia/mês/ano).':''); }
+function notaData(el){ /* o formato do campo de data segue o idioma do navegador (às vezes mês/dia/ano): a data por extenso evita troca de dia e mês */ notaCampo(el, dataValida(el.value)?'Lida como '+new Date(el.value+'T12:00:00').toLocaleDateString('pt-BR',{day:'numeric',month:'long',year:'numeric'})+'.':''); }
+function prepararRegioes(root){ (root||document).querySelectorAll('.scrollx, .tscroll').forEach(el=>{ if(el.scrollWidth>el.clientWidth+2){ if(!el.hasAttribute('tabindex')){ el.tabIndex=0; el.setAttribute('role','region'); const h=el.closest('section,article,.panel')?.querySelector('h2,h3,h4'); el.setAttribute('aria-label',(h?h.textContent.trim()+' — ':'')+'tabela com rolagem horizontal'); } } else if(el.getAttribute('role')==='region'){ el.removeAttribute('tabindex'); el.removeAttribute('role'); el.removeAttribute('aria-label'); } }); }
 function prepararCampos(root, emEdicao){
   (root||document).querySelectorAll('input[inputmode="decimal"]').forEach(el=>{
     const r=regraCampo(el); if(r&&!el.placeholder) el.placeholder=r[4];
@@ -1657,7 +1673,7 @@ function renderTextos(){
   let h='<nav class="txdocs" aria-label="Documentos">'+DOCS_TX.map(x=>'<a class="txchip'+(x.id===doc.id?' on':'')+'" href="#biblioteca/textos/'+x.id+'"'+(x.id===doc.id?' aria-current="page"':'')+'>'+esc(x.curto)+'</a>').join('')+'</nav>';
   h+='<section class="panel txdoc"><div class="ph"><div class="fhead"><h3>'+esc(doc.tit)+'</h3><button class="printbtn" data-print="txtdoc">'+(q?'Imprimir os itens encontrados':'Imprimir este texto')+'</button></div><p class="muted small">'+esc(doc.nota)+' <a href="'+esc(doc.fonte)+'" target="_blank" rel="noopener">Fonte oficial</a></p></div>';
   h+='<label class="f" for="tx-q"><span>Procurar neste texto</span><input id="tx-q" type="search" value="'+esc(q)+'" placeholder="Ex.: permanente, EPI, laudo" data-txq="1"></label>';
-  h+='<div class="txidx" aria-label="Índice">'+doc.itens.map(it=>'<a href="#biblioteca/textos/'+doc.id+'/'+esc(it.id)+'">'+esc(it.rot.replace(/^(Art\.|Item) ?/,''))+'</a>').join('')+'</div>';
+  h+='<nav class="txidx" aria-label="Índice">'+doc.itens.map(it=>'<a href="#biblioteca/textos/'+doc.id+'/'+esc(it.id)+'">'+esc(it.rot.replace(/^(Art\.|Item) ?/,''))+'</a>').join('')+'</nav>';
   h+=itens.length?itens.map(it=>'<article class="txart" id="'+txId(doc.id,it.id)+'"><header><b>'+esc(it.rot)+'</b><div class="btns">'+favBtn('txt:'+doc.id+'/'+it.id,it.cit)+'<button class="ghost sm" data-txcite="'+doc.id+'|'+esc(it.id)+'">Copiar citação</button><button class="ghost sm" data-txlink="'+doc.id+'|'+esc(it.id)+'">Copiar link</button></div></header>'+it.pars.map(p=>'<p>'+hl(p,q)+'</p>').join('')+'</article>').join(''):'<p class="empty">Nada encontrado para "'+esc(q)+'" neste texto.</p>';
   h+='<p class="fine">Reprodução para consulta. Antes de citar em peça ou parecer, confira a redação na fonte oficial.</p></section>';
   return h;
@@ -1677,7 +1693,7 @@ function linhaTempoHtml(d){
   const hoje=new Date().toISOString().slice(0,10);
   const anos=[]; for(let y=1965;y<=2025;y+=5) anos.push(y);
   const marcos=MARCOS.filter(m=>m.d>='1960-01-01');
-  let svg='<svg class="tlv" viewBox="-10 0 '+(TL_W+20)+' 118" role="img" aria-label="Linha do tempo da legislação de '+TL_INI+' a hoje">';
+  let svg='<svg class="tlv" viewBox="-10 0 '+(TL_W+20)+' 118" role="group" aria-label="Linha do tempo da legislação de '+TL_INI+' a hoje">';
   TL_ERAS.forEach(([i,f,rot,c])=>{ const x1=tlX(i), x2=tlX(f>hoje?hoje:f); svg+='<rect class="tl-'+c+'" x="'+x1.toFixed(1)+'" y="10" width="'+(x2-x1).toFixed(1)+'" height="22" rx="3"><title>'+esc(rot)+'</title></rect><text class="tl-era" x="'+(x1+6).toFixed(1)+'" y="25">'+esc(rot)+'</text>'; });
   svg+='<line class="tl-eixo" x1="0" x2="'+TL_W+'" y1="58" y2="58"/>';
   anos.forEach(y=>{ const x=tlX(y+'-01-01'); svg+='<line class="tl-tick" x1="'+x+'" x2="'+x+'" y1="54" y2="62"/><text class="tl-ano" x="'+x+'" y="76">'+y+'</text>'; });
@@ -1686,7 +1702,7 @@ function linhaTempoHtml(d){
   svg+='</svg>';
   const ag=AGENTS.find(a=>a.id===(S.tlag||'ruido'))||AGENTS[0];
   const segs=(ag.periodos||[]).map(p=>{ const [i,f]=faixa(p[0]); return {i:i||'1960-01-01', f:f||hoje, p}; });
-  let lane='<svg class="tlv tlag" viewBox="-10 0 '+(TL_W+20)+' '+(22+segs.length*26)+'" role="img" aria-label="Regras de '+esc(ag.nome)+' ao longo do tempo">';
+  let lane='<svg class="tlv tlag" viewBox="-10 0 '+(TL_W+20)+' '+(22+segs.length*26)+'" role="group" aria-label="Regras de '+esc(ag.nome)+' ao longo do tempo">';
   segs.forEach((s,k)=>{ const x1=tlX(s.i), x2=tlX(s.f), y=6+k*26; lane+='<g class="tl-seg'+(d>=s.i&&d<=s.f?' on':'')+'" tabindex="0" role="button" data-tlset="'+s.i+'"><rect x="'+x1.toFixed(1)+'" y="'+y+'" width="'+Math.max(4,x2-x1).toFixed(1)+'" height="20" rx="3"/><text x="'+(x1+5).toFixed(1)+'" y="'+(y+14)+'">'+esc(String(s.p[0]).slice(0,Math.max(4,Math.floor((x2-x1)/6))))+'</text><title>'+esc(s.p[0]+' — '+s.p[1]+' — '+s.p[2])+'</title></g>'; });
   const xd2=tlX(d); lane+='<line class="tl-sel" x1="'+xd2+'" x2="'+xd2+'" y1="0" y2="'+(10+segs.length*26)+'"/></svg>';
   lane+='</div><ul class="tl-leg">'+segs.map(s2=>'<li class="'+(d>=s2.i&&d<=s2.f?'on':'')+'"><b>'+esc(s2.p[0])+'</b> · '+esc(s2.p[1])+' — '+esc(s2.p[2])+'</li>').join('')+'</ul><div>';
@@ -1740,7 +1756,7 @@ window.addEventListener('offline', ()=>{ statusRede(); avisar('Sem conexão: o a
 window.addEventListener('beforeinstallprompt', ev=>{ ev.preventDefault(); INSTALAR=ev; if(S.tab==='perfil') render(); });
 window.addEventListener('appinstalled', ()=>{ INSTALAR=null; avisar('Caracterizador Pericial instalado.'); if(S.tab==='perfil') render(); });
 function instalarHtml(){
-  const ios=/iphone|ipad|ipod/i.test(navigator.userAgent), standalone=window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches;
+  const ios=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1), standalone=window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches;
   if(standalone) return '<p class="small">O app já está instalado neste dispositivo e abre sem internet.</p>';
   return '<p class="small">Instale o Caracterizador Pericial no celular ou no computador para abrir com um toque e consultar mesmo sem internet (em perícias, audiências e locais sem sinal).</p>'+
    (INSTALAR?'<button data-cs="instalar">Instalar no dispositivo</button>':ios?'<p class="fine">No iPhone ou iPad: toque em Compartilhar e depois em "Adicionar à Tela de Início".</p>':'<p class="fine">Se o botão não aparecer, use o menu do navegador: "Instalar app" ou "Adicionar à tela inicial".'+(PODE_OFFLINE?'':' A instalação só funciona na versão publicada do site.')+'</p>');
