@@ -763,7 +763,8 @@ const LIBT = [
 function hl(s,q){ s=esc(s); if(!q) return s; const re=new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'); return s.replace(re,'<mark>$1</mark>'); }
 function cellHtml(v,q){ v=String(v||''); if(/^https?:\/\//.test(v)) return '<a href="'+esc(v)+'" target="_blank" rel="noopener">'+esc(v.replace(/^https?:\/\/(www\.)?/,'').slice(0,60))+'…</a>'; return hl(v,q); }
 function renderBib(){
-  const vis='<nav class="subtabs" aria-label="Biblioteca"><a href="#biblioteca"'+(S.libv!=='textos'?' class="on" aria-current="page"':'')+'>Quadros e tabelas</a><a href="#biblioteca/textos"'+(S.libv==='textos'?' class="on" aria-current="page"':'')+'>Textos legais navegáveis</a></nav>';
+  const vis='<nav class="subtabs" aria-label="Biblioteca"><a href="#biblioteca"'+(S.libv!=='textos'&&S.libv!=='historico'?' class="on" aria-current="page"':'')+'>Quadros e tabelas</a><a href="#biblioteca/textos"'+(S.libv==='textos'?' class="on" aria-current="page"':'')+'>Textos legais navegáveis</a>'+(typeof HISTORICO_NR!=='undefined'?'<a href="#biblioteca/historico"'+(S.libv==='historico'?' class="on" aria-current="page"':'')+'>Histórico das NRs</a>':'')+'</nav>';
+  if(S.libv==='historico'&&typeof HISTORICO_NR!=='undefined') return '<section class="intro"><div><p class="eyebrow">Biblioteca</p><h2>Histórico das NRs</h2><p class="muted">Portarias que alteraram a NR-01, a NR-15 e a NR-16 desde 1978, com o que o texto consolidado do MTE anota sobre cada uma. Útil para saber qual redação valia na época de um período.</p></div></section>'+vis+renderHistorico();
   if(S.libv==='textos') return '<section class="intro"><div><p class="eyebrow">Biblioteca</p><h2>Textos legais navegáveis</h2><p class="muted">Lei 8.213/91 (arts. 57 e 58), IN 128/2022 (arts. 286 a 302), NR-01 (item 1.5 e Anexo I) e os itens gerais da NR-15 e da NR-16, com link e citação para cada artigo ou item.</p></div></section>'+vis+renderTextos();
   const q=S.q.trim(), norm=s=>String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase(), nq=norm(q);
   const tabs = S.lib==='todas' ? LIBT : LIBT.filter(t=>t[0]===S.lib);
@@ -796,6 +797,7 @@ function buildIndex(){
   Object.entries(TESES).forEach(([k,t])=>add('Teses e súmulas',t.trib+', '+t.num+' — '+t.titulo,t.tese,'tese:'+k));
   if(typeof FUNCOES!=='undefined') FUNCOES.forEach((x,i)=>add('Consulta por função',x.f,x.obs,'funcao:'+i,(x.sin||[]).join(' ')));
   docsTexto().forEach(d=>d.itens.forEach(it=>add('Textos legais — '+d.curto,it.rot+' — '+d.tit.split(' — ')[0],it.pars.join(' '),'txt:'+d.id+'/'+it.id)));
+  if(typeof HISTORICO_NR!=='undefined') Object.entries(HISTORICO_NR).forEach(([id,d])=>d.hist.concat(d.fora).forEach(h=>add('Histórico das NRs — '+d.nome,h.port+(h.dou?' (DOU '+h.dou+')':''),(h.onde||[]).join('; ')||'Consta do cabeçalho de alterações da '+d.nome+'.','hist:'+id,h.port.replace(/\./g,''))));
   MARCOS.forEach(m=>add('Marcos legais',fmtBR(m.d)+' — '+m.t,m.s,'aposentadoria/resultado'));
   if(typeof NOVIDADES!=='undefined') NOVIDADES.forEach(n=>add('Novidades na base',n.titulo,n.resumo,n.ir||'inicio'));
   LIBT.forEach(([k,tit])=>(LIB[k]||[]).forEach(r=>{ const row=Array.isArray(r)?r:[r]; const txt=row.filter(Boolean).join(' · '); if(/^https?:/.test(txt)) return; add('Biblioteca — '+tit, row[0].length>90?row[0].slice(0,90)+'…':row[0], row.slice(1).join(' · '), 'lib:'+k, txt); }));
@@ -844,6 +846,7 @@ function destinoValido(dest){ const i=dest.indexOf(':'); if(i<1) return false; c
   if(k==='funcao') return isNaN(+v)?FUNCOES.some(x=>slugTx(x.f)===v):!!FUNCOES[+v];
   if(k==='tese') return !!TESES[v];
   if(k==='txt'||k==='lib') return true;
+  if(k==='hist') return typeof HISTORICO_NR!=='undefined'&&!!HISTORICO_NR[v];
   return false; }
 function linkBtn(key){ return '<button class="ghost sm" data-golink="'+esc(key)+'" title="Copiar o endereço direto desta consulta">Copiar link</button>'; }
 document.addEventListener('click', ev=>{ const b=ev.target.closest('[data-golink]'); if(!b) return; copiar(linkDireto(b.dataset.golink),'Link copiado. Quem abrir vai direto a esta consulta.'); });
@@ -856,6 +859,7 @@ function go(dest){
   else if(k==='a16'){ S.a16=v; setHash('periculosidade'); }
   else if(k==='funcao'){ S.fsel=isNaN(+v)?(i=>i<0?S.fsel:i)(FUNCOES.findIndex(x=>slugTx(x.f)===v)):+v; S.fq=''; setHash('funcao'); }
   else if(k==='tese'){ S.tf='todos'; S.tsit='todas'; S.tq=''; setHash('teses/'+v); }
+  else if(k==='hist'){ setHash('biblioteca/historico'); setTimeout(()=>destacar('hist-'+v),150); }
   else if(k==='txt'){ setHash('biblioteca/textos/'+v); }
   else if(k==='lib'){ S.lib=v; S.q=S.gq||''; SRCH.q=S.q; setHash('biblioteca'); }
   else setHash(k);
@@ -869,7 +873,7 @@ function render(){
   registrarVisto(); marcarSiglas();
 }
 function route(){ let h=location.hash.slice(1); if(h.startsWith('ir/')){ const dest=decodeURIComponent(h.slice(3)); if(destinoValido(dest)){ GO_REPLACE=true; go(dest); irAoConteudo(); return true; } h='inicio'; } const LEG={agentes:'aposentadoria/agentes',painel:'aposentadoria/resultado'}; if(LEG[h]){ h=LEG[h]; history.replaceState(null,'','#'+h); } const [h0,h1,h2,h3]=h.split('/');
-  if(SRCH){ if(SRCH.fromGo){ SRCH.fromGo=false; } else { if(SRCH.tq!==null&&S.tq===SRCH.tq) S.tq=''; if(SRCH.q!==null&&S.q===SRCH.q){ S.q=''; S.lib='todas'; } if(SRCH.q11!==null&&S.ins.q11===SRCH.q11){ S.ins.q11=''; } SRCH=null; } } S.tab = TABS.some(t=>t[0]===h0)?h0:(h0==='busca'?'busca':'inicio'); if(S.tab==='aposentadoria') S.ap = AP_SUB.some(x=>x[0]===h1)?h1:(S.ap||'agentes'); if(S.tab==='teses'&&h1&&TESES[h1]){ S.tf='todos'; S.tsit='todas'; S.tq=''; } S.alvo=(S.tab==='teses'&&h1&&TESES[h1])?'tese:'+h1:(S.tab==='biblioteca'&&h1==='textos'&&h3)?'txt:'+h2+'/'+decodeURIComponent(h3):''; if(S.tab==='biblioteca'){ S.libv=h1==='textos'?'textos':'quadros'; if(h2){ S.txd=h2; S.txq=''; } } render(); if(S.tab==='teses'&&h1&&TESES[h1]){ destacar('tese-'+h1); return true; } if(S.tab==='biblioteca'&&S.libv==='textos'&&h3){ destacar(txId(h2,decodeURIComponent(h3))); return true; } return false; }
+  if(SRCH){ if(SRCH.fromGo){ SRCH.fromGo=false; } else { if(SRCH.tq!==null&&S.tq===SRCH.tq) S.tq=''; if(SRCH.q!==null&&S.q===SRCH.q){ S.q=''; S.lib='todas'; } if(SRCH.q11!==null&&S.ins.q11===SRCH.q11){ S.ins.q11=''; } SRCH=null; } } S.tab = TABS.some(t=>t[0]===h0)?h0:(h0==='busca'?'busca':'inicio'); if(S.tab==='aposentadoria') S.ap = AP_SUB.some(x=>x[0]===h1)?h1:(S.ap||'agentes'); if(S.tab==='teses'&&h1&&TESES[h1]){ S.tf='todos'; S.tsit='todas'; S.tq=''; } S.alvo=(S.tab==='teses'&&h1&&TESES[h1])?'tese:'+h1:(S.tab==='biblioteca'&&h1==='textos'&&h3)?'txt:'+h2+'/'+decodeURIComponent(h3):''; if(S.tab==='biblioteca'){ S.libv=h1==='textos'?'textos':h1==='historico'?'historico':'quadros'; if(h2){ S.txd=h2; S.txq=''; } } render(); if(S.tab==='teses'&&h1&&TESES[h1]){ destacar('tese-'+h1); return true; } if(S.tab==='biblioteca'&&S.libv==='textos'&&h3){ destacar(txId(h2,decodeURIComponent(h3))); return true; } return false; }
 window.addEventListener('hashchange', ()=>{ if(!route()) window.scrollTo(0,0); });
 
 function setPath(obj, path, val){ const ps=path.split('.'); let o=obj; for(let k=0;k<ps.length-1;k++){ o[ps[k]]=o[ps[k]]||{}; o=o[ps[k]]; } o[ps[ps.length-1]]=val; }
@@ -1424,6 +1428,25 @@ document.addEventListener('click', ev=>{
 });
 document.addEventListener('keydown', ev=>{ if(ev.key==='Escape') fecharGl(); });
 window.addEventListener('hashchange', fecharGl);
+
+/* ---------- Histórico das NRs (portarias de alteração) ---------- */
+function anexoGo(nr,txt){
+  return esc(txt).replace(/Anexo (\d{1,2}(?:-A)?|[IVX]+|\(\*\))/g,(m,n)=>{
+    let go='';
+    if(nr==='nr15'&&NR15.some(x=>String(x.n)===n)) go='a15:'+n;
+    if(nr==='nr16'){ const r={I:1,II:2,III:3,IV:4,V:5,VI:6}[n]; if(r&&NR16.some(x=>x.id==='a'+r)) go='a16:a'+r; if(n==='(*)'&&NR16.some(x=>x.id==='ar')) go='a16:ar'; }
+    return go?'<button class="linkbtn" data-go="'+go+'">'+m+'</button>':m; });
+}
+function renderHistorico(){
+  const ordem=[['nr15','NR-15 — Atividades e operações insalubres'],['nr16','NR-16 — Atividades e operações perigosas'],['nr01','NR-01 — Disposições gerais e gerenciamento de riscos ocupacionais']];
+  let h='<nav class="txdocs" aria-label="Normas">'+ordem.map(([id,t])=>'<a class="txchip" href="#ir/hist:'+id+'">'+t.split(' — ')[0]+'</a>').join('')+'</nav>';
+  ordem.forEach(([id,tit])=>{ const d=HISTORICO_NR[id]; if(!d) return;
+    h+='<section class="panel" id="hist-'+id+'"><div class="ph"><h3>'+esc(tit)+'</h3><p class="muted small">'+d.hist.length+' portarias no cabeçalho do texto consolidado do MTE, da publicação (1978) à mais recente.</p></div><div class="tscroll"><table class="rt hist"><thead><tr><th>DOU</th><th>Portaria</th><th>O que o texto consolidado anota</th></tr></thead><tbody>'+
+      d.hist.map(x=>'<tr><td class="mono">'+esc(x.dou)+(x.obs?' <small>'+esc(x.obs)+'</small>':'')+'</td><td>'+esc(x.port)+'</td><td>'+(x.onde.length?x.onde.map(o=>anexoGo(id,o.charAt(0).toUpperCase()+o.slice(1))).join('<br>'):'<span class="muted">Sem anotação no texto consolidado.</span>')+'</td></tr>').join('')+'</tbody></table></div>'+
+      (d.fora.length?'<h4>Citadas no texto, mas fora do cabeçalho</h4><ul class="sm-list">'+d.fora.map(x=>'<li><b>'+esc(x.port)+'</b> — '+x.onde.map(o=>anexoGo(id,o)).join('; ')+'</li>').join('')+'</ul>':'')+
+      '</section>'; });
+  return h+'<p class="fine">Fonte: cabeçalho "Alterações/Atualizações" e anotações entre parênteses dos textos consolidados do MTE (NR-01 2025-I-3; NR-15 e NR-16 até a Portaria MTE 2.021/2025). "Rep." indica republicação e "Rev." segue o cabeçalho do MTE. A data da Portaria SSST 25/1994 na NR-16 (17/02/83) está assim no cabeçalho oficial. "Sem anotação" significa que o texto consolidado não indica o item alterado: consulte a portaria no DOU.</p>';
+}
 
 /* ---------- Textos legais navegáveis ---------- */
 function docsTexto(){

@@ -141,3 +141,15 @@ test('textos legais: NR-01 item 1.5 e Anexo I sem códigos repetidos', () => {
   assert.equal(new Set(termos).size, termos.length);
   ['Agente físico', 'Programa de Gerenciamento de Riscos (PGR)', 'Risco ocupacional'].forEach(t => assert.ok(termos.includes(t), t));
 });
+
+test('histórico das NRs: cabeçalhos completos e em ordem de publicação', () => {
+  const H = X.HISTORICO_NR;
+  assert.equal(H.nr15.hist.length, 24); assert.equal(H.nr16.hist.length, 14); assert.equal(H.nr01.hist.length, 14);
+  for (const id of ['nr01', 'nr15', 'nr16']) {
+    assert.match(H[id].hist[0].port, /3\.214, de 08 de junho de 1978/);
+    assert.match(H[id].hist.at(-1).port, id === 'nr01' ? /765/ : /2\.021/);
+    H[id].hist.forEach(h => assert.match(h.dou, /^\d\d\/\d\d\/\d\d$/));
+  }
+  const p1359 = H.nr15.hist.find(h => /1\.359/.test(h.port));
+  assert.deepEqual(JSON.parse(JSON.stringify(p1359.onde)), ['alterado — Anexo 3']);
+});
