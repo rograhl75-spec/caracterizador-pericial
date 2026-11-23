@@ -36,7 +36,7 @@ function persist(){ try{ localStorage.setItem(STORE, JSON.stringify(DB)); return
 function save(){ S.caso.alterado=agora(); DB.casos[DB.ativo]=S.caso; persist(); }
 
 const TABS = [['inicio','Início'],['funcao','Por função'],['aposentadoria','Aposentadoria especial'],['insalubridade','Insalubridade'],['periculosidade','Periculosidade'],['teses','Teses'],['biblioteca','Biblioteca'],['perfil','Perfil e dados']];
-const AP_SUB = [['agentes','Consulta por agente','Critério, campo, metodologia, simulação e PPP'],['data','Regra na data','O que valia numa data, agente por agente'],['comparar','Comparar agentes','Dois ou três agentes lado a lado'],['caso','Simulação de enquadramento','Períodos de trabalho testados contra as regras'],['resultado','Resultado da simulação','Tempo especial simulado, linha do tempo e divergências']];
+const AP_SUB = [['agentes','Consulta por agente','Critério, campo, metodologia, simulação e PPP'],['data','Regra na data','Linha do tempo e o que valia numa data'],['comparar','Comparar agentes','Dois ou três agentes lado a lado'],['caso','Simulação de enquadramento','Períodos de trabalho testados contra as regras'],['resultado','Resultado da simulação','Tempo especial simulado, linha do tempo e divergências']];
 
 function chip(st, short){ return '<span class="chip st-'+st+'">'+(short?st==='E'?'Especial':st==='N'?'Não':st==='C'?'Controverso':'Faltam dados':ST[st])+'</span>'; }
 
@@ -1121,7 +1121,7 @@ function renderRegraData(){
   const grupos=[...new Set(AGENTS.map(a=>a.grupo))];
   let h='<section class="intro"><div><p class="eyebrow">Consulta por data</p><h2>Qual regra valia em '+brData(d)+'?</h2><p class="muted">Escolha uma data para ver, agente por agente, a norma e o critério do período, além dos marcos gerais que valiam naquele dia. É uma consulta à legislação: a análise do caso concreto continua com o profissional.</p></div></section>'+
    '<div class="libbar"><label class="f" for="rd-data"><span>Data</span><input id="rd-data" type="date" data-rd="1" value="'+d+'" min="1960-01-01"></label><div class="btns">'+[['1996-12-31','31/12/1996'],['2000-06-30','30/06/2000'],['2003-12-01','01/12/2003'],['2015-06-30','30/06/2015'],['2021-06-30','30/06/2021']].map(([v,t])=>'<button class="ghost sm" data-rdset="'+v+'">'+t+'</button>').join('')+'</div></div>'+
-   '<section class="panel"><div class="ph"><h3>Marcos gerais em '+brData(d)+'</h3></div><dl class="dl16 small">'+marcosNaData(d).map(([k,t])=>'<dt>'+esc(k)+'</dt><dd>'+esc(t)+'</dd>').join('')+'</dl></section>';
+   linhaTempoHtml(d)+'<section class="panel"><div class="ph"><h3>Marcos gerais em '+brData(d)+'</h3></div><dl class="dl16 small">'+marcosNaData(d).map(([k,t])=>'<dt>'+esc(k)+'</dt><dd>'+esc(t)+'</dd>').join('')+'</dl></section>';
   grupos.forEach(g=>{
     h+='<section class="panel rdg"><div class="ph"><h3>'+esc(g)+'</h3></div><div class="tscroll"><table class="rt"><thead><tr><th>Agente</th><th>Norma do período</th><th>Critério</th></tr></thead><tbody>'+
      AGENTS.filter(a=>a.grupo===g).map(a=>{ const r=regraNaData(a,d); return '<tr><td><a href="#aposentadoria/agentes" data-ag="'+a.id+'">'+esc(a.nome)+'</a></td>'+(r.length?'<td>'+r.map(p=>esc(p[1])+'<small>'+esc(p[0])+'</small>').join('')+'</td><td>'+r.map(p=>esc(p[2])).join('<br>')+'</td>':'<td colspan="2" class="muted">Sem regra própria registrada para esta data; veja a ficha.</td>')+'</tr>'; }).join('')+
@@ -1274,6 +1274,35 @@ document.addEventListener('click', ev=>{
   if(b.dataset.fsel!==undefined){ S.fsel=+b.dataset.fsel; render(); if(window.innerWidth<760){ const p=document.getElementById('ffun'); if(p) p.scrollIntoView({block:'start'}); } }
   else { const x=FUNCOES[+b.dataset.fcmp]; S.cmpAg=x.ag.filter(id=>AGENTS.some(a=>a.id===id&&a.id!=='categoria')).slice(0,3); location.hash='aposentadoria/comparar'; }
 });
+
+/* ---------- Linha do tempo visual da legislação ---------- */
+const TL_INI=1960, TL_FIM=2028, TL_W=1000;
+const tlX = iso => { const d=new Date(iso+'T00:00:00'); const ano=d.getFullYear()+(d.getMonth()*30.4+d.getDate())/365; return Math.max(0,Math.min(TL_W,(ano-TL_INI)/(TL_FIM-TL_INI)*TL_W)); };
+const TL_ERAS=[['1960-01-01','1997-03-05','Decretos 53.831/64 e 83.080/79','e1'],['1997-03-06','2019-11-13','Anexo IV (Decretos 2.172/97 e 3.048/99)','e2'],['2019-11-14','2028-12-31','Após a EC 103/2019','e3']];
+function linhaTempoHtml(d){
+  const hoje=new Date().toISOString().slice(0,10);
+  const anos=[]; for(let y=1965;y<=2025;y+=5) anos.push(y);
+  const marcos=MARCOS.filter(m=>m.d>='1960-01-01');
+  let svg='<svg class="tlv" viewBox="-10 0 '+(TL_W+20)+' 118" role="img" aria-label="Linha do tempo da legislação de '+TL_INI+' a hoje">';
+  TL_ERAS.forEach(([i,f,rot,c])=>{ const x1=tlX(i), x2=tlX(f>hoje?hoje:f); svg+='<rect class="tl-'+c+'" x="'+x1.toFixed(1)+'" y="10" width="'+(x2-x1).toFixed(1)+'" height="22" rx="3"><title>'+esc(rot)+'</title></rect><text class="tl-era" x="'+(x1+6).toFixed(1)+'" y="25">'+esc(rot)+'</text>'; });
+  svg+='<line class="tl-eixo" x1="0" x2="'+TL_W+'" y1="58" y2="58"/>';
+  anos.forEach(y=>{ const x=tlX(y+'-01-01'); svg+='<line class="tl-tick" x1="'+x+'" x2="'+x+'" y1="54" y2="62"/><text class="tl-ano" x="'+x+'" y="76">'+y+'</text>'; });
+  marcos.forEach((m,k)=>{ const x=tlX(m.d); svg+='<g class="tl-m" tabindex="0" role="button" data-tlset="'+m.d+'" aria-label="'+esc(fmtBR(m.d)+' — '+m.t)+'"><circle cx="'+x.toFixed(1)+'" cy="58" r="6"/><title>'+esc(fmtBR(m.d)+' — '+m.t+': '+m.s)+'</title></g>'; });
+  const xd=tlX(d); svg+='<line class="tl-sel" x1="'+xd+'" x2="'+xd+'" y1="4" y2="96"/><text class="tl-seltxt" x="'+Math.min(TL_W-70,Math.max(0,xd-35))+'" y="110">'+brData(d)+'</text>';
+  svg+='</svg>';
+  const ag=AGENTS.find(a=>a.id===(S.tlag||'ruido'))||AGENTS[0];
+  const segs=(ag.periodos||[]).map(p=>{ const [i,f]=faixa(p[0]); return {i:i||'1960-01-01', f:f||hoje, p}; });
+  let lane='<svg class="tlv tlag" viewBox="-10 0 '+(TL_W+20)+' '+(22+segs.length*26)+'" role="img" aria-label="Regras de '+esc(ag.nome)+' ao longo do tempo">';
+  segs.forEach((s,k)=>{ const x1=tlX(s.i), x2=tlX(s.f), y=6+k*26; lane+='<g class="tl-seg'+(d>=s.i&&d<=s.f?' on':'')+'" tabindex="0" role="button" data-tlset="'+s.i+'"><rect x="'+x1.toFixed(1)+'" y="'+y+'" width="'+Math.max(4,x2-x1).toFixed(1)+'" height="20" rx="3"/><text x="'+(x1+5).toFixed(1)+'" y="'+(y+14)+'">'+esc(String(s.p[0]).slice(0,Math.max(4,Math.floor((x2-x1)/6))))+'</text><title>'+esc(s.p[0]+' — '+s.p[1]+' — '+s.p[2])+'</title></g>'; });
+  const xd2=tlX(d); lane+='<line class="tl-sel" x1="'+xd2+'" x2="'+xd2+'" y1="0" y2="'+(10+segs.length*26)+'"/></svg>';
+  lane+='</div><ul class="tl-leg">'+segs.map(s2=>'<li class="'+(d>=s2.i&&d<=s2.f?'on':'')+'"><b>'+esc(s2.p[0])+'</b> · '+esc(s2.p[1])+' — '+esc(s2.p[2])+'</li>').join('')+'</ul><div>';
+  setTimeout(()=>document.querySelectorAll('.tlpanel .tscroll').forEach(el=>{ const sv=el.querySelector('svg'); if(!sv||sv.clientWidth<=el.clientWidth) return; el.scrollLeft=Math.max(0, sv.clientWidth*((tlX(d)+10)/(TL_W+20)) - el.clientWidth/2); }),0);
+  return '<section class="panel tlpanel"><div class="ph"><h3>Linha do tempo da legislação</h3><p class="muted small">Clique num marco para ver a regra daquela data. Passe o mouse ou o dedo para ler o marco.</p></div><div class="tscroll">'+svg+'</div>'+
+   '<div class="tlagsel"><label class="f" for="tl-ag"><span>Linha do tempo de um agente</span><select id="tl-ag" data-tlag="1">'+AGENTS.map(a=>'<option value="'+a.id+'"'+(a.id===ag.id?' selected':'')+'>'+esc(a.nome)+'</option>').join('')+'</select></label></div><div class="tscroll">'+lane+'</div></section>';
+}
+document.addEventListener('click', ev=>{ const g=ev.target.closest('[data-tlset]'); if(g){ S.dt=g.dataset.tlset; render(); } });
+document.addEventListener('keydown', ev=>{ if((ev.key==='Enter'||ev.key===' ')&&ev.target.dataset&&ev.target.dataset.tlset){ ev.preventDefault(); S.dt=ev.target.dataset.tlset; render(); } });
+document.addEventListener('change', ev=>{ const t=ev.target; if(t.dataset.tlag){ S.tlag=t.value; render(); const el=document.getElementById('tl-ag'); if(el) el.focus(); } });
 
 /* ---------- fontes oficiais e alertas do monitor ---------- */
 const brData = d => d ? d.split('-').reverse().join('/') : '—';

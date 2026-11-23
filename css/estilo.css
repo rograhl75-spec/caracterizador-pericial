@@ -628,3 +628,25 @@ table.cmpag .sit{font:600 .7rem/1 var(--f-body); padding:3px 6px; border-radius:
 .ffun h4{margin:6px 0 0; font-size:.92rem}
 .fchips{display:flex; flex-wrap:wrap; gap:6px}
 @media (max-width:760px){ .fgrid{grid-template-columns:1fr} .flist{max-height:240px} }
+
+/* linha do tempo */
+.tlpanel .tscroll{overflow-x:auto}
+svg.tlv{width:100%; min-width:720px; display:block; font-family:var(--f-body)}
+.tl-e1{fill:var(--gold-soft)} .tl-e2{fill:var(--i-bg)} .tl-e3{fill:var(--e-bg)}
+.tl-era{font-size:11px; fill:var(--ink); font-weight:600}
+.tl-eixo{stroke:var(--line); stroke-width:2} .tl-tick{stroke:var(--muted)}
+.tl-ano{font-size:10px; fill:var(--muted); text-anchor:middle}
+.tl-m circle{fill:var(--band); stroke:var(--surface); stroke-width:2; cursor:pointer}
+.tl-m:hover circle,.tl-m:focus circle{fill:var(--gold-line); r:8}
+.tl-m:focus{outline:none}
+.tl-sel{stroke:var(--n); stroke-width:2; stroke-dasharray:4 3}
+.tl-seltxt{font-size:11px; font-weight:700; fill:var(--n)}
+.tlagsel{max-width:360px}
+.tl-seg rect{fill:var(--surface-2); stroke:var(--line); cursor:pointer}
+.tl-seg.on rect{fill:var(--gold-soft); stroke:var(--gold-line)}
+.tl-seg text{font-size:10.5px; fill:var(--ink); pointer-events:none}
+.tl-seg:focus{outline:none} .tl-seg:focus rect{stroke:var(--focus); stroke-width:2}
+.tlpanel .tscroll{min-width:0; width:100%; max-width:100%}
+.tscroll{overflow-x:auto; max-width:100%; min-width:0}
+.tl-leg{list-style:none; margin:4px 0 0; padding:0; display:flex; flex-direction:column; gap:4px; font-size:.84rem}
+.tl-leg li{padding:4px 8px; border-left:3px solid var(--line)} .tl-leg li.on{border-left-color:var(--gold-line); background:var(--gold-soft)}
