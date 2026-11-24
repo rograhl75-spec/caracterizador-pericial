@@ -31,8 +31,9 @@
    "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/seguranca-e-saude-no-trabalho/sst-portarias/2019/portaria_seprt_915_-aprova_a_nova_nr_01.pdf",
    "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/seguranca-e-saude-no-trabalho/sst-portarias/2020/portaria_seprt_6-735_-altera_a_nr_09.pdf"
   ],
-  "falhas": 0,
-  "ok": "2026-11-23"
+  "falhas": 1,
+  "ok": "2026-11-23",
+  "erro": "site sem resposta nesta execução (www.gov.br)"
  },
  "nr01": {
   "links": [
@@ -59,8 +60,9 @@
    "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/seguranca-e-saude-no-trabalho/sst-portarias/2024/portaria-mte-no-344-altera-glossario-nr-01-e-12.pdf",
    "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/seguranca-e-saude-no-trabalho/sst-portarias/2025/portaria-mte-no-765-prorroga-inicio-de-vigencia-cap-1-5-da-nr-01.pdf"
   ],
-  "falhas": 0,
-  "ok": "2026-11-23"
+  "falhas": 1,
+  "ok": "2026-11-23",
+  "erro": "site sem resposta nesta execução (www.gov.br)"
  },
  "nr10": {
   "links": [
@@ -76,8 +78,9 @@
    "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/seguranca-e-saude-no-trabalho/sst-portarias/2021/portaria-mtp-no-672-procedimentos-sst-1-1.pdf",
    "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/seguranca-e-saude-no-trabalho/sst-portarias/2026-1/portaria-mte-no-737-nova-nr-10.pdf"
   ],
-  "falhas": 0,
-  "ok": "2026-11-23"
+  "falhas": 1,
+  "ok": "2026-11-23",
+  "erro": "site sem resposta nesta execução (www.gov.br)"
  },
  "nr15": {
   "links": [
@@ -116,8 +119,9 @@
    "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/seguranca-e-saude-no-trabalho/sst-portarias/2019/portaria_seprt_1359_-altera_anexo_3_nr_15_e_inclui_anexo_3_na_nr_9__calor.pdf",
    "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/seguranca-e-saude-no-trabalho/sst-portarias/2021/portaria-mtp-no-426-anexos-i-vibracao-e-iii-calor-da-nr-09.pdf"
   ],
-  "falhas": 0,
-  "ok": "2026-11-23"
+  "falhas": 1,
+  "ok": "2026-11-23",
+  "erro": "site sem resposta nesta execução (www.gov.br)"
  },
  "nr16": {
   "links": [
@@ -147,8 +151,9 @@
    "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/seguranca-e-saude-no-trabalho/sst-portarias/2017/portaria_sit_598_-gtt_anexo_5_nr_16-_revogada.pdf",
    "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/seguranca-e-saude-no-trabalho/sst-portarias/2018/portaria_sit_787_-estrutura_e_interpretacao_de_nrs-_atualizada_2019.pdf"
   ],
-  "falhas": 0,
-  "ok": "2026-11-23"
+  "falhas": 1,
+  "ok": "2026-11-23",
+  "erro": "site sem resposta nesta execução (www.gov.br)"
  },
  "nho": {
   "links": [
@@ -166,8 +171,9 @@
    "https://www.gov.br/fundacentro/pt-br/centrais-de-conteudo/projeto-caminhos-do-trabalho",
    "https://www.gov.br/fundacentro/search"
   ],
-  "falhas": 0,
-  "ok": "2026-11-23"
+  "falhas": 1,
+  "ok": "2026-11-23",
+  "erro": "site sem resposta nesta execução (www.gov.br)"
  },
  "in128": {
   "links": [
@@ -207,8 +213,9 @@
    "https://www.gov.br/inss/pt-br/centrais-de-conteudo/legislacao/instrucao-normativa/2026/instrucao-normativa-pres-inss-no-213-de-17-de-agosto-de-2026",
    "https://www.gov.br/inss/pt-br/centrais-de-conteudo/legislacao/instrucao-normativa/2026/instrucao-normativa-pres-inss-no-215-de-15-de-outubro-de-2026"
   ],
-  "falhas": 0,
-  "ok": "2026-11-23"
+  "falhas": 1,
+  "ok": "2026-11-23",
+  "erro": "fetch failed (ECONNRESET)"
  },
  "sst": {
   "links": [
@@ -219,23 +226,24 @@
    "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/seguranca-e-saude-no-trabalho/sst-portarias/2026-1/portaria-mte-no-261-ajusta-port-105_26-que-altera-a-nr-22.pdf",
    "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/seguranca-e-saude-no-trabalho/sst-portarias/2026-1/portaria-mte-no-737-nova-nr-10.pdf"
   ],
-  "falhas": 0,
-  "ok": "2026-11-23"
+  "falhas": 1,
+  "ok": "2026-11-23",
+  "erro": "site sem resposta nesta execução (www.gov.br)"
  },
  "ec103": {
   "hash": "1e69fa2d87ff8155d5db9e423d46d0bca400616e84b06f8d0ec7507cc32bd8fd",
   "falhas": 0,
-  "ok": "2026-11-23"
+  "ok": "2026-11-24"
  },
  "lei8213": {
   "hash": "a9c7f79d083e13cb9bbc546ee6849ed92f1949e3fd96f4d1a9a15a1d2b9ae7a4",
   "falhas": 0,
-  "ok": "2026-11-23"
+  "ok": "2026-11-24"
  },
  "d3048": {
   "hash": "97a0e09e8c1e19df09e034f8c07caf8e68582b7365818cf4435587d6ff0ab033",
   "falhas": 0,
-  "ok": "2026-11-23"
+  "ok": "2026-11-24"
  },
  "dou": {
   "links": [
@@ -246,7 +254,7 @@
    "https://www.in.gov.br/web/dou/-/portaria-srsul/inss-n-238-de-26-de-outubro-de-2026-740940658",
    "https://www.in.gov.br/web/dou/-/resolucao-n-246-de-22-de-outubro-de-2026-741114023"
   ],
-  "falhas": 1,
+  "falhas": 2,
   "ok": "2026-11-23",
   "erro": "HTTP 502"
  }
