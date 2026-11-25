@@ -702,6 +702,7 @@ function a13Lista(){
 function renderInsal(){
   const an=NR15.find(x=>String(x.n)===String(S.a15))||NR15[0];
   let h='<section class="intro"><div><p class="eyebrow">NR-15 · Trabalhista</p><h2>Insalubridade</h2><p class="muted">Adicional de 40%, 20% ou 10% conforme o grau (item 15.2). Com mais de um agente, vale só o de grau mais elevado (item 15.3). Base: salário mínimo, salvo norma coletiva (Súmula Vinculante 4).</p></div></section>';
+  h+='<label class="f anxsel" for="anx15sel"><span>Anexo da NR-15</span><select id="anx15sel" data-anxsel="a15">'+NR15.map(x=>'<option value="'+x.n+'"'+(x===an?' selected':'')+'>Anexo '+x.n+' — '+esc(x.t)+(x.tipo==='revogado'?' (revogado)':'')+'</option>').join('')+'</select></label>';
   h+='<div class="anx" role="group" aria-label="Anexos da NR-15">'+NR15.map(x=>'<button aria-pressed="'+(x===an)+'" data-a15="'+x.n+'" class="'+(x===an?'on':'')+(x.tipo==='revogado'?' off':'')+'"><b>Anexo '+x.n+(x.tipo==='revogado'?' · revogado':'')+'</b><span>'+esc(x.t)+'</span></button>').join('')+'</div>';
   const wide = an.n===11||an.n===13;
   h+='<div class="grid2 '+(wide?'one':'wide-l')+'"><section class="panel" id="pinsal"><div class="ph"><div class="fhead"><p class="eyebrow">Anexo '+an.n+' · grau '+esc(an.g)+'</p><span class="btns">'+favBtn('a15:'+an.n,'NR-15, Anexo '+an.n+' — '+an.t)+linkBtn('a15:'+an.n)+'<button class="printbtn" data-print="insal">Imprimir / PDF</button></span></div><h3>'+esc(an.t)+'</h3><p>'+esc(an.s)+'</p></div><div class="calcbox" id="calcbox">';
@@ -775,6 +776,7 @@ function avaliaPeric(an){
 function renderPeric(){
   const an=NR16.find(x=>x.id===S.a16)||NR16[0], sal=num(pget('sal',''),true);
   let h='<section class="intro"><div><p class="eyebrow">NR-16 · CLT, art. 193</p><h2>Periculosidade</h2><p class="muted">Adicional de 30% sobre o salário-base, sem gratificações, prêmios ou participação nos lucros (item 16.2). O empregado pode optar pela insalubridade; os adicionais não se acumulam (art. 193, §2º; IRR Tema 17). Marque, em cada anexo, os itens da norma constatados na inspeção.</p></div></section>';
+  h+='<label class="f anxsel" for="anx16sel"><span>Anexo da NR-16</span><select id="anx16sel" data-anxsel="a16">'+NR16.map(x=>'<option value="'+x.id+'"'+(x===an?' selected':'')+'>'+esc(x.n)+' — '+esc(x.t)+'</option>').join('')+'</select></label>';
   h+='<div class="anx anx16" role="group" aria-label="Anexos da NR-16">'+NR16.map(x=>'<button aria-pressed="'+(x===an)+'" data-a16="'+x.id+'" class="'+(x===an?'on':'')+'"><b>'+esc(x.n)+'</b><span>'+esc(x.t)+'</span></button>').join('')+'</div>';
   const r=avaliaPeric(an);
   h+='<div class="grid2 one"><section class="panel" id="pperic"><div class="ph"><div class="fhead"><p class="eyebrow">'+esc(an.n)+' · '+esc(an.port)+'</p><span class="btns">'+favBtn('a16:'+an.id,'NR-16, '+an.n+' — '+an.t)+linkBtn('a16:'+an.id)+'<button class="printbtn" data-print="peric">Imprimir / PDF</button></span></div><h3>'+esc(an.t)+'</h3></div>'+
@@ -925,6 +927,9 @@ function destinoValido(dest){ const i=dest.indexOf(':'); if(i<1) return false; c
   if(k==='txt'||k==='lib') return true;
   if(k==='hist') return typeof HISTORICO_NR!=='undefined'&&!!HISTORICO_NR[v];
   return false; }
+/* depois de escolher um anexo, leva a tela até o conteúdo dele (a lista de anexos ocupa a primeira tela inteira em notebooks e celulares) */
+function irAoAnexo(id){ const el=document.getElementById(id); if(!el) return; const hd=document.querySelector('header.band'); const topo=hd&&getComputedStyle(hd).position==='sticky'&&!hd.classList.contains('esconde')?hd.getBoundingClientRect().bottom:0; const r=el.getBoundingClientRect(); if(r.top>=topo&&r.top<innerHeight*0.45) return; window.scrollTo({top:Math.max(0,r.top+window.scrollY-topo-8), behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'}); }
+document.addEventListener('change', ev=>{ const t=ev.target; if(!t.dataset||!t.dataset.anxsel) return; if(t.dataset.anxsel==='a15'){ S.a15=isNaN(+t.value)?t.value:+t.value; render(); const el=document.getElementById('anx15sel'); if(el) el.focus({preventScroll:true}); irAoAnexo('pinsal'); } else { S.a16=t.value; render(); const el=document.getElementById('anx16sel'); if(el) el.focus({preventScroll:true}); irAoAnexo('pperic'); } });
 function linkBtn(key){ return '<button class="ghost sm" data-golink="'+esc(key)+'" title="Copiar o endereço direto desta consulta">Copiar link</button>'; }
 document.addEventListener('click', ev=>{ const a=ev.target.closest('[data-vres]'); if(!a) return; ev.preventDefault(); const v=document.getElementById('pres'); if(v){ const hd=document.querySelector('header.band'); const topo=hd&&getComputedStyle(hd).position==='sticky'?Math.max(0,hd.getBoundingClientRect().bottom):0; window.scrollTo(0, v.getBoundingClientRect().top+window.scrollY-topo-8); v.focus({preventScroll:true}); } });
 document.addEventListener('click', ev=>{ const b=ev.target.closest('[data-irper]'); if(!b) return; const i=b.dataset.irper; setTimeout(()=>{ const el=document.getElementById('r'+i+'-ini'); if(el){ const art=el.closest('article,section')||el; const hd=document.querySelector('header.band'); const topo=hd&&getComputedStyle(hd).position==='sticky'?hd.getBoundingClientRect().bottom:0; window.scrollTo(0, art.getBoundingClientRect().top+window.scrollY-topo-8); el.focus({preventScroll:true}); } },120); });
@@ -1030,8 +1035,8 @@ document.addEventListener('click', ev=>{
   if(b.dataset.act==='clr'){ if(b.dataset.armed){ S.caso.rows=[]; save(); render(); } else { b.dataset.armed='1'; b.textContent='Toque de novo para limpar'; setTimeout(()=>{ if(b.isConnected){ delete b.dataset.armed; b.textContent='Limpar períodos'; } },3000); } return; }
   if(b.dataset.act==='copy'){ const txt=resumoTexto(); const done=()=>{ b.textContent='Quadro copiado'; setTimeout(()=>b.textContent='Copiar quadro-resumo',2000); };
     try{ navigator.clipboard.writeText(txt).then(done, ()=>fallbackCopy(txt,b)); }catch(e){ fallbackCopy(txt,b); } return; }
-  if(b.dataset.a15){ S.a15=b.dataset.a15; render(); return; }
-  if(b.dataset.a16){ S.a16=b.dataset.a16; render(); return; }
+  if(b.dataset.a15){ S.a15=b.dataset.a15; render(); irAoAnexo('pinsal'); return; }
+  if(b.dataset.a16){ S.a16=b.dataset.a16; render(); irAoAnexo('pperic'); return; }
   if(b.dataset.perclr){ Object.keys(S.per).forEach(k=>{ if(k.startsWith(b.dataset.perclr+':')) delete S.per[k]; }); render(); return; }
   if(b.dataset.tf){ S.tf=b.dataset.tf; render(); return; }
   if(b.dataset.tsit){ S.tsit=b.dataset.tsit; render(); return; }

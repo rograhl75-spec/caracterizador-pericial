@@ -813,3 +813,7 @@ input[type=date]{min-height:2.6em}
 .cb > span small{display:block}
 /* V27 escala de títulos */
 .aphead h2{font-size:1.6rem} .acard h3{font-size:1.15rem} .ckgrp h4,.sec16 h4,.ffun h4{font-size:1rem}
+/* lista de anexos: mais compacta; no celular vira um seletor */
+.anx button{padding:8px 10px; gap:2px}
+.anxsel{display:none; max-width:520px}
+@media (max-width:700px){ .anxsel{display:flex} .anx{display:none} }
