@@ -1,7 +1,7 @@
 /* ===== Alertas de alteração em fontes oficiais =====
    Arquivo gravado pelo robô (scripts/monitor.mjs, GitHub Actions). Pode ser editado à mão:
    depois de revisar um alerta, troque status:'pendente' por status:'revisado'. */
-const MONITOR = {"ultima":"2026-11-26","fontes":{"nr09":{"ok":"2026-11-26","falhas":1},"nr01":{"ok":"2026-11-26","falhas":1},"nr10":{"ok":"2026-11-26","falhas":1},"nr15":{"ok":"2026-11-26","falhas":1},"nr16":{"ok":"2026-11-26","falhas":1},"nho":{"ok":"2026-11-26","falhas":1},"in128":{"ok":"2026-11-26","falhas":1},"sst":{"ok":"2026-11-26","falhas":1},"ec103":{"ok":"2026-11-26","falhas":0},"lei8213":{"ok":"2026-11-26","falhas":0},"d3048":{"ok":"2026-11-26","falhas":0},"dou":{"ok":"2026-11-26","falhas":1}}};
+const MONITOR = {"ultima":"2026-11-26","fontes":{"nr09":{"ok":"2026-11-26","falhas":2},"nr01":{"ok":"2026-11-26","falhas":2},"nr10":{"ok":"2026-11-26","falhas":2},"nr15":{"ok":"2026-11-26","falhas":2},"nr16":{"ok":"2026-11-26","falhas":2},"nho":{"ok":"2026-11-26","falhas":2},"in128":{"ok":"2026-11-26","falhas":2},"sst":{"ok":"2026-11-26","falhas":2},"ec103":{"ok":"2026-11-26","falhas":0},"lei8213":{"ok":"2026-11-26","falhas":0},"d3048":{"ok":"2026-11-26","falhas":0},"dou":{"ok":"2026-11-26","falhas":2}}};
 const ALERTAS = [
  {
   "id": "in215-2026",
