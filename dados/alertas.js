@@ -1,7 +1,7 @@
 /* ===== Alertas de alteração em fontes oficiais =====
    Arquivo gravado pelo robô (scripts/monitor.mjs, GitHub Actions). Pode ser editado à mão:
    depois de revisar um alerta, troque status:'pendente' por status:'revisado'. */
-const MONITOR = {"ultima":"2026-11-25"};
+const MONITOR = {"ultima":"2026-11-26","fontes":{"nr09":{"ok":"2026-11-26","falhas":0},"nr01":{"ok":"2026-11-26","falhas":0},"nr10":{"ok":"2026-11-26","falhas":0},"nr15":{"ok":"2026-11-26","falhas":0},"nr16":{"ok":"2026-11-26","falhas":0},"nho":{"ok":"2026-11-26","falhas":0},"in128":{"ok":"2026-11-26","falhas":0},"sst":{"ok":"2026-11-26","falhas":0},"ec103":{"ok":"2026-11-26","falhas":0},"lei8213":{"ok":"2026-11-26","falhas":0},"d3048":{"ok":"2026-11-26","falhas":0},"dou":{"ok":"2026-11-26","falhas":0}}};
 const ALERTAS = [
  {
   "id": "in215-2026",
@@ -18,12 +18,13 @@ const ALERTAS = [
   "fonte": "dou",
   "nomeFonte": "Diário Oficial da União (busca por termos)",
   "data": "2026-11-25",
-  "status": "pendente",
+  "status": "revisado",
   "tipo": "novo-documento",
   "titulo": "PORTARIA MPS N° 1.656, DE 24 DE NOVEMBRO DE 2026 (DOU 25/11/2026, Ministério da Previdência Social/Gabinete do Ministro)",
   "url": "https://www.in.gov.br/web/dou/-/portaria-mps-n-1.656-de-24-de-novembro-de-2026-746119401",
   "analise": "Impacto: nenhum\n(1) A portaria dispensa, a pedido, Edvaldo Estevam Alves do mandato de Conselheiro Suplente, representante do Governo na 5ª Junta do Conselho de Recursos da Previdência Social (CRPS), a partir de 12/10/2026. É ato de pessoal, publicado na Seção 2 do DOU.\n(2) Não altera nada do que o app usa: limites de tolerância, graus, anexos da NR-15/NR-16, marcos de vigência, regras do INSS para agentes nocivos, PPP/LTCAT, adicionais ou teses de tribunais. A menção ao art. 303 do Decreto 3.048/99 serve só para fundamentar a competência do ato. Nenhuma atualização é necessária.",
-  "issue": "https://github.com/rograhl75-spec/caracterizador-pericial/issues/41"
+  "issue": "https://github.com/rograhl75-spec/caracterizador-pericial/issues/41",
+  "nota": "Revisado em 26/11/2026: ato de pessoal (dispensa de conselheiro suplente da 5ª Junta do CRPS); cita o Decreto 3.048/99 só no preâmbulo. Não altera a base do app."
  }
 ];
 if (typeof module !== 'undefined') module.exports = {ALERTAS, MONITOR};
