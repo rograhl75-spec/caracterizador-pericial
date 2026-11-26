@@ -1724,12 +1724,16 @@ const brData = d => d ? d.split('-').reverse().join('/') : '—';
 const FONTES_OK = typeof FONTES!=='undefined' ? FONTES : [];
 const ALERTAS_PEND = (typeof ALERTAS!=='undefined' ? ALERTAS : []).filter(a=>a.status==='pendente');
 const fonteNome = id => (FONTES_OK.find(f=>f.id===id)||{}).nome || id;
+/* situação da última verificação automática de cada fonte (gravada pelo robô em dados/alertas.js) */
+function verifAuto(id){ const m=typeof MONITOR!=='undefined'&&MONITOR.fontes&&MONITOR.fontes[id]; if(!m) return 'diária';
+  if(!m.falhas) return '<span class="vauto ok">✓ '+brData(m.ok)+'</span>';
+  return '<span class="vauto falha">sem acesso'+(m.ok?' desde '+brData(m.ok):'')+'</span><small>o site do governo recusou a conexão; nova tentativa a cada 12 h</small>'; }
 function fontesHtml(){
   if(!FONTES_OK.length) return '';
   const pend = id => ALERTAS_PEND.filter(a=>a.fonte===id).length;
-  return '<section class="isec panel fontes"><h2 class="ih">Fontes oficiais e conferência</h2><div class="tscroll"><table class="rt"><thead><tr><th>Fonte</th><th>Versão considerada no app</th><th>Conferida em</th><th>Monitor</th></tr></thead><tbody>'+
-   FONTES_OK.map(f=>'<tr><td>'+(f.url?'<a href="'+esc(f.url)+'" target="_blank" rel="noopener">'+esc(f.nome)+' ↗</a>':esc(f.nome))+'</td><td>'+esc(f.versao)+'</td><td>'+brData(f.conferido)+'</td><td>'+(pend(f.id)?'<span class="chip st-C">'+pend(f.id)+' em revisão</span>':f.monitor?'diário':'auditoria semanal')+'</td></tr>').join('')+
-   '</tbody></table></div><p class="fine">Um monitoramento automático verifica diariamente as páginas oficiais'+(typeof MONITOR!=='undefined'&&MONITOR.ultima?' (última verificação: '+brData(MONITOR.ultima)+')':'')+' e avisa quando surge documento novo. A jurisprudência é revista na auditoria semanal. Nenhuma alteração entra no app sem revisão.</p></section>';
+  return '<section class="isec panel fontes"><h2 class="ih">Fontes oficiais e conferência</h2><div class="tscroll"><table class="rt"><thead><tr><th>Fonte</th><th>Versão considerada no app</th><th>Revisada por especialista</th><th>Verificação automática</th></tr></thead><tbody>'+
+   FONTES_OK.map(f=>'<tr><td>'+(f.url?'<a href="'+esc(f.url)+'" target="_blank" rel="noopener">'+esc(f.nome)+' ↗</a>':esc(f.nome))+'</td><td>'+esc(f.versao)+'</td><td>'+brData(f.conferido)+'</td><td>'+(pend(f.id)?'<span class="chip st-C">'+pend(f.id)+' em revisão</span>':f.monitor?verifAuto(f.id):'revisão semanal')+'</td></tr>').join('')+
+   '</tbody></table></div><p class="fine"><b>Verificação automática</b>: duas vezes por dia um robô abre as páginas oficiais e avisa quando surge documento novo ou o texto muda'+(typeof MONITOR!=='undefined'&&MONITOR.ultima?' (última execução: '+brData(MONITOR.ultima)+')':'')+'. <b>Revisada por especialista</b>: data em que a versão considerada no app foi conferida com a fonte; só muda quando há alteração que afeta o app. Nenhuma alteração entra no app sem essa revisão.</p></section>';
 }
 function renderAlertas(){
   const el=document.getElementById('alertas'); if(!el) return;

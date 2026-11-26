@@ -817,3 +817,5 @@ input[type=date]{min-height:2.6em}
 .anx button{padding:8px 10px; gap:2px}
 .anxsel{display:none; max-width:520px}
 @media (max-width:700px){ .anxsel{display:flex} .anx{display:none} }
+.vauto{font-weight:700; white-space:nowrap} .vauto.ok{color:var(--e)} .vauto.falha{color:var(--n)}
+.fontes td small{display:block; color:var(--muted)}

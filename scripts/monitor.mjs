@@ -242,7 +242,7 @@ if (!DRY && !TESTE) {
     '/* ===== Alertas de alteração em fontes oficiais =====\n' +
     '   Arquivo gravado pelo robô (scripts/monitor.mjs, GitHub Actions). Pode ser editado à mão:\n' +
     "   depois de revisar um alerta, troque status:'pendente' por status:'revisado'. */\n" +
-    `const MONITOR = ${JSON.stringify({ ultima: HOJE })};\n` +
+    `const MONITOR = ${JSON.stringify({ ultima: HOJE, fontes: Object.fromEntries(Object.entries(estado).map(([id, e]) => [id, { ok: e.ok || null, falhas: e.falhas || 0 }])) })};\n` +
     `const ALERTAS = ${JSON.stringify(todos, null, 1)};\n` +
     "if (typeof module !== 'undefined') module.exports = {ALERTAS, MONITOR};\n");
 }
